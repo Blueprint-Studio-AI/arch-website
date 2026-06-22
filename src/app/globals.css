@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+
+  --color-black: #181818;
+  --color-white: #ffffff;
+  --color-light: #f3efd7;
+  --color-dark-purple: #3e3a8e;
+  --color-light-grey: #e9e9e9;
+  --color-grey: #808080;
+  --color-orange: #ec641d;
+  --color-purple: #736fb9;
+
+  --font-sans: var(--font-geist), Arial, sans-serif;
+  --font-serif: var(--font-gascogne), Georgia, serif;
+
+  --container-site: 1300px;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: auto;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-white);
+    color: var(--color-black);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+@utility site-container {
+  width: 92%;
+  max-width: var(--container-site);
+  margin-inline: auto;
+}
+
+@keyframes arch-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nav-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    border-color: var(--color-white);
+  }
+  51%,
+  100% {
+    border-color: transparent;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 20px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .marquee-track,
+  .arch-draw {
+    animation: none !important;
+  }
+  .arch-draw {
+    stroke-dashoffset: 0 !important;
+  }
+}
