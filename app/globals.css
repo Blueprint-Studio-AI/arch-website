@@ -72,17 +72,13 @@ h1{margin-top:24px;line-height:1.04;letter-spacing:-.01em}
 .flist li.on{border-left-color:var(--orange);background:rgba(236,100,29,.12)}
 .flist li.on b{color:var(--orange)}
 
-.scrollcue{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:4;pointer-events:none;
-  font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
-
 /* ============================================================
-   SNAP TRACK  (transparent spacers drive scroll/snap) + placeholder
+   SNAP TRACK  (transparent spacers drive scroll/snap) + below-fold story
    ============================================================ */
 .snaps{position:relative;z-index:0}
 .snap-pt{height:100vh;scroll-snap-align:start}
-.pt--end{height:100vh;position:relative;z-index:3;background:var(--purple);
-  display:flex;align-items:center;justify-content:center}
-.pt--end .ph{font-family:var(--serif);font-size:clamp(28px,4vw,52px);color:rgba(255,255,255,.92)}
+.below{position:relative;z-index:3;background:var(--bg)}
+.below__frame{display:block;width:100%;height:100vh;border:0;background:var(--bg)}
 
 /* ============================================================
    BUTTONS — flat (round 1 final)

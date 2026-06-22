@@ -12,7 +12,7 @@ const SECTIONS: Section[] = [
   },
   {
     h2: "Native tech",
-    body: "What’s built on Arch lives on Bitcoin — same coins, same wallets, same ledger. Making that true took new technology at almost every layer:",
+    body: "What’s built on Arch lives on Bitcoin: same coins, same wallets, same ledger. Making that true took new technology at almost every layer:",
     list: [
       { c: "settle", b: "Direct Bitcoin settlement", lite: "assets are never wrapped" },
       { c: "utxo", b: "UTXO-native execution", lite: "programs run on real UTXOs" },
@@ -39,7 +39,7 @@ const SECTIONS: Section[] = [
   },
   {
     h2: "Finance unlocks",
-    body: "Those primitives compose into real markets — trading, lending, prime brokerage, and more. Swap, Lend, and Prime aren’t bolted together; they’re co-located on one chain so they reinforce each other.",
+    body: "Those primitives compose into real markets. From trading and lending to prime brokerage and more, Arch unlocks a DeFi ecosystem on native Bitcoin. It’s fast, easy to build on, and native all the way down.",
     list: [
       { c: "dexs", b: "DEXs" },
       { c: "lend", b: "Lending & credit" },
@@ -81,6 +81,7 @@ export default function Hero() {
   const rootRef = useRef<HTMLElement>(null);
   const illoRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const belowRef = useRef<HTMLIFrameElement>(null);
   const lastLayer = useRef(0);
   const lastActive = useRef(-1);
   const updateRef = useRef<() => void>(() => {});
@@ -217,9 +218,6 @@ export default function Hero() {
         illoRef.current.style.transform = `translate(${illoXRef.current}px, ${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
         illoRef.current.style.opacity = Math.max(0, Math.min(1, 1 - (t - N))).toFixed(3); // fade out into the placeholder
       }
-
-      const cue = root.querySelector<HTMLElement>(".scrollcue");
-      if (cue) cue.style.opacity = Math.max(0, 1 - t * 3).toFixed(3);
 
       const a = Math.round(t);
       if (a !== lastActive.current) {
@@ -449,9 +447,30 @@ export default function Hero() {
     };
   }, []);
 
+  // Below-fold story is a same-origin iframe; size it to its content so the parent page
+  // (not the iframe) does the scrolling and there's no nested scrollbar.
   useEffect(() => {
-    updateRef.current();
-  }, [steps, stepsM, isMobile, illoX, illoXM]);
+    const ifr = belowRef.current;
+    if (!ifr) return;
+    let ro: ResizeObserver | null = null;
+    const size = () => {
+      try {
+        const h = ifr.contentDocument?.documentElement.scrollHeight;
+        if (h && h > 0) ifr.style.height = h + "px";
+      } catch { /* not ready */ }
+    };
+    const onLoad = () => {
+      size();
+      try {
+        const b = ifr.contentDocument?.body;
+        if (b && "ResizeObserver" in window) { ro = new ResizeObserver(size); ro.observe(b); }
+      } catch { /* not ready */ }
+    };
+    ifr.addEventListener("load", onLoad);
+    window.addEventListener("resize", size);
+    if (ifr.contentDocument?.readyState === "complete") onLoad();
+    return () => { ifr.removeEventListener("load", onLoad); window.removeEventListener("resize", size); ro?.disconnect(); };
+  }, []);
 
   const setLever = (key: "ty" | "gap" | "is", val: number) =>
     (isMobile ? setStepsM : setSteps)((prev) => prev.map((st, i) => (i === active ? { ...st, [key]: val } : st)));
@@ -515,15 +534,13 @@ export default function Hero() {
         ))}
       </div>
 
-      <span className="scrollcue" aria-hidden>scroll ↓</span>
-
       <div className="snaps" aria-hidden>
         {[0, 1, 2, 3, 4].map((i) => (
           <div className="snap-pt" data-i={i} key={i} />
         ))}
       </div>
-      <section className="pt--end" data-i="5">
-        <div className="ph">Placeholder</div>
+      <section className="below">
+        <iframe ref={belowRef} className="below__frame" src="/below/index.html" title="Arch chain — the full story" scrolling="no" />
       </section>
 
       {/* levers tuning panel — hidden for demo; uncomment this block to re-enable
