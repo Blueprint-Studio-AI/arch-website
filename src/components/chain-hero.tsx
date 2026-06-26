@@ -7,20 +7,20 @@ type Section = { h2: string; body: string; list?: Item[] };
 
 const SECTIONS: Section[] = [
   {
-    h2: "How does it work?",
-    body: "Arch is a Bitcoin-native VM, chain, and validator network. Together they execute on Bitcoin UTXOs, and settle assets back to Bitcoin’s ledger.",
+    h2: "How is that possible?",
+    body: "Arch is a chain — a Bitcoin-native VM and validator network.\nTogether they execute on Bitcoin UTXOs and settle back to Bitcoin’s ledger.",
   },
   {
     h2: "Native tech",
     body: "What’s built on Arch lives on Bitcoin: same coins, same wallets, same ledger. Making that true took new technology at almost every layer:",
     list: [
-      { c: "settle", b: "Direct Bitcoin settlement", lite: "assets are never wrapped" },
-      { c: "utxo", b: "UTXO-native execution", lite: "programs run on real UTXOs" },
+      { c: "settle", b: "Direct Bitcoin settlement", lite: "settles on Bitcoin's base layer" },
+      { c: "utxo", b: "UTXO native execution", lite: "programs can own and move UTXOs, not IOUs" },
       { c: "addr", b: "Per-account addresses", lite: "verifiable on any explorer" },
-      { c: "perutxo", b: "Per-account UTXOs", lite: "funds are never pooled" },
-      { c: "taproot", b: "Taproot account model", lite: "works with existing wallets" },
+      { c: "perutxo", b: "Per-account UTXOs", lite: "funds aren't commingled" },
+      { c: "hybrid", b: "Hybrid Account Model", lite: "holds both balances and UTXOs" },
+      { c: "taproot", b: "Taproot Support", lite: "works with existing wallets" },
       { c: "schnorr", b: "Threshold Schnorr (FROST + ROAST)", lite: "no single key ever exists" },
-      { c: "syscall", b: "Native Bitcoin syscalls", lite: "no oracle in between" },
       { c: "vm", b: "Bitcoin-native VM", lite: "Solana’s eBPF, rebuilt on UTXOs" },
       { c: "dpos", b: "Fast dPoS consensus", lite: "180ms blocks, 1,500 TPS" },
     ],
@@ -30,7 +30,7 @@ const SECTIONS: Section[] = [
     body: "Speed, reliability, and general programmability become financial infrastructure on Bitcoin. Pooling on real UTXOs enables AMMs, oracle feeds enable collateral enforcement, and safe lending carries credit, perps, and structured products.",
     list: [
       { c: "pools", b: "Pooled liquidity" },
-      { c: "oracle", b: "Oracle price feeds" },
+      { c: "oracle", b: "Real-time oracle feeds" },
       { c: "collateral", b: "Collateral enforcement" },
       { c: "liquidation", b: "Liquidation engine" },
       { c: "issuance", b: "Token issuance" },
@@ -494,10 +494,10 @@ export default function Hero() {
         <div className="panel" data-i="0" style={{ top: `${activeSteps[0].ty}vh` }}>
           <span className="chip"><i className="dot" />Testnet live · mainnet 2026</span>
           <h1>
-            <span className="h1-pre">The financial network for</span>
+            <span className="h1-pre">The financial chain for</span>
             <span className="h1-serif">Native Bitcoin</span>
           </h1>
-          <p className="sub">Real Bitcoin, made programmable.<br />No wrapping. No migration.</p>
+          <p className="sub">DeFi that actually works.</p>
           <div className="btns">
             <a className="btn btn--primary" href="#">See how it works <span className="ar">↓</span></a>
             <a className="btn btn--ghost" href="#">Read the docs</a>
@@ -507,7 +507,7 @@ export default function Hero() {
         {SECTIONS.map((sec, idx) => (
           <div className="panel panel--sec" data-i={idx + 1} key={idx} style={{ top: `${activeSteps[idx + 1].ty}vh` }}>
             <h2>{sec.h2}</h2>
-            <p className="body">{sec.body}</p>
+            <p className="body" style={{ whiteSpace: "pre-line", textWrap: "pretty" }}>{sec.body}</p>
             {sec.list && (
               <ul className="flist">
                 {sec.list.map((it) => (

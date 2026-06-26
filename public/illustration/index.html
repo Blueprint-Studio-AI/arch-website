@@ -599,6 +599,7 @@
     addr:    {hot:['g-addr'], anchor:'g-addr', t:'Per-account Bitcoin addresses', b:'Every balance is verifiable on any Bitcoin explorer.'},
     perutxo: {hot:['g-perutxo'], anchor:'g-perutxo', t:'Per-account UTXOs', b:'Funds are never pooled into one wallet.'},
     taproot: {hot:['pipeR','g-walletconn','g-cards','g-addr'], keep:['g-perutxo'], anchor:'g-cards', t:'Taproot account model', b:'Compatible with existing Bitcoin wallets.'},
+    hybrid:  {hot:['g-cards','g-perutxo','g-addr'], anchor:'g-cards', t:'Hybrid Account Model', b:'Accounts and programs hold both Arch-native balances and Bitcoin UTXOs.'},
     schnorr: {hot:['g-schnorr','g-valbus'], anchor:'g-schnorr', t:'Threshold Schnorr signing', b:'FROST + ROAST: no single key ever exists, signing never stalls.'},
     syscall: {dir:'in', anchor:'g-vm', t:'Native Bitcoin syscalls', b:'Programs read and write Bitcoin directly, no oracle in between.'},
     vm:      {flow:true, anchor:'g-vm', t:'Bitcoin-native VM', b:'Solana’s proven eBPF engine, forked and rebuilt around UTXOs.'},
