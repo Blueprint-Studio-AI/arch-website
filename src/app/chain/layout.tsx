@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Nav } from "@/components/nav";
+import { SiteFooter } from "@/components/site-footer";
 import "./chain.css";
 
 export const metadata: Metadata = {
@@ -18,5 +20,11 @@ export const metadata: Metadata = {
 export default function ChainLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="chain-scope">{children}</div>;
+  return (
+    <>
+      <Nav lightHero />
+      <div className="chain-scope">{children}</div>
+      <SiteFooter variant="home" />
+    </>
+  );
 }

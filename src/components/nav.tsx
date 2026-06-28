@@ -10,7 +10,7 @@ const navIn = (i: number) => ({
   animation: `nav-in 0.6s ease-out ${0.15 + i * 0.12}s both`,
 });
 
-export function Nav() {
+export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,7 +28,8 @@ export function Nav() {
   }, []);
 
   const dark = scrolled || menuOpen;
-  const linkColor = dark ? "text-black" : "text-white";
+  const darkText = dark || lightHero;
+  const linkColor = darkText ? "text-black" : "text-white";
 
   function NavLink({ link, onClick, big }: { link: (typeof NAV_LINKS)[number]; onClick?: () => void; big?: boolean }) {
     const cls = `whitespace-nowrap ${big ? "text-[20px]" : "text-xs"} transition-colors duration-200 ${linkColor}`;
@@ -83,7 +84,7 @@ export function Nav() {
             target={cta.href.startsWith("http") ? "_blank" : undefined}
             rel={cta.href.startsWith("http") ? "noopener noreferrer" : undefined}
             className={`rounded-xl border px-5 py-2 text-xs transition-colors duration-400 hover:border-dark-purple hover:bg-dark-purple hover:text-white ${
-              dark ? "border-black text-black" : "border-white text-white"
+              darkText ? "border-black text-black" : "border-white text-white"
             }`}
           >
             {cta.label}
@@ -97,9 +98,9 @@ export function Nav() {
           onClick={() => setMenuOpen((v) => !v)}
           className="relative z-10 flex h-8 w-8 flex-col items-center justify-center gap-1 md:hidden"
         >
-          <span className={`block h-0.5 w-5 transition-all duration-300 ${dark ? "bg-black" : "bg-white"} ${menuOpen ? "translate-y-[6px] rotate-45" : ""}`} />
-          <span className={`block h-0.5 w-5 transition-all duration-300 ${dark ? "bg-black" : "bg-white"} ${menuOpen ? "opacity-0" : ""}`} />
-          <span className={`block h-0.5 w-5 transition-all duration-300 ${dark ? "bg-black" : "bg-white"} ${menuOpen ? "-translate-y-[6px] -rotate-45" : ""}`} />
+          <span className={`block h-0.5 w-5 transition-all duration-300 ${darkText ? "bg-black" : "bg-white"} ${menuOpen ? "translate-y-[6px] rotate-45" : ""}`} />
+          <span className={`block h-0.5 w-5 transition-all duration-300 ${darkText ? "bg-black" : "bg-white"} ${menuOpen ? "opacity-0" : ""}`} />
+          <span className={`block h-0.5 w-5 transition-all duration-300 ${darkText ? "bg-black" : "bg-white"} ${menuOpen ? "-translate-y-[6px] -rotate-45" : ""}`} />
         </button>
       </div>
 
