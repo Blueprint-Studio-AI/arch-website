@@ -187,9 +187,17 @@
     for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent)parent.appendChild(e); return e; }
   function pts(arr){ return arr.map(function(p){return p[0].toFixed(2)+','+p[1].toFixed(2);}).join(' '); }
 
-  var COL = { t:'#ffffff', e:'#eae7d6', s:'#dcd8c4' };
-  var COLB = { t:'#f4f1de', e:'#e2decb', s:'#d3cfba' };   // substrates
-  var COLO = { t:'#ec641d', e:'#cf5418', s:'#b84a14' };   // orange
+  // ?dark=1 → recolour for a dark page: substrate darker, elements lighter, orange unchanged,
+  // flat faces (no shading variance, so no inverted "uplight" look) + light strokes. Opt-in, so
+  // /chain (no param) renders exactly as before.
+  var DARK = new URLSearchParams(location.search).get('dark')==='1';
+  if(DARK) document.documentElement.style.setProperty('--line','rgba(255,255,255,.26)');
+  var COL  = DARK ? { t:'#ced2d9', e:'#ced2d9', s:'#ced2d9' } : { t:'#ffffff', e:'#eae7d6', s:'#dcd8c4' };  // elements on top — lighter, flat
+  var COLB = DARK ? { t:'#2e313a', e:'#2e313a', s:'#2e313a' } : { t:'#f4f1de', e:'#e2decb', s:'#d3cfba' };   // substrate — darker, flat
+  var COLO = { t:'#ec641d', e:'#cf5418', s:'#b84a14' };   // orange — unchanged in both modes
+  // hardcoded light surfaces that also need to follow dark mode (else they read as warm cream patches)
+  var COLPLATE = DARK ? { t:'#383c45', e:'#383c45', s:'#383c45' } : { t:'#e9e5d2', e:'#d8d4c0', s:'#cbc7b2' };  // treemap "next block" plate
+  var COLCARD  = DARK ? { t:'#33373f', e:'#33373f', s:'#33373f' } : { t:'#f4f1de', e:'#e2decb', s:'#d3cfba' };  // wallet cards (layer 2)
   // the Arch mark (681×496 viewBox), reused on every ArchVM top face
   var ARCHLOGO='<g fill="#ffffff"><path d="M486.886 496.312H464.224C461.851 496.312 459.624 495.102 458.365 493.068L348.93 317.09C346.363 312.974 342.344 312.537 340.746 312.537C339.148 312.537 335.081 312.974 332.563 317.09L223.128 493.068C221.869 495.102 219.642 496.312 217.269 496.312H194.607C189.183 496.312 185.891 490.356 188.748 485.756L304.526 299.657C312.37 287.017 325.929 279.511 340.795 279.511C355.66 279.511 369.219 287.017 377.063 299.657L492.841 485.756C495.699 490.356 492.406 496.312 486.982 496.312H486.886Z"/><path d="M548.962 496.322H526.299C523.924 496.322 521.7 495.112 520.439 493.078L355.367 227.658C352.074 222.379 346.699 219.377 340.501 219.377C334.303 219.377 328.879 222.379 325.635 227.658L160.563 493.078C159.304 495.112 157.076 496.322 154.703 496.322H132.042C126.619 496.322 123.326 490.366 126.183 485.765L297.55 210.224C306.847 195.261 322.875 186.35 340.501 186.35C349.314 186.35 357.691 188.578 365.1 192.694C372.46 196.811 378.803 202.767 383.452 210.224L554.817 485.765C557.678 490.366 554.381 496.322 548.962 496.322Z"/><path d="M610.939 496.315H588.275C585.905 496.315 583.677 495.105 582.416 493.071L361.755 138.209C357.01 130.606 349.165 126.247 340.207 126.247C331.249 126.247 323.405 130.606 318.66 138.209L97.9977 493.071C96.7387 495.105 94.5114 496.315 92.1387 496.315H69.4768C64.0533 496.315 60.7604 490.359 63.6178 485.758L290.622 120.727C301.13 103.827 319.143 93.5604 338.997 93.173C359.915 92.737 379.381 103.875 390.47 121.647L616.894 485.71C619.751 490.31 616.459 496.267 611.035 496.267L610.939 496.315Z"/><path d="M673.011 496.313H650.352C647.977 496.313 645.749 495.102 644.493 493.068L368.192 48.7644C361.995 38.7888 351.728 33.0746 339.962 33.0746C328.195 33.0746 317.93 38.7888 311.732 48.7644L35.4328 493.068C34.1738 495.102 31.9462 496.313 29.5735 496.313H6.91182C1.48849 496.313 -1.80435 490.357 1.05258 485.756L283.695 31.2829C295.897 11.719 316.913 0 340.01 0C363.108 0 384.124 11.6706 396.326 31.2829L678.966 485.756C681.828 490.357 678.531 496.313 673.112 496.313H673.011Z"/></g>';
 
@@ -252,6 +260,13 @@
 
   /* uniform substrate for every layer */
   var SL={x:3,y:2,w:28,d:20,h:1.6};
+
+  /* =================  LAYER STACK — LEVER  =================
+     z-units between each stacked layer slab. Lower = the whole layer cake is shorter and the
+     dimmed layers sit closer together (less vertical space). Drives Z2/Z3/Z4 + the camera step. */
+  var LAYER_GAP = 6;
+  /* ======================================================== */
+
   function substrate(parent,z,name){
     box(parent,{x:SL.x,y:SL.y,w:SL.w,d:SL.d,h:SL.h,z:z,c:COLB});
     subLabel(parent,SL,z,name);
@@ -332,7 +347,7 @@
   var dotsLayer=el('g',{},L1f);
 
   // treemap — the currently-filling Bitcoin block: plate with its name on the thickness
-  box(L1f,{x:19,y:9.5,w:11,d:11,h:1,z:g1,c:{t:'#e9e5d2',e:'#d8d4c0',s:'#cbc7b2'}});   // square plate
+  box(L1f,{x:19,y:9.5,w:11,d:11,h:1,z:g1,c:COLPLATE});   // square plate
   var tmName=el('text',{'class':'subname',style:'font-size:9px',
     transform:'matrix(0.866,0.5,0,1,'+P(19.1,20.5,g1+.1)[0].toFixed(2)+','+P(19.1,20.5,g1+.1)[1].toFixed(2)+')'},L1f);
   tmName.textContent='Next block';
@@ -380,7 +395,7 @@
   /* the hand sketch, re-projected to iso: validator mesh (left) → ArchVM (centre) → wallets (right);
      six Bitcoin pipes drop out of the VM underside toward layer 1. Every highlightable piece is a
      top-level group tagged .l2el so the focus-dim (in L2STATES/applyL2) can isolate it. */
-  var Z2=8, bz=Z2+SL.h;
+  var Z2=LAYER_GAP, bz=Z2+SL.h;
   var L2=el('g',{'class':'layer hid',id:'L2'},world);
   var L2f=el('g',{'class':'lift'},L2);
   substrate(L2f,Z2,'Native tech');
@@ -509,7 +524,7 @@
   var gAddrs=el('g',{'class':'l2el',id:'g-addr'},L2f);             // per-account addresses
   for(var wi=0;wi<WAL_N;wi++){
     var wx=WAL_X, wy=WAL_Y+wi*WAL_SY;
-    box(gCards,{x:wx,y:wy,w:wCardW,d:wCardD,h:WAL_CARD_H,z:bz,c:{t:'#f4f1de',e:'#e2decb',s:'#d3cfba'}});
+    box(gCards,{x:wx,y:wy,w:wCardW,d:wCardD,h:WAL_CARD_H,z:bz,c:COLCARD});
     for(var uj=0;uj<WAL_UTXO_N;uj++)
       box(gUTXOacc,{x:wx+WAL_PAD+uj*(WAL_UTXO+WAL_GAP),y:wy+WAL_PAD,w:WAL_UTXO,d:WAL_UTXO,h:WAL_UTXO_H,z:wTop,c:COL});
     // address lying flat on the card, below the UTXOs, reading −x → +x
@@ -525,6 +540,12 @@
     el('path',{d:d,'class':'wire'},gWalletConn); }
   wtrace([VMR,VMcy],[wbusX,VMcy]);
   for(var wj=0;wj<WAL_N;wj++){ var wcy=WAL_Y+wj*WAL_SY+wCardD/2; wtrace([wbusX,VMcy],[wbusX,wcy],[WAL_X+0.4,wcy]); }
+
+  /* =================  FINANCIAL PRIMITIVES — LEVERS  =================
+     nudge the whole primitives board around on its slab to taste.
+     +x = down-right · +y = down-left (grid units). The hover dots move with it. */
+  var PRIM_DX = -0.1, PRIM_DY = -0.1;
+  /* ================================================================== */
 
   /* ---- the NEW Financial Primitives layer: 6 plumbing modules. Built from the old
          product-tile vocabulary (low module-block + a glyph on top), each a hover-selectable
@@ -543,52 +564,86 @@
     PRIMS.sort(function(a,b){ return (a.x+a.y)-(b.x+b.y); });   // append back-to-front (iso occlusion)
     PRIMS.forEach(function(p){
       var g=el('g',{'class':'comp',id:'comp-'+p.id,'data-cb':'comp-'+p.id},parent);
-      box(g,{x:p.x,     y:p.y,     w:5.2, d:4.4, h:.5,  z:bz,    c:CARD});   // base card
-      box(g,{x:p.x+1.2, y:p.y+1.0, w:2.8, d:2.4, h:1.2, z:bz+.5, c:BLK});    // raised component
-      onTop(g, p.x+1.45, p.y+1.2, bz+1.7, 2.2, 24, p.g);                     // glyph on top
+      box(g,{x:p.x+PRIM_DX,     y:p.y+PRIM_DY,     w:5.2, d:4.4, h:.5,  z:bz,    c:CARD});   // base card
+      box(g,{x:p.x+PRIM_DX+1.2, y:p.y+PRIM_DY+1.0, w:2.8, d:2.4, h:1.2, z:bz+.5, c:BLK});    // raised component
+      onTop(g, p.x+PRIM_DX+1.45, p.y+PRIM_DY+1.2, bz+1.7, 2.2, 24, p.g);                     // glyph on top
     });
   }
 
   /* ============ LAYER 3 — financial primitives (plumbing, z 16) ============ */
-  var Z3=16, cz=Z3+SL.h;
+  var Z3=2*LAYER_GAP, cz=Z3+SL.h;
   var L3=el('g',{'class':'layer hid',id:'L3'},world);
   var L3f=el('g',{'class':'lift'},L3);
   substrate(L3f,Z3,'Financial primitives');
   buildPrimitives(L3f, cz);
 
   /* ============ LAYER 4 — finance city (apps / markets, z 24, now on TOP) ============ */
-  var Z4=24, cz4=Z4+SL.h;
+  var Z4=3*LAYER_GAP, cz4=Z4+SL.h;
   var L4=el('g',{'class':'layer hid',id:'L4'},world);
   var L4f=el('g',{'class':'lift'},L4);
   substrate(L4f,Z4,'Finance unlocks');
+  /* =================  LAYER 4 BUILDINGS — LEVERS  =================
+     Per-building nudge across the substrate surface, in grid units. +x = down-right · +y = down-left.
+     Each entry moves both the building (placed in city.js) AND its hover dot (CALLOUTS below)
+     together, so they stay locked. Dial any building to fine-tune the skyline. */
+  window.BUILDING_NUDGE = {
+    // named market buildings (these also carry hover dots)
+    lend:    { x: 0, y: 0 },
+    dexs:    { x: 0, y: 0 },
+    prime:   { x: 0, y: 0.8 },   // the tall central tower
+    vaults:  { x: 0, y: 0 },
+    stables: { x: 0, y: 0 },
+    looping: { x: 0, y: 0 },
+    rwas:    { x: 0, y: 0 },
+    // filler skyline buildings (no hover dots) — see city.js for which is which
+    f1:  { x: 0, y: 0 },   // back-left tower
+    f2:  { x: 0, y: 0 },   // tall tower beside Prime
+    f3:  { x: 0, y: 0 },   // back-right tower
+    f4:  { x: 0, y: 0 },   // right tower
+    f5:  { x: 0, y: 0 },   // mid block
+    f6:  { x: 0, y: 0 },   // front mid block
+    f7:  { x: 0, y: 0 },   // front-right
+    f8:  { x: 0, y: 0 },   // low industrial shed
+    f9:  { x: 0, y: 0 },   // low front block
+    f10: { x: 0, y: 0 }    // low front block
+  };
+  /* =============================================================== */
   /* the city is now the top layer: the apps / markets built on the primitives below.
      buildings + names unchanged — only the base z moved up one slab (cz -> cz4). */
   buildFinanceCity(L4f, cz4);
   var tiles=[];   // kept (empty) so the frame() bob loop stays safe after the tiles were retired
 
   /* ============ callout dots (layers 3 & 4; layer 2 uses the L2STATES highlight system) ============ */
+  var BN=window.BUILDING_NUDGE||{};
+  function bn(id){ return BN[id]||{x:0,y:0}; }   // per-building nudge — keeps each dot on its moved building
   var CALLOUTS={
-    // L3 — financial primitives (the plumbing). Anchors sit over each module's glyph.
-    pools:       {l:3,a:[9.0,8.0,cz+2.0],    t:'Pooled liquidity', b:'Pooling on real UTXOs enables AMMs — deep markets in the actual coin.'},
-    oracle:      {l:3,a:[17.0,8.0,cz+2.0],   t:'Oracle price feeds', b:'Live prices on-chain, read on every state change — not on a schedule.'},
-    collateral:  {l:3,a:[25.0,8.0,cz+2.0],   t:'Collateral enforcement', b:'Native BTC locked under threshold scripts. No wrapped IOU, no custodian.'},
-    liquidation: {l:3,a:[9.0,16.0,cz+2.0],   t:'Liquidation engine', b:'Breach to settled in one atomic bundle, price locked at signing.'},
-    issuance:    {l:3,a:[17.0,16.0,cz+2.0],  t:'Token issuance', b:'Mint native assets — stablecoins, RWAs, vault shares.'},
-    risk:        {l:3,a:[25.0,16.0,cz+2.0],  t:'Risk & margin', b:'Every position monitored and cleared mechanically inside the stack.'},
+    // L3 — financial primitives (the plumbing). Anchors sit over each module's glyph; PRIM_DX/DY keeps them on the board.
+    pools:       {l:3,a:[9.0+PRIM_DX,8.0+PRIM_DY,cz+2.0],    t:'Pooled liquidity', b:'Pooling on real UTXOs enables AMMs — deep markets in the actual coin.'},
+    oracle:      {l:3,a:[17.0+PRIM_DX,8.0+PRIM_DY,cz+2.0],   t:'Oracle price feeds', b:'Live prices on-chain, read on every state change — not on a schedule.'},
+    collateral:  {l:3,a:[25.0+PRIM_DX,8.0+PRIM_DY,cz+2.0],   t:'Collateral enforcement', b:'Native BTC locked under threshold scripts. No wrapped IOU, no custodian.'},
+    liquidation: {l:3,a:[9.0+PRIM_DX,16.0+PRIM_DY,cz+2.0],   t:'Liquidation engine', b:'Breach to settled in one atomic bundle, price locked at signing.'},
+    issuance:    {l:3,a:[17.0+PRIM_DX,16.0+PRIM_DY,cz+2.0],  t:'Token issuance', b:'Mint native assets — stablecoins, RWAs, vault shares.'},
+    risk:        {l:3,a:[25.0+PRIM_DX,16.0+PRIM_DY,cz+2.0],  t:'Risk & margin', b:'Every position monitored and cleared mechanically inside the stack.'},
     // L4 — finance city (apps / markets built on the primitives). Same buildings, elevated to cz4.
-    dexs:    {l:4,a:[5.96,13.45,cz4+3.21], t:'DEXs', b:'Deep markets in the actual coin, built on UTXO-native pools.'},
-    looping: {l:4,a:[15.14,17.1,cz4+1.44], t:'Looping', b:'Leverage from lend + swap in one atomic transaction.'},
-    lend:    {l:4,a:[7.56,5.66,cz4+4.42], t:'Lending & credit', b:'Pooled deposits, enforced collateral, liquidations in seconds.'},
-    prime:   {l:4,a:[13.06,7.06,cz4+5.86], t:'Prime brokerage', b:'One account margining everything.'},
-    vaults:  {l:4,a:[12.0,12.72,cz4+2.62], t:'Vaults', b:'Deposited capital auto-deployed across strategies.'},
-    stables: {l:4,a:[22.37,5.78,cz4+2.7], t:'Stablecoins', b:'Minted against BTC collateral, or issued 1:1.'},
-    rwas:    {l:4,a:[21.54,12.95,cz4+2.13], t:'RWAs', b:'Treasuries and funds as tokens with transfer rules.'}
+    dexs:    {l:4,a:[5.96+bn('dexs').x,13.45+bn('dexs').y,cz4+3.21], t:'DEXs', b:'Deep markets in the actual coin, built on UTXO-native pools.'},
+    looping: {l:4,a:[15.14+bn('looping').x,17.1+bn('looping').y,cz4+1.44], t:'Looping', b:'Leverage from lend + swap in one atomic transaction.'},
+    lend:    {l:4,a:[7.56+bn('lend').x,5.66+bn('lend').y,cz4+4.42], t:'Lending & credit', b:'Pooled deposits, enforced collateral, liquidations in seconds.'},
+    prime:   {l:4,a:[13.06+bn('prime').x,7.06+bn('prime').y,cz4+5.86], t:'Prime brokerage', b:'One account margining everything.'},
+    vaults:  {l:4,a:[12.0+bn('vaults').x,12.72+bn('vaults').y,cz4+2.62], t:'Vaults', b:'Deposited capital auto-deployed across strategies.'},
+    stables: {l:4,a:[22.37+bn('stables').x,5.78+bn('stables').y,cz4+2.7], t:'Stablecoins', b:'Minted against BTC collateral, or issued 1:1.'},
+    rwas:    {l:4,a:[21.54+bn('rwas').x,12.95+bn('rwas').y,cz4+2.13], t:'RWAs', b:'Treasuries and funds as tokens with transfer rules.'}
   };
 
+  /* =================  ORANGE DOTS — LEVER (L3 only)  =================
+     shift the financial-primitives callout dots. DOT_DX: negative = left, positive = right.
+     DOT_DY: negative = up, positive = down (screen px). The callout card follows too.
+     (Layers 2 & 4 are unaffected.) */
+  var DOT_DX = 20, DOT_DY = 25;
+  /* =================================================================== */
   var dotLayers={2:el('g',{'class':'dots',id:'dots2'},world),
-                 3:el('g',{'class':'dots',id:'dots3'},world),
+                 3:el('g',{'class':'dots',id:'dots3',transform:'translate('+DOT_DX+','+DOT_DY+')'},world),
                  4:el('g',{'class':'dots',id:'dots4'},world)};
-  function WS(n){return -150+(n-1)*96;}   // world shift: keeps the active layer vertically centered
+  function WS(n){return -150+(n-1)*LAYER_GAP*KZ;}   // world shift: keeps the active layer vertically centered (step scales with LAYER_GAP)
   var selected=null;try{parent.postMessage({arch:"clear"},"*");}catch(e){}
   var card=document.getElementById('card');
 
@@ -656,7 +711,7 @@
     // L3 city: dim the rest of the district to focus the hovered building
     if(c.l===3||c.l===4) document.querySelectorAll('#L'+c.l+' [data-cb]').forEach(function(w){ w.style.opacity=(w.getAttribute('data-cb')==='comp-'+id)?'':'0.4'; });
     // callout card (re-added; positioned at the projected anchor)
-    if(card){ var p=P.apply(null,c.a), sx=p[0]-VBX, sy=p[1]-VBY+WS(state);
+    if(card){ var p=P.apply(null,c.a), sx=p[0]-VBX+(c.l===3?DOT_DX:0), sy=p[1]-VBY+WS(state)+(c.l===3?DOT_DY:0);
       card.querySelector('.t').textContent=c.t; card.querySelector('.b').textContent=c.b;
       if(sx>430){ card.style.left=(sx-238)+'px'; card.classList.add('flip'); } else { card.style.left=(sx+16)+'px'; card.classList.remove('flip'); }
       card.style.top=(sy-22)+'px'; card.style.opacity=1; }
@@ -760,37 +815,50 @@
   /* ============ motion ============ */
   function tr(g,ux,uy){ g.setAttribute('transform','translate('+((ux-uy)*CX).toFixed(2)+','+((ux+uy)*CY).toFixed(2)+')'); }
   var t0=performance.now();
+  // ---- perf throttle ----
+  // The ambient motion is all slow drift, so cap the loop to ~30fps — it halves the SVG churn with
+  // no perceptible change. Bump FPS back toward 60 if you ever want it smoother. (rAF still runs every
+  // tick; we just skip the redraw work in between.)
+  var FPS=30, FRAME_MS=1000/FPS, lastDraw=0;
   function frame(now){
+    requestAnimationFrame(frame);
+    if(now-lastDraw < FRAME_MS) return;
+    lastDraw=now;
     var t=(now-t0)/1000;
-    var ob=((t%TM_CYCLE)/TM_CYCLE)*BSP;   // one block-slot per treemap cycle — synced to the seal
-    tr(gBtc, -ob, 0);                      // bitcoin crawl, leftward away
-    // each block emerges orange from NEXT BLOCK and settles to white as it ages west
-    btcSegs.forEach(function(s){ s.o.setAttribute('opacity', Math.max(0,Math.min(1,(s.x0-ob-13)/4)).toFixed(2)); });
-    // Arch's chain — fast westward crawl, looping by one (tiny) block-space
-    var oa=(t*1.9)%ASPC;
-    tr(gArch, -oa, 0);
-    // VM thinking lights — pulse in sequence
-    vmLights.forEach(function(l,i){
-      var v=Math.max(0, Math.sin(t*3 - i*0.9));
-      l.setAttribute('opacity',(0.15+0.85*v).toFixed(2));
-    });
-    // next block: gentle orderly fill -> brief hold -> seal (all at once) -> refill immediately
-    var ct=t%TM_CYCLE;
-    tmSquares.forEach(function(sq){
-      var o;
-      if(ct<sq.appear) o=0;
-      else if(ct<TM_CONSO){ var x=Math.min(1,(ct-sq.appear)/0.32); o=x*x*(3-2*x); }   // gentle ease-in, hold full
-      else o=Math.max(0,1-(ct-TM_CONSO)/0.4);   // seal: fade out together
-      sq.g.setAttribute('opacity', o.toFixed(2));
-    });
-    // VM→block dots: a steady metronome dropping south from the VM, never pausing through seal/refill
-    dots.forEach(function(d){
-      var ph=((ct-(d.arrival-DTRAVEL))%TM_CYCLE+TM_CYCLE)%TM_CYCLE;
-      if(ph<=DTRAVEL){ var p=ph/DTRAVEL;
-        tr(d.g,0,(DTGY-DLY)*p);
-        d.g.setAttribute('opacity',(p<.2?p/.2:p>.85?(1-p)/.15:1).toFixed(2));
-      } else d.g.setAttribute('opacity',0);
-    });
+    // Layer 1's treemap fill + chain crawls are by far the heaviest part of the loop. Once you've
+    // climbed to layers 3–4 it's just a small dimmed backdrop, so freeze it there and skip all that
+    // per-frame work; it resumes instantly the moment you scroll back down. (state 0 = hero, still L1.)
+    if(state<=2){
+      var ob=((t%TM_CYCLE)/TM_CYCLE)*BSP;   // one block-slot per treemap cycle — synced to the seal
+      tr(gBtc, -ob, 0);                      // bitcoin crawl, leftward away
+      // each block emerges orange from NEXT BLOCK and settles to white as it ages west
+      btcSegs.forEach(function(s){ s.o.setAttribute('opacity', Math.max(0,Math.min(1,(s.x0-ob-13)/4)).toFixed(2)); });
+      // Arch's chain — fast westward crawl, looping by one (tiny) block-space
+      var oa=(t*1.9)%ASPC;
+      tr(gArch, -oa, 0);
+      // VM thinking lights — pulse in sequence
+      vmLights.forEach(function(l,i){
+        var v=Math.max(0, Math.sin(t*3 - i*0.9));
+        l.setAttribute('opacity',(0.15+0.85*v).toFixed(2));
+      });
+      // next block: gentle orderly fill -> brief hold -> seal (all at once) -> refill immediately
+      var ct=t%TM_CYCLE;
+      tmSquares.forEach(function(sq){
+        var o;
+        if(ct<sq.appear) o=0;
+        else if(ct<TM_CONSO){ var x=Math.min(1,(ct-sq.appear)/0.32); o=x*x*(3-2*x); }   // gentle ease-in, hold full
+        else o=Math.max(0,1-(ct-TM_CONSO)/0.4);   // seal: fade out together
+        sq.g.setAttribute('opacity', o.toFixed(2));
+      });
+      // VM→block dots: a steady metronome dropping south from the VM, never pausing through seal/refill
+      dots.forEach(function(d){
+        var ph=((ct-(d.arrival-DTRAVEL))%TM_CYCLE+TM_CYCLE)%TM_CYCLE;
+        if(ph<=DTRAVEL){ var p=ph/DTRAVEL;
+          tr(d.g,0,(DTGY-DLY)*p);
+          d.g.setAttribute('opacity',(p<.2?p/.2:p>.85?(1-p)/.15:1).toFixed(2));
+        } else d.g.setAttribute('opacity',0);
+      });
+    }
     // ArchVM interior — UTXOs merge/split/blink while the shell is x-rayed (UTXO-native execution)
     if(gVMwrap.classList.contains('xray')){
       coreCubes.forEach(function(c,i){
@@ -799,18 +867,19 @@
         c.g.setAttribute('opacity', (Math.sin(t*1.6+i*1.7)>-0.3?1:0.12).toFixed(2));
       });
     }
-    // Bitcoin cables — data cubes bounce end-to-end with an eased turnaround (no hard reset), phased per cable
-    waveCubes.forEach(function(w){
-      var ph=t*WAVE_SPEED + w.off; ph-=Math.floor(ph);            // [0,1)
-      var L=1-Math.abs(1-2*ph), S=0.5-0.5*Math.cos(2*Math.PI*ph); // linear bounce vs eased bounce
-      tr(w.g, 0, ((1-WAVE_EASE)*L + WAVE_EASE*S)*waveTravel);
-      var dir=WAVE_DIR[selected];                                 // directional reveal for settle / syscall
-      if(dir && dir.pipes.indexOf(w.pi)>=0){
-        w.g.style.opacity = ((ph<0.5)===dir.away) ? 1 : 0;        // visible only on the matching half of the trip
-      } else { w.g.style.opacity=''; }                            // otherwise hand opacity back to CSS
-    });
+    // Bitcoin cables live on layer 2 — skip them while L2 is hidden (state<2, fully transparent anyway).
+    if(state>=2){
+      waveCubes.forEach(function(w){
+        var ph=t*WAVE_SPEED + w.off; ph-=Math.floor(ph);            // [0,1)
+        var L=1-Math.abs(1-2*ph), S=0.5-0.5*Math.cos(2*Math.PI*ph); // linear bounce vs eased bounce
+        tr(w.g, 0, ((1-WAVE_EASE)*L + WAVE_EASE*S)*waveTravel);
+        var dir=WAVE_DIR[selected];                                 // directional reveal for settle / syscall
+        if(dir && dir.pipes.indexOf(w.pi)>=0){
+          w.g.style.opacity = ((ph<0.5)===dir.away) ? 1 : 0;        // visible only on the matching half of the trip
+        } else { w.g.style.opacity=''; }                            // otherwise hand opacity back to CSS
+      });
+    }
     tiles.forEach(function(tg,i){ tg.setAttribute('transform','translate(0,'+(Math.sin(t*1.4+i*1.3)*3).toFixed(2)+')'); });
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 })();

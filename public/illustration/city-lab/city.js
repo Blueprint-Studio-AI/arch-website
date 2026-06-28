@@ -43,21 +43,29 @@ function buildFinanceCity(parent, baseZ){
     cyl(p,{cx:0.4,cy:0.4,r:0.5,h:0.4,z:0.3,c:TREEc}); cyl(p,{cx:0.4,cy:0.4,r:0.34,h:0.4,z:0.62,c:TREEc}); cyl(p,{cx:0.4,cy:0.4,r:0.18,h:0.36,z:0.92,c:TREEc}); }
 
   var objs=[]; function add(gx,gy,k,fn){ objs.push([gx,gy,k,fn]); }
-  // HERO buildings
-  add(5.5,4.0,0.85,build_lend); add(4.0,12.0,0.85,build_dexs); add(12.0,6.0,0.48,build_prime);
-  add(10.0,11.0,0.86,build_vaults); add(20.5,4.5,0.85,build_stables); add(13.5,15.5,0.80,build_looping);
-  add(19.5,11.5,0.85,build_rwas);
-  // FILLER buildings — varied heights for skyline rhythm (tall back towers -> low front blocks; all below Prime)
-  add(2.6, 4.8, 0.85,function(p){fbox(p,2.0,1.9,4.6,FILL1,1);});   // back-left tower
-  add(14.6,4.2, 0.85,function(p){fbox(p,1.5,1.9,5.0,FILL2,1);});   // tall tower beside Prime
-  add(18.2,6.6, 0.85,function(p){fbox(p,1.3,1.3,3.6,FILL1,1);});   // back-right tower
-  add(25.6,10.8,0.85,function(p){fbox(p,1.9,1.9,4.2,FILL2,1);});   // right tower
-  add(14.9,6.4, 0.85,function(p){fbox(p,1.4,1.4,2.0,GREYB,1);});   // mid block
-  add(8.6, 18.4,0.85,function(p){fbox(p,1.5,1.5,2.6,GREYB,1);});   // front mid block
-  add(26.2,16.6,0.85,function(p){fbox(p,1.3,1.3,3.0,FILL2,1);});   // front-right
-  add(24.6,5.6, 0.85,function(p){fbox(p,2.2,2.4,1.3,GREYB,0);});   // low industrial shed
-  add(3.2, 17.4,0.85,function(p){fbox(p,2.3,1.7,1.2,FILL1,0);});   // low front block
-  add(22.2,16.2,0.85,function(p){fbox(p,1.9,2.1,1.5,FILL1,1);});   // low front block
+  // Per-building nudge — single source of truth lives in index.html (window.BUILDING_NUDGE); falls
+  // back to no-nudge when this runs standalone (district.html). +x = down-right · +y = down-left.
+  var BN=(typeof window!=='undefined'&&window.BUILDING_NUDGE)||{};
+  function bn(id){ return BN[id]||{x:0,y:0}; }
+  // HERO buildings — each carries its own nudge so the skyline can be dialed building by building
+  add(5.5 +bn('lend').x,    4.0 +bn('lend').y,    0.85, build_lend);
+  add(4.0 +bn('dexs').x,    12.0+bn('dexs').y,    0.85, build_dexs);
+  add(12.0+bn('prime').x,   6.0 +bn('prime').y,   0.48, build_prime);
+  add(10.0+bn('vaults').x,  11.0+bn('vaults').y,  0.86, build_vaults);
+  add(20.5+bn('stables').x, 4.5 +bn('stables').y, 0.85, build_stables);
+  add(13.5+bn('looping').x, 15.5+bn('looping').y, 0.80, build_looping);
+  add(19.5+bn('rwas').x,    11.5+bn('rwas').y,    0.85, build_rwas);
+  // FILLER buildings — varied heights for skyline rhythm. Each is nudge-able too (f1..f10 in BUILDING_NUDGE).
+  add(2.6 +bn('f1').x,  4.8 +bn('f1').y,  0.85,function(p){fbox(p,2.0,1.9,4.6,FILL1,1);});   // f1  back-left tower
+  add(14.6+bn('f2').x,  4.2 +bn('f2').y,  0.85,function(p){fbox(p,1.5,1.9,5.0,FILL2,1);});   // f2  tall tower beside Prime
+  add(18.2+bn('f3').x,  6.6 +bn('f3').y,  0.85,function(p){fbox(p,1.3,1.3,3.6,FILL1,1);});   // f3  back-right tower
+  add(25.6+bn('f4').x,  10.8+bn('f4').y,  0.85,function(p){fbox(p,1.9,1.9,4.2,FILL2,1);});   // f4  right tower
+  add(14.9+bn('f5').x,  6.4 +bn('f5').y,  0.85,function(p){fbox(p,1.4,1.4,2.0,GREYB,1);});   // f5  mid block
+  add(8.6 +bn('f6').x,  18.4+bn('f6').y,  0.85,function(p){fbox(p,1.5,1.5,2.6,GREYB,1);});   // f6  front mid block
+  add(26.2+bn('f7').x,  16.6+bn('f7').y,  0.85,function(p){fbox(p,1.3,1.3,3.0,FILL2,1);});   // f7  front-right
+  add(24.6+bn('f8').x,  5.6 +bn('f8').y,  0.85,function(p){fbox(p,2.2,2.4,1.3,GREYB,0);});   // f8  low industrial shed
+  add(3.2 +bn('f9').x,  17.4+bn('f9').y,  0.85,function(p){fbox(p,2.3,1.7,1.2,FILL1,0);});   // f9  low front block
+  add(22.2+bn('f10').x, 16.2+bn('f10').y, 0.85,function(p){fbox(p,1.9,2.1,1.5,FILL1,1);});   // f10 low front block
   // TREES
   [[2.4,11.4],[15.4,8.6],[16.2,12.8],[7.0,15.0],[11.6,18.6],[17.4,18.0],
    [24.0,9.0],[27.2,9.4],[20.2,16.6],[3.4,15.6],[6.6,9.0],[19.0,9.0]]

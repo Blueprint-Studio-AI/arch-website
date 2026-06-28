@@ -10,7 +10,7 @@ const navIn = (i: number) => ({
   animation: `nav-in 0.6s ease-out ${0.15 + i * 0.12}s both`,
 });
 
-export function Nav() {
+export function Nav({ forceDark = false, bare = false }: { forceDark?: boolean; bare?: boolean }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -27,7 +27,7 @@ export function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const dark = scrolled || menuOpen;
+  const dark = forceDark || scrolled || menuOpen;
   const linkColor = dark ? "text-black" : "text-white";
 
   function NavLink({ link, onClick, big }: { link: (typeof NAV_LINKS)[number]; onClick?: () => void; big?: boolean }) {
@@ -50,11 +50,13 @@ export function Nav() {
 
   return (
     <nav className="fixed inset-x-0 top-0 z-100 flex h-20 items-center">
-      <div
-        className={`pointer-events-none absolute inset-0 bg-white/30 backdrop-blur-[12px] transition-opacity duration-400 ${
-          dark ? "opacity-100" : "opacity-0"
-        }`}
-      />
+      {!bare && (
+        <div
+          className={`pointer-events-none absolute inset-0 bg-white/30 backdrop-blur-[12px] transition-opacity duration-400 ${
+            dark ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
       <div className="relative z-10 mx-auto flex w-[94%] max-w-(--container-site) items-center justify-between">
         <Link href="/" aria-label="Arch Network home" className={`relative z-10 ${linkColor}`} style={navIn(0)}>
           <ArchLogo className="h-8 w-auto" />

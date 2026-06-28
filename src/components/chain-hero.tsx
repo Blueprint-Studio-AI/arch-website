@@ -57,9 +57,9 @@ const STEP_LABELS = ["Hero", "Layer 1", "Layer 2", "Layer 3", "Layer 4", "Placeh
 const DEFAULT_STEPS = [
   { ty: 12, gap: 2, is: 1.25 },
   { ty: 15, gap: 4, is: 1.6 },
-  { ty: 10, gap: 3, is: 1.38 },
-  { ty: 12, gap: 3, is: 1.34 },
-  { ty: 12, gap: 6, is: 1.34 },
+  { ty: 10, gap: 1, is: 1.15 },
+  { ty: 10, gap: 2, is: 1.06 },
+  { ty: 8, gap: 2, is: 1.1 },
   { ty: 12, gap: 4, is: 1.0 },
 ];
 // Mobile keeps its own keyframes (smaller art, tighter top) — tuned via the same levers.
@@ -477,6 +477,15 @@ export default function Hero() {
 
   return (
     <main className={`root${ready ? " ready" : ""}`} ref={rootRef}>
+      <div className="bg-tech" aria-hidden>
+        <div className="bg-dots" />
+        <span className="bg-hline bg-hline--t" />
+        <span className="bg-hline bg-hline--b" />
+        <div className="bg-grid">
+          <span className="bg-rail bg-rail--l" />
+          <span className="bg-rail bg-rail--r" />
+        </div>
+      </div>
       <div className="illo-stage" aria-hidden>
         <div className="glow" />
         <div className="illo" ref={illoRef}>
@@ -543,7 +552,7 @@ export default function Hero() {
         <iframe ref={belowRef} className="below__frame" src="/below/index.html" title="Arch chain — the full story" scrolling="no" />
       </section>
 
-      {/* levers tuning panel — hidden for demo; uncomment this block to re-enable
+      {/* dev tuning panel — adjust sizes/positions live, then hand back the readout values. Hide before shipping. */}
       {showLevers ? (
         <div className="levers">
           <div className="lev-head">
@@ -571,7 +580,6 @@ export default function Hero() {
       ) : (
         <button className="levers-open" onClick={() => setShowLevers(true)}>levers</button>
       )}
-      */}
     </main>
   );
 }

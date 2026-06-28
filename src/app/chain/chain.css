@@ -33,6 +33,39 @@
 .chain-scope .root.ready{opacity:1}
 
 /* ============================================================
+   TECHY BACKDROP — light dot grid + blueprint structural grid
+   Container-aligned side rails (full height) + a central section
+   bounded by a top rule (sitting on the nav border) and a bottom
+   rule — frames the animation like hung artwork, biased a touch
+   high. Everything outside is intentional negative space.
+   All limits are dial-able via the --frame and --grid vars below.
+   ============================================================ */
+.chain-scope .bg-tech{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  --nav-h:80px;                 /* nav height */
+  --frame-top:80px;                    /* top horizontal line — just below the nav */
+  --frame-bottom:calc(100vh - 80px);   /* bottom line — FIXED margin from the bottom (not vh), so the frame stays balanced at any height */
+  --grid-w:min(95vw,1420px);    /* side rails — punched OUT past the 1300px content container for breathing room */
+  --line:rgba(24,24,24,.13);    /* rail / rule colour */
+}
+.chain-scope .bg-dots{position:absolute;inset:0;
+  background-image:radial-gradient(circle, rgba(24,24,24,.07) 1px, transparent 1.6px);
+  background-size:28px 28px;background-position:center;
+  -webkit-mask-image:radial-gradient(ellipse 66% 56% at 50% 46%, transparent 34%, #000 82%);
+          mask-image:radial-gradient(ellipse 66% 56% at 50% 46%, transparent 34%, #000 82%)}
+/* container-aligned grid: full-height side rails + a framed central section */
+/* full-width horizontal lines — run edge to edge, beyond the rails (mirror of the full-height rails) */
+.chain-scope .bg-hline{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.chain-scope .bg-hline--t{top:var(--frame-top)}
+.chain-scope .bg-hline--b{top:var(--frame-bottom)}
+.chain-scope .bg-grid{position:absolute;left:50%;top:0;bottom:0;width:var(--grid-w);transform:translateX(-50%)}
+.chain-scope .bg-rail{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.chain-scope .bg-rail--l{left:0}
+.chain-scope .bg-rail--r{right:0}
+@media(max-width:760px){
+  .chain-scope .bg-dots{background-size:22px 22px}
+}
+
+/* ============================================================
    ILLUSTRATION — fixed, sits low; per-step y/scale driven by JS
    ============================================================ */
 .chain-scope .illo-stage{position:fixed;inset:0;z-index:1;pointer-events:none}

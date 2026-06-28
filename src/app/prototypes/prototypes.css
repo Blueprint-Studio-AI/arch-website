@@ -1,0 +1,82 @@
+/* ============================================================
+   PROTOTYPES — solidified hero direction.
+   Light · centred · gray rect · unified type. No toggles: this is
+   the committed layout. Scroll grows the rect to full-bleed (rising
+   OVER the hero via z-index), then advances the illustration through
+   its layers with per-layer copy on top.
+   ============================================================ */
+
+/* fonts (re-declared so this page is self-sufficient off /chain) */
+@font-face{font-family:"Gascogne";src:url(https://cdn.prod.website-files.com/68de2cda01fe05adb2852af1/68de2f60432255865eede0bc_GascogneSerial-light.woff2) format("woff2");font-weight:300;font-display:swap}
+@font-face{font-family:"Gascogne";src:url(https://cdn.prod.website-files.com/68de2cda01fe05adb2852af1/68de2f5fc55d8552a1a01d77_GascogneSerial.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Geist";src:url(https://cdn.prod.website-files.com/68de2cda01fe05adb2852af1/68dfd946fca94176b058660c_GeistVF.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"AzeretMono";src:url(https://cdn.prod.website-files.com/68de2cda01fe05adb2852af1/68de3df12192bb34d3f552bc_AzeretMono%5Bwght%5D.ttf) format("truetype");font-weight:100 900;font-display:swap}
+
+.proto-scope{
+  --bg:#fbfaf7; --ink:#181818; --muted:#6c6a62; --faint:#9a978c;
+  --orange:#ec641d; --hair:rgba(24,24,24,.12); --rect:#eceae3; --card:#fff;
+  --bg2:#eceae3;                     /* page colour once you're pulled into the animation (matches the rect) */
+  --sans:"Geist",-apple-system,system-ui,sans-serif;
+  --serif:"Gascogne",Georgia,serif;
+  --mono:"AzeretMono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --illo-scale:1.75; --illo-y:8px;   /* fixed animation size — only the rect grows around it */
+  background:var(--bg);color:var(--ink);font-family:var(--sans);
+  transition:background .5s ease;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+.proto-scope.entered{background:var(--bg2)}
+.proto-scope, .proto-scope *{margin:0;padding:0;box-sizing:border-box}
+
+/* sticky section the rect grows to fill; the extra height is the scroll room for grow + 4 layers */
+.proto-scope .proto-center{position:relative;height:460vh}
+.proto-scope .proto-pin{position:sticky;top:0;height:100vh;width:100%;overflow:hidden}
+
+/* ---- hero (z1): occluded as the rect rises over it ---- */
+.proto-scope .proto-hero{position:absolute;left:0;right:0;margin:0 auto;width:92%;max-width:840px;
+  text-align:center;z-index:1;will-change:top}   /* wide enough that "The financial network" holds one line */
+.proto-scope .chip{font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--hair);border-radius:999px;padding:5px 12px;
+  display:inline-flex;align-items:center;gap:7px}
+.proto-scope .chip i{width:6px;height:6px;border-radius:50%;background:#2bb673;box-shadow:0 0 0 3px rgba(43,182,115,.18)}
+.proto-scope h1{margin-top:22px;font-family:var(--serif);font-weight:400;color:var(--ink);
+  font-size:clamp(40px,5.6vw,72px);line-height:1.06}
+.proto-scope .sub{margin-top:14px;font-size:clamp(15px,1.5vw,18px);color:var(--muted);line-height:1.5}
+.proto-scope .btns{display:flex;gap:12px;margin-top:26px;justify-content:center}
+.proto-scope .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer;
+  font-weight:500;font-size:14px;border-radius:8px;padding:12px 18px;border:1px solid transparent;
+  transition:background .3s,color .3s,border-color .3s}
+.proto-scope .btn--primary{background:var(--orange);color:#fff}
+.proto-scope .btn--ghost{background:var(--card);color:var(--ink);border-color:var(--hair)}
+
+/* ---- rect + illustration (z2): grows to full-bleed, cutting off the hero ---- */
+.proto-scope .proto-stage{position:absolute;left:50%;transform:translate(-50%,-50%);z-index:2;
+  display:grid;place-items:center;overflow:hidden;will-change:top,width,height}
+.proto-scope .proto-rect{position:absolute;inset:0;background:var(--rect)}
+.proto-scope .proto-illo{position:relative;width:680px;height:790px;pointer-events:none;
+  transform:translateY(var(--illo-y)) scale(var(--illo-scale));transform-origin:center center}
+.proto-scope .proto-illo iframe{width:680px;height:790px;border:0;background:transparent;display:block}
+
+/* ---- per-layer copy (z3): appears over the animation as you advance through layers ---- */
+.proto-scope .proto-layer-copy{position:absolute;left:0;right:0;top:13vh;margin:0 auto;width:92%;max-width:720px;
+  text-align:center;z-index:3;pointer-events:none;transition:opacity .4s ease}
+.proto-scope .proto-layer-copy h2{font-family:var(--serif);font-weight:400;color:var(--ink);
+  font-size:clamp(30px,4.2vw,54px);line-height:1.05}
+.proto-scope .proto-layer-copy p{margin:14px auto 0;max-width:52ch;font-size:clamp(15px,1.5vw,18px);
+  color:var(--muted);line-height:1.5}
+@keyframes proto-copy-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.proto-scope .proto-layer-copy .inner{animation:proto-copy-in .5s ease both}
+
+/* hover feature boxes — highlight the matching part of the illustration, benefit read underneath */
+.proto-scope .flist{list-style:none;margin:20px auto 0;max-width:680px;display:grid;gap:6px;text-align:left;
+  grid-template-columns:repeat(3,1fr);pointer-events:auto}
+.proto-scope .flist li{font-size:12px;line-height:1.35;color:var(--ink);padding:7px 9px;cursor:default;
+  border-left:2px solid rgba(236,100,29,.25);background:rgba(255,255,255,.55);border-radius:0 6px 6px 0;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);transition:background .12s,border-color .12s}
+.proto-scope .flist li b{display:block;font-weight:600;color:var(--ink);font-size:12.5px}
+.proto-scope .flist li .lite{display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:1px}
+.proto-scope .flist li:hover,.proto-scope .flist li.on{border-left-color:var(--orange);background:rgba(236,100,29,.12)}
+.proto-scope .flist li:hover b,.proto-scope .flist li.on b{color:var(--orange)}
+
+@media(max-width:760px){
+  .proto-scope{--illo-scale:1.05}
+}
