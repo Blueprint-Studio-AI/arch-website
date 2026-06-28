@@ -60,7 +60,7 @@ export function Nav() {
           <ArchLogo className="h-8 w-auto" />
         </Link>
 
-        <div className="hidden items-center gap-5 md:flex">
+        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 md:flex">
           {NAV_LINKS.map((link, i) => (
             <span key={link.label} style={navIn(i + 1)}>
               <NavLink link={link} />
