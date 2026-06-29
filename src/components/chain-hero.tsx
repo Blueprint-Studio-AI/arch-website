@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createIllustration, type IllustrationApi } from "./chain-illustration";
+import { EXTERNAL } from "@/lib/site";
 
 type Item = { c: string; b: string; lite?: string };
 type Section = { h2: string; body: string; list?: Item[] };
@@ -55,12 +57,12 @@ const SECTIONS: Section[] = [
 const STEP_LABELS = ["Hero", "Layer 1", "Layer 2", "Layer 3", "Layer 4", "Placeholder"];
 // Per snap point: ty = text top (vh), gap = vh from text to artwork, is = illustration scale.
 const DEFAULT_STEPS = [
-  { ty: 12, gap: 2, is: 1.25 },
-  { ty: 15, gap: 4, is: 1.6 },
-  { ty: 10, gap: 3, is: 1.38 },
-  { ty: 12, gap: 3, is: 1.34 },
-  { ty: 12, gap: 6, is: 1.34 },
-  { ty: 12, gap: 4, is: 1.0 },
+  { ty: 11, gap: 2, is: 1.02 },
+  { ty: 12, gap: 3, is: 1.0 },
+  { ty: 9, gap: 3, is: 1.0 },
+  { ty: 10, gap: 3, is: 1.0 },
+  { ty: 10, gap: 4, is: 1.0 },
+  { ty: 12, gap: 4, is: 0.95 },
 ];
 // Mobile keeps its own keyframes (smaller art, tighter top) — tuned via the same levers.
 const DEFAULT_STEPS_M = [
@@ -73,19 +75,16 @@ const DEFAULT_STEPS_M = [
 ];
 const DEFAULT_X = -45; // horizontal cheat (px), negative = left
 const DEFAULT_X_M = -40; // mobile horizontal cheat
-const SNAP_POINTS = 5; // hero + 4 layers snap; placeholder (index 5) scrolls free
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
 export default function Hero() {
   const rootRef = useRef<HTMLElement>(null);
   const illoRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const belowRef = useRef<HTMLIFrameElement>(null);
+  const illoApi = useRef<IllustrationApi | null>(null); // the inline illustration (was an iframe)
   const lastLayer = useRef(0);
   const lastActive = useRef(-1);
   const updateRef = useRef<() => void>(() => {});
-  const onLoadRef = useRef<() => void>(() => {});
 
   const [steps, setSteps] = useState(DEFAULT_STEPS);
   const [stepsM, setStepsM] = useState(DEFAULT_STEPS_M);
@@ -103,12 +102,10 @@ export default function Hero() {
   const [ready, setReady] = useState(false);
 
   const callIllo = (fn: string, ...args: unknown[]) => {
-    try {
-      const w = iframeRef.current?.contentWindow as unknown as Record<string, (...a: unknown[]) => void>;
-      w?.[fn]?.(...args);
-    } catch {
-      /* iframe not ready */
-    }
+    const api = illoApi.current;
+    if (!api) return;
+    if (fn === "__archSelect") api.select(args[0] as string);
+    else if (fn === "__archClearSel") api.clearSel();
   };
   const clearHighlights = () => document.querySelectorAll(".flist li.on").forEach((l) => l.classList.remove("on"));
 
@@ -132,76 +129,72 @@ export default function Hero() {
     const measureTop = () => {
       if (atLocked) return true;
       try {
-        const doc = iframeRef.current?.contentDocument;
-        const win = iframeRef.current?.contentWindow as unknown as { __archSetState?: (n: number) => void } | null;
-        const world = doc?.getElementById("world") as HTMLElement | null;
-        const l1 = doc?.getElementById("L1");
-        if (!doc || !world || !l1 || !win?.__archSetState) return false;
+        const stage = illoRef.current;
+        const api = illoApi.current;
+        if (!stage || !api) return false;
+        const iso = stage.querySelector("#iso") as SVGSVGElement | null;
+        const world = stage.querySelector("#world") as SVGGElement | null;
+        const l1 = stage.querySelector("#L1");
+        if (!iso || !world || !l1) return false;
         const prev = world.style.transition;
         world.style.transition = "none"; // apply WS(1) instantly so we read the settled top
-        win.__archSetState(1);
+        api.setState(1);
         lastLayer.current = 1;
         void world.getBoundingClientRect(); // force reflow
+        const isoR = iso.getBoundingClientRect();
         const r = l1.getBoundingClientRect();
         world.style.transition = prev;
-        if (r.height > 40) { atTop = r.top; atLocked = true; return true; }
+        // L1 top within the SVG's intrinsic 790px space — undo the .illo display scale so `atTop`
+        // matches what the old (unscaled) iframe content measured.
+        if (r.height > 8 && isoR.height > 0) {
+          atTop = (r.top - isoR.top) / (isoR.height / 790);
+          atLocked = true;
+          return true;
+        }
       } catch { /* not ready */ }
       return false;
     };
     const setLayer = (n: number) => {
       if (n === lastLayer.current) return;
-      const w = iframeRef.current?.contentWindow as unknown as { __archSetState?: (n: number) => void } | null;
-      if (w?.__archSetState) {
-        w.__archSetState(n);
-        lastLayer.current = n;
-      }
+      illoApi.current?.setState(n);
+      lastLayer.current = n;
     };
 
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
 
     let raf = 0;
-    // ---- immersive state machine ----
-    // The illustration + typography form a self-contained animated space. JS drives the
-    // animation STATE (prog), not the page scroll: a gesture past the threshold advances
-    // prog with a snap, and the real scrollbar is nudged silently underneath so leaving
-    // into the placeholder feels natural — the user never sees the page itself scroll.
-    const lastIdx = SNAP_POINTS - 1;
-    let idx = 0; // target state 0..lastIdx
-    let prog = 0; // animated progress that actually drives the visuals
-    let mode: "snap" | "free" = "snap";
-    let animating = false;
-    let acc = 0; // delta accumulated during the current accelerating gesture
-    let canFire = true; // gate: re-armed after the snap finishes or a real pause
-    let scrollings: number[] = []; // recent |deltaY| history for momentum / acceleration detection
-    let prevWheel = 0;
-    let touchY = 0;
-    let touchFired = false;
-    let progRaf = 0;
-    let iwin: Window | null = null; // illustration iframe swallows wheel/touch — attach there too
-    let feedback = 0; // -1..1 live sub-threshold gesture nudge
     let intro = 1; // load intro: illustration starts a touch low and drifts up into place
     let introRaf = 0;
     let revealed = false;
+    const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
+
+    // ---- scroll-progress → animation ----------------------------------------------------------
+    // The hero is a pinned "scrub": .illo-stage + .copyover are position:fixed and the .snaps
+    // track supplies the scroll height, so the whole composition holds still while `t` (0..N+1) is
+    // read straight off scroll position. Lenis smooths that scroll; there is NO wheel/touch
+    // hijacking, so Lenis is the single scroll authority for the entire /chain page.
     const update = () => {
       raf = 0;
       const root = rootRef.current;
       if (!root) return;
       const vh = window.innerHeight / 100;
       const N = SECTIONS.length;
-      const t = mode === "snap" ? prog : Math.min(N + 1, Math.max(0, window.scrollY / window.innerHeight));
+      const t = Math.min(N + 1, Math.max(0, window.scrollY / window.innerHeight));
       const s = stepsRef.current;
 
-      const fb = feedback;
       const base: Record<number, number> = {};
       root.querySelectorAll<HTMLElement>(".panel").forEach((el) => {
         const i = Number(el.dataset.i);
         const d = t - i;
-        const o = Math.max(0, 1 - Math.abs(d) * 1.9) * (1 - 0.22 * Math.abs(fb));
+        // The LAST section doesn't fade on the way out — the opaque below-fold ("Four rules")
+        // simply slides up and OCCLUDES it. Fading it instead is what left an empty cream void
+        // on the exit ramp. Everything else cross-fades between sections as before.
+        const o = i === N && d > 0 ? 1 : Math.max(0, 1 - Math.abs(d) * 1.9);
         el.style.opacity = o.toFixed(3);
-        el.style.transform = `translateX(-50%) translateY(${(d * 16 - fb * 14).toFixed(1)}px)`;
+        el.style.transform = `translateX(-50%) translateY(${(d * 16).toFixed(1)}px)`;
         el.style.pointerEvents = o > 0.6 ? "auto" : "none";
-        base[i] = el.offsetTop + el.offsetHeight; // stable bottom (ignores the push)
+        base[i] = el.offsetTop + el.offsetHeight; // stable bottom
       });
 
       const i0 = Math.min(N, Math.floor(t));
@@ -213,11 +206,14 @@ export default function Hero() {
       const at = atTop;
       const gap = lerp(s[i0].gap, s[i1].gap, f) * vh;
       const scale = lerp(s[i0].is, s[i1].is, f) * Math.min(1, window.innerHeight / 880);
-      const y = textBottom + gap - at * scale - fb * 8 + intro * 42;
+      const y = textBottom + gap - at * scale + intro * 42;
       if (illoRef.current) {
         illoRef.current.style.transform = `translate(${illoXRef.current}px, ${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-        illoRef.current.style.opacity = Math.max(0, Math.min(1, 1 - (t - N))).toFixed(3); // fade out into the placeholder
+        illoRef.current.style.opacity = "1"; // no fade — the below-fold occludes the artwork as it rises
       }
+      // Once fully past the hero (the below-fold completely covers it), hard-hide the fixed
+      // overlays so the same-origin iframe can't composite/flicker behind the scrolling content.
+      root.classList.toggle("hero-done", t >= N + 1);
 
       const a = Math.round(t);
       if (a !== lastActive.current) {
@@ -230,154 +226,27 @@ export default function Hero() {
     };
     updateRef.current = update;
 
-    // ---- gesture → animation state ----
-    const THRESH = 55; // accelerating wheel units to trip a snap (lower = more sensitive)
-    const TOUCH_THRESH = 50;
-    const PROG_DUR = 460;
-    const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
-    const avg = (arr: number[], n: number) => {
-      const len = arr.length;
-      if (!len) return 0;
-      const k = Math.min(n, len);
-      let s = 0;
-      for (let i = len - k; i < len; i++) s += arr[i];
-      return s / k;
-    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onResize = () => { if (!raf) raf = requestAnimationFrame(update); };
 
-    // Keep the real scrollbar in step with the animation state, silently — there's no
-    // visible page scroll because every on-screen layer is fixed and driven by prog.
-    const syncScroll = () => {
-      const target = Math.round(prog * window.innerHeight);
-      if (Math.abs(window.scrollY - target) > 1) window.scrollTo(0, target);
-    };
-
-    const animateTo = (n: number) => {
-      idx = n;
-      feedback = 0;
-      const from = prog;
-      if (Math.abs(n - from) < 0.001) { update(); return; }
-      animating = true;
-      const t0 = performance.now();
-      if (progRaf) cancelAnimationFrame(progRaf);
-      const step = () => {
-        const p = Math.min(1, (performance.now() - t0) / PROG_DUR);
-        prog = from + (n - from) * easeOut(p);
-        syncScroll();
-        update();
-        if (p < 1) progRaf = requestAnimationFrame(step);
-        else { prog = n; syncScroll(); update(); window.setTimeout(() => { animating = false; acc = 0; canFire = true; }, 60); }
-      };
-      progRaf = requestAnimationFrame(step);
-    };
-
-    const advance = (dir: number) => {
-      acc = 0;
-      feedback = 0;
-      if (dir > 0 && idx >= lastIdx) { // exit the immersive space → hand off to free scroll
-        mode = "free";
-        canFire = true;
-        prog = lastIdx;
-        window.scrollTo(0, lastIdx * window.innerHeight);
-        update();
-        window.scrollBy(0, Math.round(window.innerHeight * 0.16));
-        return;
-      }
-      const n = idx + dir;
-      if (n < 0) { canFire = true; update(); return; }
-      animateTo(n);
-    };
-
-    const enterFromPlaceholder = () => {
-      mode = "snap";
-      canFire = true;
-      scrollings = [];
-      idx = lastIdx;
-      prog = lastIdx;
-      syncScroll();
-      update();
-    };
-
-    const overLevers = (e: Event) => !!(e.target as Element | null)?.closest?.(".levers");
-
-    const onWheel = (e: WheelEvent) => {
-      if (overLevers(e)) return;
-      if (mode === "free") {
-        if (e.deltaY < 0 && window.scrollY <= lastIdx * window.innerHeight + 4) { e.preventDefault(); enterFromPlaceholder(); }
-        return;
-      }
-      e.preventDefault();
-      const now = performance.now();
-      if (now - prevWheel > 200) { scrollings = []; acc = 0; canFire = true; } // a real pause = a fresh gesture
-      prevWheel = now;
-      scrollings.push(Math.abs(e.deltaY));
-      if (scrollings.length > 80) scrollings.shift();
-      if (animating || !canFire) return;
-      // accelerating (or steady) = an intentional push; decelerating = leftover momentum to ignore.
-      const accel = avg(scrollings, 10) >= avg(scrollings, 40);
-      if (!accel) { acc = 0; feedback = 0; update(); return; }
-      acc += e.deltaY;
-      feedback = Math.max(-1, Math.min(1, acc / THRESH));
-      update();
-      if (Math.abs(acc) >= THRESH) {
-        canFire = false; // re-armed when the snap finishes or after a pause
-        const dir = acc > 0 ? 1 : -1;
-        acc = 0;
-        feedback = 0;
-        advance(dir);
-      }
-    };
-
-    const onTouchStart = (e: TouchEvent) => { if (overLevers(e)) return; touchY = e.touches[0].clientY; touchFired = false; };
-    const onTouchMove = (e: TouchEvent) => {
-      if (overLevers(e)) return;
-      if (mode === "free") {
-        if (e.touches[0].clientY - touchY > 0 && window.scrollY <= lastIdx * window.innerHeight + 4) {
-          e.preventDefault();
-          enterFromPlaceholder();
-          touchY = e.touches[0].clientY; // reset origin + lock so this same swipe can't also step a layer
-          touchFired = true;
-        }
-        return;
-      }
-      e.preventDefault();
-      if (animating || touchFired) return; // one swipe = one step
-      const dy = touchY - e.touches[0].clientY;
-      feedback = Math.max(-1, Math.min(1, dy / TOUCH_THRESH));
-      update();
-      if (dy >= TOUCH_THRESH) { touchFired = true; feedback = 0; advance(1); }
-      else if (dy <= -TOUCH_THRESH) { touchFired = true; feedback = 0; advance(-1); }
-    };
-    const onTouchEnd = () => { touchFired = false; feedback = 0; if (mode === "snap" && !animating) update(); };
-
-    const onScroll = () => {
-      // iOS momentum safety net: a flick up out of the placeholder coasts with no touch/wheel
-      // events firing, so the gesture re-entry never runs and the page free-scrolls un-snapped
-      // back through a layer. Catch the overshoot past the boundary and re-engage the snap space.
-      if (mode === "free" && window.scrollY < lastIdx * window.innerHeight) { enterFromPlaceholder(); return; }
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    const onResize = () => { if (mode === "snap") syncScroll(); update(); };
-    // The iframe captures wheel/touch over its area, so the window listeners never see
-    // them — attach the same handlers inside the iframe (it's same-origin).
-    const attachIframe = () => {
-      try {
-        const w = iframeRef.current?.contentWindow;
-        if (!w || w === iwin) return;
-        iwin = w;
-        w.addEventListener("wheel", onWheel, { passive: false });
-        w.addEventListener("touchstart", onTouchStart, { passive: true });
-        w.addEventListener("touchmove", onTouchMove, { passive: false });
-        w.addEventListener("touchend", onTouchEnd, { passive: true });
-      } catch { /* not ready */ }
-    };
-    const onMessage = (e: MessageEvent) => {
-      const d = e.data as { arch?: string; id?: string };
-      if (!d || typeof d !== "object" || !d.arch) return;
+    // The illustration is now an INLINE svg (no iframe) — so it no longer traps the wheel, needs no
+    // synthetic-wheel forwarder, no pointer-events:coarse hack, and no reduced-motion freeze fix, and
+    // it talks to us via a direct callback instead of postMessage. onSelect mirrors the old message
+    // handler: hovering a node in the art highlights the matching feature in the left rail.
+    const onSelect = (id: string | null) => {
       clearHighlights();
-      if (d.arch === "sel" && d.id) document.querySelector(`.flist li[data-c="${d.id}"]`)?.classList.add("on");
+      if (id) (document.querySelector(`.flist li[data-c="${id}"]`) as HTMLElement | null)?.classList.add("on");
     };
 
-    // ---- load sequence: measure layer 1, settle layout, then fade in (hides the drift) ----
+    // ---- mount the inline illustration, then run the load sequence ----
+    // Build the SVG scene synchronously (no iframe load to await), then show layer 1.
+    if (illoRef.current && !illoApi.current) {
+      illoApi.current = createIllustration(illoRef.current, { onSelect });
+      lastLayer.current = 0;
+      illoApi.current.setState(1);
+      lastLayer.current = 1;
+    }
+
     const runIntro = () => {
       const t0 = performance.now();
       const step = () => {
@@ -387,12 +256,6 @@ export default function Hero() {
         if (p < 1) introRaf = requestAnimationFrame(step);
       };
       introRaf = requestAnimationFrame(step);
-    };
-    onLoadRef.current = () => {
-      lastLayer.current = 0;
-      attachIframe();
-      measureTop();
-      requestAnimationFrame(() => updateRef.current());
     };
     // Fade in only once fonts are ready AND the artwork top is measured, so the first visible
     // frame is already correct — then drift up into place once (no load-time jerk, no double).
@@ -415,78 +278,181 @@ export default function Hero() {
     const loadFallback = window.setTimeout(() => { fontsDone = true; reveal(); }, 1800);
 
     update();
-    attachIframe();
-    const attachT = window.setTimeout(attachIframe, 500);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("message", onMessage);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("message", onMessage);
-      if (iwin) {
-        iwin.removeEventListener("wheel", onWheel);
-        iwin.removeEventListener("touchstart", onTouchStart);
-        iwin.removeEventListener("touchmove", onTouchMove);
-        iwin.removeEventListener("touchend", onTouchEnd);
-      }
       if (raf) cancelAnimationFrame(raf);
-      if (progRaf) cancelAnimationFrame(progRaf);
       if (introRaf) cancelAnimationFrame(introRaf);
       if (finishPoll) clearInterval(finishPoll);
       clearTimeout(loadFallback);
-      clearTimeout(attachT);
+      illoApi.current?.destroy();
+      illoApi.current = null;
     };
   }, []);
 
-  // Below-fold story is a same-origin iframe; size it to its content so the parent page
-  // (not the iframe) does the scrolling and there's no nested scrollbar.
+  // ---- hero snap: one beat per gesture, cooperating with the single Lenis instance ----------
+  // The hero has N+1 "beats" (the headline + N sections) sitting at i*100vh on the .snaps track.
+  // Each wheel gesture advances exactly ONE beat via lenis.scrollTo — Lenis stays the only scroll
+  // authority (no preventDefault, no native scroll), so this can't reintroduce the old two-machine
+  // fight. At the last beat, scrolling down hands off to the below-fold ("Four rules") with ONE
+  // clean scrollTo, so we never scrub through the empty fade-ramp (that was the seam "spazz");
+  // scrolling back up through the ramp re-snaps onto the last beat. Touch devices fall through to
+  // free native scroll (Lenis emits no virtual-scroll for un-synced touch) and scrub fine.
   useEffect(() => {
-    const ifr = belowRef.current;
-    if (!ifr) return;
-    let ro: ResizeObserver | null = null;
-    const size = () => {
-      try {
-        const h = ifr.contentDocument?.documentElement.scrollHeight;
-        if (h && h > 0) ifr.style.height = h + "px";
-      } catch { /* not ready */ }
+    type L = {
+      scrollTo: (t: number, o: Record<string, unknown>) => void;
+      on: (e: string, f: (a: { deltaY: number }) => void) => void;
+      off: (e: string, f: (a: { deltaY: number }) => void) => void;
     };
-    const onLoad = () => {
-      size();
-      try {
-        const b = ifr.contentDocument?.body;
-        if (b && "ResizeObserver" in window) { ro = new ResizeObserver(size); ro.observe(b); }
-      } catch { /* not ready */ }
+    const N = SECTIONS.length; // beats 0..N
+    const ease = (x: number) => 1 - Math.pow(1 - x, 3);
+    // "Resistance" of the sticky points: a gesture must build past THRESH of accumulated wheel
+    // before it breaks free of the current beat. Only an accelerating/steady push counts — the
+    // decelerating momentum TAIL of a flick is ignored — so one hard flick advances exactly ONE
+    // beat instead of cascading. Tune THRESH to taste.
+    const THRESH = 90;
+    const PAUSE = 200; // ms gap that starts a fresh gesture
+    let armed = true;
+    let acc = 0; // accumulated wheel for the current gesture
+    let lastT = 0;
+    let idleT = 0;
+    let resizeT = 0;
+    let mags: number[] = []; // recent |deltaY| history → accel-vs-momentum detection
+    let waitRaf = 0;
+    let lenis: L | null = null;
+
+    // The hero owns ONLY its own scroll range [0, boundary]. `boundary` is the foot of the .snaps
+    // track = the top of the below-fold ("Four rules"). Below it the machine is completely inert,
+    // so the whole below-fold (WhyBand / How-it-works / footer) is pure free Lenis scroll and can
+    // NEVER be yanked back up. inHero() is the single guard every path checks first.
+    const ih = () => window.innerHeight;
+    const boundaryY = () => (N + 1) * ih();
+    const inHero = () => window.scrollY < boundaryY() - 2;
+
+    const avg = (a: number[], n: number) => {
+      const len = a.length;
+      if (!len) return 0;
+      const k = Math.min(n, len);
+      let s = 0;
+      for (let i = len - k; i < len; i++) s += a[i];
+      return s / k;
     };
-    ifr.addEventListener("load", onLoad);
-    window.addEventListener("resize", size);
-    if (ifr.contentDocument?.readyState === "complete") onLoad();
-    return () => { ifr.removeEventListener("load", onLoad); window.removeEventListener("resize", size); ro?.disconnect(); };
+    const rearm = () => window.setTimeout(() => { armed = true; }, 60);
+    const snapTo = (y: number, dur: number) => {
+      if (!lenis) return;
+      armed = false;
+      acc = 0;
+      lenis.scrollTo(y, { lock: true, duration: dur, easing: ease, onComplete: rearm });
+    };
+
+    // one gesture = one beat (only while in the hero)
+    const onV = (e: { deltaY: number }) => {
+      if (!lenis) return;
+      const now = performance.now();
+      if (now - lastT > PAUSE) { acc = 0; mags = []; } // a real pause = a fresh gesture
+      lastT = now;
+      if (!inHero()) return; // below the hero → totally inert; free scroll owns it
+      mags.push(Math.abs(e.deltaY));
+      if (mags.length > 80) mags.shift();
+      if (!armed) return; // mid-snap → the scrollTo lock also blocks input
+      // decelerating (recent clearly weaker than the run) = the flick's momentum tail → ignore it.
+      if (avg(mags, 8) < avg(mags, 30) * 0.9) { acc = 0; return; }
+      if (acc * e.deltaY < 0) acc = 0; // direction reversed → start accumulating fresh
+      acc += e.deltaY;
+      if (Math.abs(acc) < THRESH) return; // sub-threshold → idle-settle rubber-bands back onto a beat
+
+      const v = ih();
+      const y = window.scrollY;
+      const dir = acc > 0 ? 1 : -1;
+      const lastBeatY = N * v;
+      // exit ramp (between the last beat and the below-fold): up settles onto the last beat (never
+      // steps to N-1 — that skipped a layer coming back up), down hands off to the below-fold.
+      if (y > lastBeatY + 2) {
+        snapTo(dir > 0 ? boundaryY() : lastBeatY, dir > 0 ? 0.7 : 0.55);
+        return;
+      }
+      const cur = Math.max(0, Math.min(N, Math.round(y / v)));
+      if (dir > 0) snapTo(cur >= N ? boundaryY() : (cur + 1) * v, cur >= N ? 0.7 : 0.55); // down
+      else if (cur > 0) snapTo((cur - 1) * v, 0.55); // up
+      else acc = 0; // already at the top
+    };
+
+    // Where should we settle, given a live position y inside the hero? In the exit ramp (between the
+    // last beat and the below-fold) settle to whichever EDGE is nearer — the last beat, or the
+    // below-fold top (WhyBand). Including the boundary as a candidate is what stops a small peek-up
+    // from the WhyBand seam being yanked a near-full viewport UP onto the last beat.
+    const settleTarget = (y: number, v: number) =>
+      y > N * v
+        ? (y - N * v > v / 2 ? (N + 1) * v : N * v)
+        : Math.max(0, Math.min(N, Math.round(y / v))) * v;
+
+    // Idle-settle: whenever scrolling STOPS inside the hero off a sticky point, ease onto the nearest
+    // one. Safety net for momentum coasts / sub-threshold nudges; NEVER touches the free sections.
+    const onScroll = () => {
+      if (idleT) clearTimeout(idleT);
+      idleT = window.setTimeout(() => {
+        if (!armed || !lenis || !inHero()) return;
+        const v = ih();
+        const y = window.scrollY;
+        const target = settleTarget(y, v);
+        if (Math.abs(y - target) > 6) snapTo(target, 0.4);
+      }, 130);
+    };
+
+    // Beats are innerHeight-relative, so a window resize (tiling, half-screen, devtools, rotate)
+    // leaves a parked hero mid-crossfade — and a resize fires no scroll event, so idle-settle can't
+    // self-heal it. Re-snap onto the nearest beat from the LIVE innerHeight (debounced so a drag
+    // doesn't spam locking scrolls). Guarded to the hero so it never disturbs the below-fold.
+    const onResize = () => {
+      if (resizeT) clearTimeout(resizeT);
+      resizeT = window.setTimeout(() => {
+        if (!lenis || !inHero()) return;
+        const v = ih();
+        snapTo(Math.max(0, Math.min(N, Math.round(window.scrollY / v))) * v, 0.3);
+      }, 160);
+    };
+
+    const attach = () => {
+      lenis = (window as Window & { __lenis?: L }).__lenis ?? null;
+      if (!lenis) { waitRaf = requestAnimationFrame(attach); return; }
+      lenis.on("virtual-scroll", onV);
+      lenis.on("scroll", onScroll as (a: { deltaY: number }) => void);
+    };
+    attach();
+    window.addEventListener("resize", onResize);
+    return () => {
+      if (waitRaf) cancelAnimationFrame(waitRaf);
+      if (idleT) clearTimeout(idleT);
+      if (resizeT) clearTimeout(resizeT);
+      window.removeEventListener("resize", onResize);
+      lenis?.off("virtual-scroll", onV);
+      lenis?.off("scroll", onScroll as (a: { deltaY: number }) => void);
+    };
   }, []);
 
   const setLever = (key: "ty" | "gap" | "is", val: number) =>
     (isMobile ? setStepsM : setSteps)((prev) => prev.map((st, i) => (i === active ? { ...st, [key]: val } : st)));
+
+  // the active section's feature list (active 1..N map to SECTIONS 0..N-1) — drives the left rail
+  const activeList = active >= 1 && active <= SECTIONS.length ? SECTIONS[active - 1]?.list : undefined;
 
   return (
     <main className={`root${ready ? " ready" : ""}`} ref={rootRef}>
       <div className="illo-stage" aria-hidden>
         <div className="glow" />
         <div className="illo" ref={illoRef}>
-          <iframe
-            ref={iframeRef}
-            src="/illustration/index.html"
-            title="Arch chain illustration"
-            scrolling="no"
-            onLoad={() => onLoadRef.current()}
+          {/* inline illustration (was an iframe) — createIllustration() builds into #iso */}
+          <svg
+            id="iso"
+            viewBox="-320 -360 680 790"
+            aria-label="Isometric layer stack: Bitcoin and Arch chains, native tech board, finance district, app layer"
           />
+          <div id="card">
+            <div className="t" />
+            <div className="b" />
+          </div>
         </div>
       </div>
 
@@ -499,8 +465,26 @@ export default function Hero() {
           </h1>
           <p className="sub">DeFi that actually works.</p>
           <div className="btns">
-            <a className="btn btn--primary" href="#">See how it works <span className="ar">↓</span></a>
-            <a className="btn btn--ghost" href="#">Read the docs</a>
+            {/* "See how it works" begins the guided scroll — advance one beat to "How is that possible?".
+                Programmatic lenis.scrollTo lands on the beat; the snap machine's idle-settle keeps it there. */}
+            <a
+              className="btn btn--primary"
+              href="#how"
+              onClick={(e) => {
+                e.preventDefault();
+                const l = (window as Window & {
+                  __lenis?: { scrollTo: (t: number, o?: Record<string, unknown>) => void };
+                }).__lenis;
+                const y = window.innerHeight;
+                if (l) l.scrollTo(y, { duration: 1.1 });
+                else window.scrollTo({ top: y, behavior: "smooth" });
+              }}
+            >
+              See how it works <span className="ar">↓</span>
+            </a>
+            <a className="btn btn--ghost" href={EXTERNAL.docs} target="_blank" rel="noopener noreferrer">
+              Read the docs
+            </a>
           </div>
         </div>
 
@@ -508,40 +492,45 @@ export default function Hero() {
           <div className="panel panel--sec" data-i={idx + 1} key={idx} style={{ top: `${activeSteps[idx + 1].ty}vh` }}>
             <h2>{sec.h2}</h2>
             <p className="body" style={{ whiteSpace: "pre-line", textWrap: "pretty" }}>{sec.body}</p>
-            {sec.list && (
-              <ul className="flist">
-                {sec.list.map((it) => (
-                  <li
-                    key={it.c}
-                    data-c={it.c}
-                    onMouseEnter={() => {
-                      clearHighlights();
-                      (document.querySelector(`.flist li[data-c="${it.c}"]`) as HTMLElement)?.classList.add("on");
-                      callIllo("__archSelect", it.c);
-                    }}
-                    onMouseLeave={() => {
-                      clearHighlights();
-                      callIllo("__archClearSel");
-                    }}
-                  >
-                    <b>{it.b}</b>
-                    {it.lite && <span className="lite">{it.lite}</span>}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         ))}
       </div>
+
+      {/* Feature index — a left rail (was a 3-col grid under the body). Pulling it out of the panel
+          flow lets the illustration sit higher and stay fully visible. Shows the active section's
+          items; hovering one still highlights the matching node in the illustration. */}
+      <aside className={`flist-rail${activeList ? " on" : ""}`} aria-hidden={!activeList}>
+        {activeList && (
+          <ul className="flist" key={active}>
+            {activeList.map((it) => (
+              <li
+                key={it.c}
+                data-c={it.c}
+                onMouseEnter={() => {
+                  clearHighlights();
+                  (document.querySelector(`.flist li[data-c="${it.c}"]`) as HTMLElement)?.classList.add("on");
+                  callIllo("__archSelect", it.c);
+                }}
+                onMouseLeave={() => {
+                  clearHighlights();
+                  callIllo("__archClearSel");
+                }}
+              >
+                <b>{it.b}</b>
+                {it.lite && <span className="lite">{it.lite}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </aside>
 
       <div className="snaps" aria-hidden>
         {[0, 1, 2, 3, 4].map((i) => (
           <div className="snap-pt" data-i={i} key={i} />
         ))}
       </div>
-      <section className="below">
-        <iframe ref={belowRef} className="below__frame" src="/below/index.html" title="Arch chain — the full story" scrolling="no" />
-      </section>
+      {/* Below-fold (chain-below.tsx) is now rendered as a REAL React sibling by
+          chain/layout.tsx — de-iframed so position:sticky / scroll-driven sections work. */}
 
       {/* levers tuning panel — hidden for demo; uncomment this block to re-enable
       {showLevers ? (

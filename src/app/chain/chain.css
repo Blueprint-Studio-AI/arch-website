@@ -31,18 +31,87 @@
 /* fade in once layout/fonts/illustration have settled — hides the load-in drift */
 .chain-scope .root{opacity:0;transition:opacity .45s ease}
 .chain-scope .root.ready{opacity:1}
+/* once the scroll is fully past the hero, the below-fold occludes it — hard-hide the fixed
+   overlays so the same-origin iframe can't composite/flicker behind the scrolling content. */
+.chain-scope .root.hero-done .illo-stage,
+.chain-scope .root.hero-done .copyover{visibility:hidden;pointer-events:none}
 
 /* ============================================================
    ILLUSTRATION — fixed, sits low; per-step y/scale driven by JS
    ============================================================ */
-.chain-scope .illo-stage{position:fixed;inset:0;z-index:1;pointer-events:none}
+/* translateZ(0)+backface-hidden pin the fixed hero overlay onto its own stable GPU layer so the
+   opaque below-fold ("Four rules") can composite OVER it without the browser repainting the fixed
+   illustration iframe each frame — that repaint was the open/close flicker at the WhyBand seam. */
+.chain-scope .illo-stage{position:fixed;inset:0;z-index:1;pointer-events:none;
+  will-change:transform;transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .chain-scope .glow{position:absolute;left:50%;bottom:-220px;width:1240px;height:440px;
   transform:translateX(-50%);pointer-events:none;
   background:radial-gradient(ellipse 50% 50% at 50% 50%, var(--orange) 0%, rgba(236,100,29,.55) 38%, rgba(236,100,29,0) 72%);
   filter:blur(150px);opacity:.30}
 .chain-scope .illo{position:absolute;left:50%;top:0;width:680px;height:790px;margin-left:-340px;
   transform-origin:center top;transform:translateY(45vh) scale(.9)}
-.chain-scope .illo iframe{width:680px;height:790px;border:0;background:transparent;display:block;pointer-events:auto}
+.chain-scope .illo #iso{display:block;width:680px;height:790px;overflow:visible}
+/* The illustration is now an INLINE svg (not an iframe), so it no longer traps the wheel — wheel
+   scroll reaches Lenis directly. pointer-events:auto lets the on-art nodes hover-highlight on mouse;
+   on touch devices we drop pointer-events so a swipe scrolls the page instead of grabbing the art. */
+.chain-scope .illo{pointer-events:auto}
+@media (pointer: coarse){.chain-scope .illo{pointer-events:none}}
+
+/* ============================================================
+   ILLUSTRATION — SVG-visual rules ported from public/illustration index.html <style>,
+   scoped under .chain-scope .illo so nothing leaks. (Was inside the iframe.)
+   ============================================================ */
+.chain-scope .illo :is(polygon,ellipse,path.cylbody){stroke:rgba(24,24,24,.22);stroke-width:.8;stroke-linejoin:round}
+.chain-scope .illo .lift{transition:transform 1s cubic-bezier(.22,.9,.3,1.06),opacity .75s ease}
+.chain-scope .illo #world{transition:transform 1s cubic-bezier(.22,.9,.3,1.06)}
+.chain-scope .illo .layer.hid .lift{transform:translateY(-360px);opacity:0}
+.chain-scope .illo .layer.fadein.hid .lift{transform:none;opacity:0}
+.chain-scope .illo .layer.dim .lift{opacity:.5}
+.chain-scope .illo .comp.sel polygon.ft,.chain-scope .illo .comp.sel ellipse.ft{fill:#ec641d}
+.chain-scope .illo .comp.sel polygon.fe,.chain-scope .illo .comp.sel path.fe{fill:#cf5418}
+.chain-scope .illo .comp.sel polygon.fs{fill:#b84a14}
+
+.chain-scope .illo .wire{fill:none;stroke:#c4bfa7;stroke-width:var(--vw,1.4);stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s ease,stroke-width .2s ease}
+.chain-scope .illo .l2addr{font-family:var(--sans);font-size:8px;letter-spacing:.04em;fill:#9a9684}
+.chain-scope .illo .l2el,.chain-scope .illo .pipe .tube{transition:opacity .28s ease}
+.chain-scope .illo #L2.focus .l2el{opacity:.16}
+.chain-scope .illo #L2.focus .l2el.hot{opacity:1}
+.chain-scope .illo #L2.focus .l2el.keep{opacity:1}
+.chain-scope .illo #L2.flow .l2el{opacity:.16}
+.chain-scope .illo #L2.flow .pipe{opacity:1}
+.chain-scope .illo #L2.flow .pipe .tube{opacity:.16}
+.chain-scope .illo #L2.flow #g-vm{opacity:1}
+.chain-scope .illo .pipe.hot .wpkt{opacity:0}
+.chain-scope .illo .wire.hot,.chain-scope .illo .l2el.hot .wire{stroke:#ec641d;stroke-width:2.8}
+.chain-scope .illo .l2el.hot polygon.ft,.chain-scope .illo .l2el.hot ellipse.ft{fill:#ec641d}
+.chain-scope .illo .l2el.hot polygon.fe,.chain-scope .illo .l2el.hot path.fe{fill:#cf5418}
+.chain-scope .illo .l2el.hot polygon.fs{fill:#b84a14}
+.chain-scope .illo .l2el.hot .l2addr{fill:#ec641d;font-weight:600}
+.chain-scope .illo .vmshell,.chain-scope .illo .utxocore{transition:opacity .35s ease}
+.chain-scope .illo .utxocore{opacity:0}
+.chain-scope .illo #g-vm.xray .vmshell{opacity:.08}
+.chain-scope .illo #g-vm.xray .utxocore{opacity:1}
+.chain-scope .illo #L2.focus #g-vm.xray{opacity:1}
+
+.chain-scope .illo .dot{cursor:pointer;transition:opacity .22s ease}
+.chain-scope .illo .dots.dimothers .dot{opacity:.16}
+.chain-scope .illo .dots.dimothers .dot.act{opacity:1}
+.chain-scope .illo .dot circle.c{fill:var(--orange);stroke:#fff;stroke-width:2;transition:r .15s}
+.chain-scope .illo .dot:hover circle.c{r:7.5}
+.chain-scope .illo .dot circle.hit{fill:transparent;stroke:none}
+.chain-scope .illo .dots{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s}
+.chain-scope .illo .dots.show{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .45s ease 1.05s,visibility 0s linear 1.05s}
+.chain-scope .illo .ping{animation:chain-illo-ping 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes chain-illo-ping{0%{transform:scale(.5);opacity:.9}70%{transform:scale(2.4);opacity:0}100%{transform:scale(2.4);opacity:0}}
+
+.chain-scope .illo .isolabel{font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;fill:#808080}
+.chain-scope .illo .subname{font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;fill:#6b675a}
+
+.chain-scope .illo #card{position:absolute;width:220px;background:#fff;border:1px solid rgba(128,128,128,.4);border-radius:10px;padding:10px 13px;pointer-events:none;opacity:0;transition:opacity .2s ease;z-index:6;font-family:var(--sans)}
+.chain-scope .illo #card .t{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.35}
+.chain-scope .illo #card .b{font-size:12px;color:#808080;line-height:1.45;margin-top:3px}
+.chain-scope .illo #card::before{content:"";position:absolute;left:-5px;top:14px;width:8px;height:8px;background:#fff;border-left:1px solid rgba(128,128,128,.4);border-bottom:1px solid rgba(128,128,128,.4);transform:rotate(45deg)}
+.chain-scope .illo #card.flip::before{left:auto;right:-5px;transform:rotate(225deg)}
 
 /* ============================================================
    COPY — fixed crossfade overlay (JS sets opacity/transform per panel)
@@ -50,6 +119,11 @@
 .chain-scope .copyover{position:fixed;inset:0;z-index:2;pointer-events:none}
 .chain-scope .panel{position:absolute;left:50%;top:9vh;transform:translateX(-50%);
   width:min(760px,92vw);text-align:center;opacity:0;will-change:opacity,transform}
+/* Nav clearance: the fixed nav is 80px tall. The landing beat (11vh) clears it, but the section
+   beats sit at 9–10vh and their headings tuck under the nav (see "Native tech" clipping). Push ONLY
+   the section beats down by a fixed nav offset. Animation-safe: the illustration is placed relative
+   to each panel's LIVE offsetTop, so it follows the shifted text and every gap is preserved. */
+.chain-scope .panel--sec{margin-top:42px}
 
 .chain-scope .chip{font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;
   color:var(--muted);border:1px solid var(--hair);border-radius:999px;padding:5px 12px;
@@ -78,6 +152,26 @@
 .chain-scope .flist li .lite{display:block;color:var(--muted);font-size:11px;margin-top:1px}
 .chain-scope .flist li.on{border-left-color:var(--orange);background:rgba(236,100,29,.12)}
 .chain-scope .flist li.on b{color:var(--orange)}
+
+/* ============================================================
+   FEATURE INDEX RAIL — the flist pulled out to a fixed left column so the
+   illustration can sit higher and stay fully visible. Fades with the active section.
+   ============================================================ */
+.chain-scope .flist-rail{position:fixed;left:clamp(16px,4.5vw,72px);top:50%;transform:translateY(-50%);
+  width:232px;z-index:3;pointer-events:none;opacity:0;transition:opacity .4s var(--ease)}
+.chain-scope .flist-rail.on{opacity:1}
+.chain-scope .flist-rail.on .flist{pointer-events:auto}
+.chain-scope .flist-rail .flist{display:flex;flex-direction:column;gap:6px;margin:0;max-width:none;
+  width:100%;grid-template-columns:none;text-align:left;animation:chain-railin .45s var(--ease)}
+@keyframes chain-railin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(max-width:900px){
+  /* narrow desktop/tablet: tuck the rail in tighter so it doesn't crowd the illustration */
+  .chain-scope .flist-rail{width:200px;left:14px}
+}
+@media(max-width:680px){
+  /* mobile: no room for a side rail — hide it (the section heading + body carry the message) */
+  .chain-scope .flist-rail{display:none}
+}
 
 /* ============================================================
    SNAP TRACK  (transparent spacers drive scroll/snap) + below-fold story
