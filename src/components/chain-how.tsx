@@ -104,11 +104,11 @@ const figCrypto = (
     </defs>
     <text x="40" y="34" className={lmono} fontSize="9.5" fill="#8a8a92">VALIDATOR SET · key-shares</text>
     <g>
-      <g transform="translate(60,62)"><circle r="20" fill="#fff" stroke="#d3d3da" /><path d="M-4 -2 a4 4 0 1 1 6 4 l3 3 -2 2 -2 -2 1.5 -1.5 -1.5 -1.5" fill="none" stroke="#ec641d" strokeWidth="1.3" /></g>
-      <g transform="translate(60,118)"><circle r="20" fill="#fff" stroke="#d3d3da" /><path d="M-4 -2 a4 4 0 1 1 6 4 l3 3 -2 2 -2 -2 1.5 -1.5 -1.5 -1.5" fill="none" stroke="#ec641d" strokeWidth="1.3" /></g>
-      <g transform="translate(60,174)"><circle r="20" fill="#fff" stroke="#d3d3da" /><path d="M-4 -2 a4 4 0 1 1 6 4 l3 3 -2 2 -2 -2 1.5 -1.5 -1.5 -1.5" fill="none" stroke="#ec641d" strokeWidth="1.3" /></g>
-      <g transform="translate(118,90)"><circle r="20" fill="#fff" stroke="#d3d3da" /><path d="M-4 -2 a4 4 0 1 1 6 4 l3 3 -2 2 -2 -2 1.5 -1.5 -1.5 -1.5" fill="none" stroke="#ec641d" strokeWidth="1.3" /></g>
-      <g transform="translate(118,146)"><circle r="20" fill="#fff" stroke="#d3d3da" /><path d="M-4 -2 a4 4 0 1 1 6 4 l3 3 -2 2 -2 -2 1.5 -1.5 -1.5 -1.5" fill="none" stroke="#ec641d" strokeWidth="1.3" /></g>
+      <g transform="translate(60,62)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
+      <g transform="translate(60,118)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
+      <g transform="translate(60,174)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
+      <g transform="translate(118,90)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
+      <g transform="translate(118,146)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
     </g>
     <g stroke="#dcdce2" fill="none">
       <path d="M84 66 C200 72 230 102 300 114" markerEnd="url(#a3)" />
@@ -117,7 +117,6 @@ const figCrypto = (
       <path d="M142 93 C220 100 250 110 300 116" markerEnd="url(#a3)" />
       <path d="M142 149 C220 142 250 128 300 121" markerEnd="url(#a3)" />
     </g>
-    <text x="200" y="212" textAnchor="middle" className={lmono} fontSize="9" fill="#9a9aa2">enough sign together (FROST · ROAST)</text>
     <rect x="312" y="92" width="150" height="52" rx="10" fill="#fff" stroke="#ec641d" strokeWidth="1.4" />
     <text x="387" y="116" textAnchor="middle" className={lmono} fontSize="11" fill="#ec641d">1 signature</text>
     <text x="387" y="131" textAnchor="middle" className={lmono} fontSize="8.5" fill="#b6b6be">no single key exists</text>
@@ -585,8 +584,8 @@ function ChainHowStacked({
   variant: CardVariant;
 }) {
   return (
-    <section className="bg-black font-sans text-white antialiased">
-      <div className="mx-auto max-w-[68rem] px-6 py-24 md:py-28">
+    <section className="bg-[#2e2d33] font-sans text-white antialiased">
+      <div className="mx-auto max-w-[64rem] px-6 py-24 md:py-28">
         <Reveal>
           <header className="flex flex-col gap-y-5 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
             <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] text-white md:text-[2rem]">How it works.</h2>
@@ -678,10 +677,10 @@ export function ChainHow() {
 
   const beat = BEATS[active];
   return (
-    <section ref={sectionRef} className="relative bg-black font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
+    <section ref={sectionRef} className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
       {/* pinned frame — fills the viewport while the story advances */}
       <div className="sticky top-0 flex h-svh flex-col overflow-clip px-6 py-[clamp(1.75rem,5vh,3.25rem)]">
-        <div className="mx-auto flex w-full max-w-[68rem] flex-1 flex-col">
+        <div className="mx-auto flex w-full max-w-[64rem] flex-1 flex-col">
           {/* header: title + clickable principle legend */}
           <header className="flex flex-col gap-y-4 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
             <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] md:text-[2rem]">How it works.</h2>

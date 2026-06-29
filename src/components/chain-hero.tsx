@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createIllustration, type IllustrationApi } from "./chain-illustration";
+import { EXTERNAL } from "@/lib/site";
 
 type Item = { c: string; b: string; lite?: string };
 type Section = { h2: string; body: string; list?: Item[] };
@@ -464,8 +465,26 @@ export default function Hero() {
           </h1>
           <p className="sub">DeFi that actually works.</p>
           <div className="btns">
-            <a className="btn btn--primary" href="#">See how it works <span className="ar">↓</span></a>
-            <a className="btn btn--ghost" href="#">Read the docs</a>
+            {/* "See how it works" begins the guided scroll — advance one beat to "How is that possible?".
+                Programmatic lenis.scrollTo lands on the beat; the snap machine's idle-settle keeps it there. */}
+            <a
+              className="btn btn--primary"
+              href="#how"
+              onClick={(e) => {
+                e.preventDefault();
+                const l = (window as Window & {
+                  __lenis?: { scrollTo: (t: number, o?: Record<string, unknown>) => void };
+                }).__lenis;
+                const y = window.innerHeight;
+                if (l) l.scrollTo(y, { duration: 1.1 });
+                else window.scrollTo({ top: y, behavior: "smooth" });
+              }}
+            >
+              See how it works <span className="ar">↓</span>
+            </a>
+            <a className="btn btn--ghost" href={EXTERNAL.docs} target="_blank" rel="noopener noreferrer">
+              Read the docs
+            </a>
           </div>
         </div>
 

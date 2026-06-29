@@ -82,12 +82,20 @@ function WhyBand() {
     // iframe each frame (that repaint was the open/close flicker).
     <section className="bg-[#1f1c3e] transform-gpu">
       <div className="mx-auto max-w-[64rem] px-6 py-[7.5rem]">
-        {/* head — big h2 + intro only, no eyebrow (matches .feat__head on the dark band) */}
+        {/* large opening statement — the section's hook, brand serif, LEFT-aligned so it leads the
+            same column as the four-rules header + cards below (no centered/left mismatch). */}
         <Reveal>
+          <h2 className="max-w-[16ch] text-balance font-serif text-[clamp(2.5rem,6vw,4rem)] font-light leading-[1.05] tracking-[-0.02em] text-light">
+            Finance, finally native to Bitcoin.
+          </h2>
+        </Reveal>
+
+        {/* the "four rules" framing + intro, leading into the four cards (kept, demoted to h3) */}
+        <Reveal className="mt-10 md:mt-14">
           <div className="max-w-[42rem]">
-            <h2 className="text-balance text-[1.5rem] font-normal leading-[1.16] tracking-[-0.022em] text-light md:text-[1.85rem]">
+            <h3 className="text-balance text-[1.5rem] font-normal leading-[1.16] tracking-[-0.022em] text-light md:text-[1.85rem]">
               Four rules we couldn&apos;t break.
-            </h2>
+            </h3>
             <p className="mt-3.5 max-w-[48ch] text-pretty text-[1rem] leading-[1.5] text-light/[0.72]">
               Real finance on Bitcoin needs all four at once. Every prior attempt broke at least one — so the markets never came, and Bitcoin&apos;s liquidity went everywhere except Bitcoin. Arch is the first to hold all four.
             </p>
@@ -128,9 +136,9 @@ export function ChainBelow() {
       <WhyBand />
       {/* black spacers give the off-black HOW band extra breathing room before/after it meets
           the neighbouring sections — NOT part of the pinned/sticky area. */}
-      <div aria-hidden className="h-[12vh] min-h-20 bg-black" />
+      <div aria-hidden className="h-[12vh] min-h-20 bg-[#2e2d33]" />
       <ChainHow />
-      <div aria-hidden className="h-[12vh] min-h-20 bg-black" />
+      <div aria-hidden className="h-[12vh] min-h-20 bg-[#2e2d33]" />
       <ChainUnlock />
       <ChainApps />
     </div>

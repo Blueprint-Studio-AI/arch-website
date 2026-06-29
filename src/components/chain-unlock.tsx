@@ -1,36 +1,38 @@
-// Movement 3 of the Chain page below-fold — "Financial primitives Arch unlocks"
-// (§2.1 pools → §2.2 enforceable collateral → §2.3 real liquidations → §2.4 the unlock + builder CTA).
-// Ported faithfully from public/below/index.html (the .band--unlock section). White paper / dark text.
+// Movement 3 of the Chain page below-fold — "The financial primitives Arch unlocks"
+// (§2.1 pools → §2.2 enforceable collateral → §2.3 real liquidations → §2.4 the unlock).
+// Ported from Jaidon's expansion prototype (public/prototypes/layout-1.html → live at
+// arch-website-expansion.netlify.app/chain): consistent text-LEFT / figure-RIGHT editorial
+// rows, a tight lede + three accented sub-points per primitive, and a big airy figure panel
+// holding a refined technical diagram. White paper / dark text. No eyebrows, no card chrome.
 //
-// Token mapping (chain.css → Tailwind theme): cream → light, purple → dark-purple,
-// purple-2 → purple, orange → orange; gray ramp ink/body/muted/faint → neutral-900/600/500/400;
-// hairline (--hair) → border-black/[0.08]. Mirrors the WhyBand reference in chain-below.tsx.
+// Token mapping (chain.css → Tailwind theme): orange → #ec641d; gray ramp ink/body/muted/faint
+// → neutral-900/600/500/400; hairline (--hair) → border-black/[0.08..0.12]. Diagram labels keep
+// the prototype's AzeretMono (the figures are technical blueprints, not prose).
 
 import type { ReactNode } from "react";
 import { Reveal } from "./chain-reveal";
 
 type Section = {
-  n: string;
-  label: string;
   title: ReactNode;
-  body: ReactNode;
+  lede: ReactNode;
+  points: string[];
   figure: ReactNode;
 };
 
 const SECTIONS: Section[] = [
   {
-    n: "2.1",
-    label: "The missing primitive",
-    title: <>Bitcoin could always send value. It just couldn&apos;t pool it.</>,
-    body: (
+    title: <>Bitcoin could send value. It couldn&apos;t pool it.</>,
+    lede: (
       <>
-        A pool is shared capital many people can use at once — most markets are built on them. Bitcoin can&apos;t support
-        them on its own; Arch can, while your Bitcoin stays native. Pooling real UTXO states unlocks AMMs and more
-        efficient markets — the line between{" "}
-        <em className="font-serif not-italic font-normal">&quot;two people can trade&quot;</em> and{" "}
-        <em className="font-serif not-italic font-normal">&quot;a market anyone can trade against.&quot;</em>
+        A pool is shared capital many people draw on at once — the basis of almost every market. Bitcoin can&apos;t form
+        one alone; Arch can, while every coin stays native.
       </>
     ),
+    points: [
+      "Shared liquidity from native UTXOs",
+      "The basis for AMMs and efficient markets",
+      "A market anyone can trade against",
+    ],
     figure: (
       <svg
         viewBox="0 0 680 228"
@@ -44,18 +46,18 @@ const SECTIONS: Section[] = [
           </marker>
         </defs>
         {/* P2P */}
-        <text x="40" y="34" className="font-mono tracking-[0.06em]" fontSize="9.5" fill="#8a8a92">
+        <text x="40" y="34" className="tracking-[0.01em]" fontSize="9.5" fill="#8a8a92">
           BITCOIN · peer-to-peer
         </text>
         <rect x="40" y="50" width="280" height="130" rx="12" fill="#fff" stroke="#ededf0" />
         <rect x="78" y="100" width="26" height="26" rx="6" fill="#E9B949" stroke="#b8860b" />
         <path d="M118 113 L236 113" stroke="#c4c4cc" markerEnd="url(#a5)" />
         <rect x="252" y="100" width="26" height="26" rx="6" fill="#E9B949" stroke="#b8860b" />
-        <text x="180" y="206" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="9" fill="#9a9aa2">
+        <text x="180" y="206" textAnchor="middle" className="tracking-[0.01em]" fontSize="9" fill="#9a9aa2">
           one coin → one coin
         </text>
         {/* pool */}
-        <text x="360" y="34" className="font-mono tracking-[0.06em]" fontSize="9.5" fill="#ec641d">
+        <text x="360" y="34" className="tracking-[0.01em]" fontSize="9.5" fill="#ec641d">
           ARCH · a pool
         </text>
         <rect x="360" y="50" width="280" height="130" rx="12" fill="#fff" stroke="#ec641d" strokeOpacity=".35" />
@@ -72,29 +74,31 @@ const SECTIONS: Section[] = [
           <path d="M404 157 L470 120" markerEnd="url(#a5)" />
         </g>
         <rect x="472" y="84" width="148" height="62" rx="12" fill="#fdf6e3" stroke="#e6d28a" />
-        <text x="546" y="111" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="10" fill="#9a7a1a">
+        <text x="546" y="111" textAnchor="middle" className="tracking-[0.01em]" fontSize="10" fill="#9a7a1a">
           shared reserve
         </text>
-        <text x="546" y="126" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#b59a4a">
+        <text x="546" y="126" textAnchor="middle" className="tracking-[0.01em]" fontSize="8.5" fill="#b59a4a">
           pooled · native UTXOs
         </text>
-        <text x="500" y="206" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="9" fill="#9a9aa2">
+        <text x="500" y="206" textAnchor="middle" className="tracking-[0.01em]" fontSize="9" fill="#9a9aa2">
           a market anyone can trade against
         </text>
       </svg>
     ),
   },
   {
-    n: "2.2",
-    label: "Enforceable collateral",
-    title: <>Collateral you can actually enforce — on Bitcoin.</>,
-    body: (
+    title: <>Collateral you can actually enforce.</>,
+    lede: (
       <>
-        A loan market only works if the lender can seize the collateral without the borrower&apos;s consent. Bitcoin
-        can&apos;t do it alone, and wrapping it adds another layer of uncertainty. Arch enforces mechanically and settles
-        to Bitcoin, so the borrower can&apos;t yank it. Moving that coin takes the validators&apos; signature, not theirs.
+        A loan market only works if the lender can seize collateral without the borrower&apos;s consent. Arch enforces it
+        mechanically and settles to Bitcoin — the borrower can&apos;t yank it back.
       </>
     ),
+    points: [
+      "Seized by rule, not by permission",
+      "Moving the coin needs the validators’ signature",
+      "Settles on Bitcoin — no wrapping, no bridge",
+    ],
     figure: (
       <svg
         viewBox="0 0 680 216"
@@ -108,13 +112,13 @@ const SECTIONS: Section[] = [
           </marker>
         </defs>
         {/* price chart */}
-        <text x="40" y="26" className="font-mono tracking-[0.06em]" fontSize="9.5" fill="#8a8a92">
+        <text x="40" y="26" className="tracking-[0.01em]" fontSize="9.5" fill="#8a8a92">
           COLLATERAL PRICE
         </text>
         <line x1="44" y1="40" x2="44" y2="150" stroke="#e4e4e8" />
         <line x1="44" y1="150" x2="344" y2="150" stroke="#e4e4e8" />
         <line x1="44" y1="106" x2="344" y2="106" stroke="#ec641d" strokeDasharray="4 3" strokeOpacity=".5" />
-        <text x="344" y="100" textAnchor="end" className="font-mono tracking-[0.06em]" fontSize="8" fill="#ec641d">
+        <text x="344" y="100" textAnchor="end" className="tracking-[0.01em]" fontSize="8" fill="#ec641d">
           liquidation threshold
         </text>
         {/* price falls and crosses the threshold exactly at the breach */}
@@ -126,48 +130,47 @@ const SECTIONS: Section[] = [
         />
         <line x1="232" y1="110" x2="232" y2="150" stroke="#ec641d" strokeOpacity=".3" strokeDasharray="2 3" />
         <circle cx="232" cy="106" r="4.5" fill="#ec641d" />
-        <text x="232" y="167" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#ec641d">
+        <text x="232" y="167" textAnchor="middle" className="tracking-[0.01em]" fontSize="8.5" fill="#ec641d">
           breach
         </text>
         {/* the breach fires the VM */}
         <path d="M344 124 C386 124 380 112 414 112" fill="none" stroke="#ec641d" strokeWidth="1.4" markerEnd="url(#a6)" />
         <rect x="416" y="88" width="92" height="48" rx="9" fill="#fff" stroke="#ec641d" strokeWidth="1.3" />
-        <text x="462" y="110" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="11" fill="#ec641d">
+        <text x="462" y="110" textAnchor="middle" className="tracking-[0.01em]" fontSize="11" fill="#ec641d">
           ArchVM
         </text>
-        <text x="462" y="124" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8" fill="#b6b6be">
+        <text x="462" y="124" textAnchor="middle" className="tracking-[0.01em]" fontSize="8" fill="#b6b6be">
           assembles tx
         </text>
         <path d="M508 112 L544 112" stroke="#c4c4cc" markerEnd="url(#a6)" />
         {/* collateral moved and settled */}
         <rect x="548" y="84" width="116" height="56" rx="9" fill="#faf1d8" stroke="#b8860b" />
         <rect x="598" y="92" width="16" height="16" rx="4" fill="#E9B949" stroke="#b8860b" />
-        <text x="606" y="122" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a7a1a">
+        <text x="606" y="122" textAnchor="middle" className="tracking-[0.01em]" fontSize="8.5" fill="#9a7a1a">
           collateral
         </text>
-        <text x="606" y="133" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a7a1a">
+        <text x="606" y="133" textAnchor="middle" className="tracking-[0.01em]" fontSize="8.5" fill="#9a7a1a">
           moved · settled
         </text>
-        <text x="352" y="194" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="9" fill="#9a9aa2">
+        <text x="352" y="194" textAnchor="middle" className="tracking-[0.01em]" fontSize="9" fill="#9a9aa2">
           the moment a rule fires — settled to Bitcoin, the borrower can&apos;t intercept
         </text>
       </svg>
     ),
   },
   {
-    n: "2.3",
-    label: "Real liquidations",
-    title: <>A liquidation that&apos;s both on time and final.</>,
-    body: (
+    title: <>A liquidation that&apos;s on time and final.</>,
+    lede: (
       <>
-        A late liquidation isn&apos;t slow — it&apos;s a loss. On a ten-minute chain you can&apos;t promise you&apos;ll be
-        on time. Arch detects a breach,{" "}
-        <b className="font-medium text-neutral-900">
-          locks the price at signing, and broadcasts the closeout in under three seconds
-        </b>{" "}
-        — then settles it on Bitcoin.
+        A late liquidation isn&apos;t slow — it&apos;s a loss. Arch detects a breach, locks the price at signing, and
+        broadcasts the closeout in under three seconds, then settles on Bitcoin.
       </>
     ),
+    points: [
+      "Price locked at the moment of signing",
+      "Closeout broadcast in under three seconds",
+      "Final with Bitcoin’s own settlement",
+    ],
     figure: (
       <svg
         viewBox="0 0 680 184"
@@ -177,10 +180,10 @@ const SECTIONS: Section[] = [
       >
         {/* arch bracket */}
         <rect x="40" y="56" width="320" height="62" rx="10" fill="#fff" stroke="#ec641d" strokeOpacity=".4" />
-        <text x="52" y="46" className="font-mono tracking-[0.06em]" fontSize="9" fill="#ec641d">
+        <text x="52" y="46" className="tracking-[0.01em]" fontSize="9" fill="#ec641d">
           ON ARCH · &lt; 3 SECONDS
         </text>
-        <g className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#7a7a82">
+        <g className="tracking-[0.01em]" fontSize="8.5" fill="#7a7a82">
           <circle cx="78" cy="87" r="4" fill="#ec641d" />
           <text x="78" y="107" textAnchor="middle">
             breach
@@ -203,33 +206,35 @@ const SECTIONS: Section[] = [
         <path d="M364 87 L408 87" stroke="#c4c4cc" strokeDasharray="3 3" />
         {/* bitcoin */}
         <rect x="412" y="56" width="228" height="62" rx="10" fill="#faf1d8" stroke="#e6d28a" />
-        <text x="424" y="46" className="font-mono tracking-[0.06em]" fontSize="9" fill="#9a7a1a">
+        <text x="424" y="46" className="tracking-[0.01em]" fontSize="9" fill="#9a7a1a">
           ON BITCOIN · ~10 MIN
         </text>
         <rect x="430" y="70" width="34" height="34" rx="6" fill="#fff" stroke="#b8860b" />
-        <text x="478" y="84" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a7a1a">
+        <text x="478" y="84" className="tracking-[0.01em]" fontSize="8.5" fill="#9a7a1a">
           settled with
         </text>
-        <text x="478" y="96" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a7a1a">
+        <text x="478" y="96" className="tracking-[0.01em]" fontSize="8.5" fill="#9a7a1a">
           Bitcoin finality
         </text>
-        <text x="340" y="152" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="9" fill="#9a9aa2">
+        <text x="340" y="152" textAnchor="middle" className="tracking-[0.01em]" fontSize="9" fill="#9a9aa2">
           fast enough to stay solvent · final enough to trust
         </text>
       </svg>
     ),
   },
   {
-    n: "2.4",
-    label: "The unlock",
-    title: <>Lending on Bitcoin — for the first time, natively.</>,
-    body: (
+    title: <>Lending on Bitcoin — natively, for the first time.</>,
+    lede: (
       <>
-        Native settlement made the collateral enforceable. Speed made the liquidations real. Together they make pooled
-        lending possible on Bitcoin itself — with no single party able to move your collateral. That wasn&apos;t possible before.{" "}
-        <b className="font-medium text-neutral-900">It is now.</b>
+        Native settlement made the collateral enforceable; speed made the liquidations real. Together they make pooled
+        lending possible on Bitcoin itself.
       </>
     ),
+    points: [
+      "Pools + enforceable collateral + fast liquidation",
+      "Pooled lending on native Bitcoin",
+      "No wrapping, no bridge, no custodian",
+    ],
     figure: (
       <svg
         viewBox="0 0 680 220"
@@ -270,79 +275,55 @@ const SECTIONS: Section[] = [
 ];
 
 export function ChainUnlock() {
-  const rows = SECTIONS.slice(0, 3); // §2.1–2.3 as alternating rows
-  const unlock = SECTIONS[3]; // §2.4 — the payoff
-
   return (
     <section className="border-t border-black/[0.08] bg-white font-sans text-black antialiased">
-      <div className="mx-auto max-w-[64rem] px-6 pt-24 md:pt-32">
-        {/* macro intro — opens the WHAT YOU CAN DO beat */}
+      <div className="mx-auto max-w-[64rem] px-6 pb-28 pt-24 md:pb-40 md:pt-32">
+        {/* macro intro — confident heading + a tight lede (Jaidon's flat editorial voice), no eyebrow.
+            Brand serif, but a notch below the WhyBand hook ("Finance, finally native to Bitcoin.") —
+            this is a chapter opener, not the page thesis. */}
         <Reveal>
-          <div className="flex items-center gap-2.5">
-            <span className="h-1.5 w-1.5 flex-none rounded-full bg-orange" />
-            <span className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-neutral-500">What you can do</span>
-          </div>
-
-          <h2 className="mt-5 max-w-[22ch] text-balance text-[2rem] font-medium leading-[1.08] tracking-[-0.022em] text-neutral-900 md:text-[2.5rem]">
-            What native Bitcoin can finally do.
+          <h2 className="max-w-[19ch] text-balance font-serif text-[2.5rem] font-light leading-[1.05] tracking-[-0.012em] text-neutral-900 md:text-[3.25rem]">
+            The financial primitives Arch unlocks.
           </h2>
-
-          <p className="mt-5 max-w-[58ch] text-pretty text-[1.05rem] leading-[1.6] text-neutral-600">
-            The foundations unlock real financial primitives — pools, enforceable collateral, and on-time
-            liquidations — and the apps that finally put them in your hands.
+          <p className="mt-6 max-w-[46ch] text-pretty text-[1.15rem] leading-[1.5] text-neutral-600 md:text-[1.25rem]">
+            Pools, enforceable collateral, and real liquidations — the building blocks of markets, finally possible on
+            native Bitcoin.
           </p>
         </Reveal>
 
-        {/* sub-beat: the primitives */}
-        <div className="mt-16 flex items-center gap-3">
-          <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-neutral-400">The primitives</span>
-          <span className="h-px flex-1 bg-black/[0.08]" />
-        </div>
-
-        {/* §2.1–2.3 — flat alternating rows, no card chrome, whitespace as the divider */}
-        {rows.map((s, i) => {
-          const flip = i % 2 === 1;
-          return (
-            <Reveal
-              key={s.n}
-              delay={i * 80}
-              className="grid items-center gap-9 py-14 md:grid-cols-2 md:gap-14 md:py-16"
-            >
-              <div className={flip ? "md:order-2" : "md:order-1"}>
-                <div className="inline-flex items-center gap-[9px] font-mono text-[0.72rem] uppercase tracking-[0.04em] text-neutral-500">
-                  <span className="font-medium tabular-nums text-orange">{s.n}</span> {s.label}
-                </div>
-                <h3 className="mt-3 text-balance text-[1.4rem] font-medium leading-[1.18] tracking-[-0.018em] text-neutral-900 md:text-[1.6rem]">
+        {/* the primitives — consistent text-LEFT / figure-RIGHT editorial rows with lots of air between.
+            No card chrome, no eyebrows; the heading, the lede, three accented sub-points, and a big airy
+            figure panel carry each one. */}
+        <div className="mt-20 flex flex-col gap-28 md:mt-28 md:gap-44">
+          {SECTIONS.map((s, i) => (
+            <Reveal key={i} delay={i * 60} className="grid items-center gap-10 md:grid-cols-[2fr_3fr] md:gap-16">
+              <div>
+                <h3 className="text-balance text-[1.4rem] font-medium leading-[1.16] tracking-[-0.018em] text-neutral-900 md:text-[1.6rem]">
                   {s.title}
                 </h3>
-                <p className="mt-3 max-w-[46ch] text-pretty text-[0.98rem] leading-[1.6] text-neutral-600">{s.body}</p>
+                <p className="mt-4 max-w-[44ch] text-pretty text-[1rem] leading-[1.6] text-neutral-600 md:text-[1.05rem]">
+                  {s.lede}
+                </p>
+                <ul className="mt-7 flex flex-col gap-2.5">
+                  {s.points.map((p) => (
+                    <li
+                      key={p}
+                      className="border-l border-black/[0.12] pl-4 text-[0.92rem] leading-[1.45] text-neutral-500"
+                    >
+                      {p}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div
-                className={`flex items-center justify-center rounded-[14px] bg-neutral-100 p-7 lg:p-10 ${
-                  flip ? "md:order-1" : "md:order-2"
-                }`}
-              >
-                <div className="w-full max-w-[520px] [&_text]:[font-variant-numeric:tabular-nums]">{s.figure}</div>
-              </div>
+              {/* big airy panel — refined technical diagram centered with generous whitespace */}
+              <figure className="flex min-h-[340px] items-center justify-center rounded-[12px] bg-neutral-100 px-6 py-12 md:min-h-[440px] md:px-10 md:py-16">
+                <div className="mx-auto w-full max-w-[460px] [&_text]:[font-family:AzeretMono,monospace] [&_text]:[font-variant-numeric:tabular-nums]">
+                  {s.figure}
+                </div>
+              </figure>
             </Reveal>
-          );
-        })}
-
-        {/* §2.4 — the unlock, as a centered payoff */}
-        <Reveal className="mt-10 text-center" delay={80}>
-          <div className="inline-flex items-center gap-[9px] font-mono text-[0.72rem] uppercase tracking-[0.04em] text-neutral-500">
-            <span className="font-medium tabular-nums text-orange">{unlock.n}</span> {unlock.label}
-          </div>
-          <h3 className="mx-auto mt-3 max-w-[26ch] text-balance text-[1.5rem] font-medium leading-[1.18] tracking-[-0.018em] text-neutral-900 md:text-[1.7rem]">
-            {unlock.title}
-          </h3>
-          <p className="mx-auto mt-3 max-w-[54ch] text-pretty text-[0.98rem] leading-[1.6] text-neutral-600">
-            {unlock.body}
-          </p>
-          <div className="mx-auto mt-8 flex max-w-[680px] items-center justify-center rounded-[14px] bg-neutral-100 p-7 lg:p-10">
-            <div className="w-full max-w-[600px] [&_text]:[font-variant-numeric:tabular-nums]">{unlock.figure}</div>
-          </div>
-        </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );

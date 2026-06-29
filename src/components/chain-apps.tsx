@@ -1,235 +1,198 @@
 // Movement 4 of the Chain page below-fold ("What you can do" — §3.x), ported from
 // public/below/index.html (static HTML + vanilla CSS) to a React + Tailwind component.
 // This is the white-paper band (band--do = transparent bg) → dark text on white.
-// App cards (Borrow/Earn/Swap) + the ecosystem grid; no closing CTA exists in the
-// source markup, so none is invented. Footer is rendered by the parent (SiteFooter).
+// "Use it" sub-beat: three flip-to-code app cards (Borrow/Earn/Swap) in the home
+// institutions-card visual language, then the "For builders" closing CTA.
 //
 // Token mapping (chain.css → Tailwind theme): cream → light, purple → dark-purple,
 // purple-2 → purple, orange → orange; gray ramp ink/body/muted/faint → neutral-900/600/500/400;
 // hairline (--hair) → border-black/[0.08].
 
-import type { ReactNode } from "react";
 import { Reveal } from "./chain-reveal";
+import { RustMark } from "./rust-mark";
+import { EXTERNAL } from "@/lib/site";
 
-type App = { tag: string; title: string; desc: string; link: string; viz: ReactNode };
+type App = {
+  /** action label (also React key) */
+  tag: string;
+  /** display title — brand serif */
+  title: string;
+  /** one tight line of our copy */
+  desc: string;
+  /** live case-study name + url (opens in new tab) */
+  liveName: string;
+  liveUrl: string;
+  /** developer docs url */
+  docsUrl: string;
+  /** real on-chain primitive shown on the card back */
+  code: string;
+};
 
 const APPS: App[] = [
   {
     tag: "Borrow",
     title: "Borrow against it. Keep it.",
-    desc: "Draw a loan against native BTC — real Bitcoin, not a wrapped IOU. Still yours the whole time.",
-    link: "Borrow in Arch Prime",
-    viz: (
-      <svg
-        viewBox="0 0 200 112"
-        role="img"
-        aria-label="Your native BTC stays in place while you draw a loan against it."
-        className="block h-auto w-full"
-      >
-        <defs>
-          <marker id="bA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0 0 L9 5 L0 10 z" fill="#ec641d" />
-          </marker>
-        </defs>
-        <rect x="30" y="40" width="32" height="32" rx="8" fill="#E9B949" stroke="#b8860b" />
-        <text x="46" y="90" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a8a4a">
-          your BTC
-        </text>
-        <path d="M70 56 L116 56" stroke="#ec641d" strokeWidth="1.4" strokeDasharray="3 3" markerEnd="url(#bA)" />
-        <rect x="122" y="42" width="52" height="28" rx="7" fill="#fff" stroke="#d3d3da" />
-        <text x="148" y="60" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#34343a">
-          loan out
-        </text>
-      </svg>
-    ),
+    desc: "Draw a loan against native BTC — not a wrapped IOU.",
+    liveName: "Arch Prime",
+    liveUrl: "https://www.arch.network/",
+    docsUrl: "https://docs.arch.network/",
+    code: `// loan against native-BTC collateral
+pub fn borrow(
+    ctx: Context<Borrow>,
+    amount: u64,
+    utxo: UtxoMeta,
+) -> Result<()> {
+    let pool = &mut ctx.accounts.pool;
+    require!(
+        validate_utxo_ownership(&utxo)?,
+        ErrorCode::InvalidCollateral,
+    );
+    // lock the UTXO into the pool
+    lock_collateral(pool, utxo)?;
+    pool.total_borrows += amount;
+    Ok(())
+}`,
   },
   {
     tag: "Earn",
     title: "Put idle Bitcoin to work.",
-    desc: "Earn on BTC while keeping full Bitcoin exposure — yield that accrues to real Bitcoin, not a receipt.",
-    link: "Earn with HoneyB",
-    viz: (
-      <svg
-        viewBox="0 0 200 112"
-        role="img"
-        aria-label="Native BTC earns yield that rises while you keep 100 percent of your Bitcoin."
-        className="block h-auto w-full"
-      >
-        <defs>
-          <marker id="eA" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-            <path d="M0 0 L9 5 L0 10 z" fill="#16a34a" />
-          </marker>
-        </defs>
-        <rect x="30" y="56" width="32" height="32" rx="8" fill="#E9B949" stroke="#b8860b" />
-        <text x="46" y="46" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a8a4a">
-          BTC
-        </text>
-        <path d="M66 80 C104 78 128 60 162 40" fill="none" stroke="#16a34a" strokeWidth="2" markerEnd="url(#eA)" />
-        <text x="100" y="104" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#9a9aa2">
-          yield · 100% BTC kept
-        </text>
-      </svg>
-    ),
+    desc: "Earn yield that accrues to real Bitcoin — not a receipt.",
+    liveName: "HoneyB",
+    liveUrl: "https://www.honeybtc.com/",
+    docsUrl: "https://docs.arch.network/",
+    code: `// supply native BTC, earn supply APY
+pub fn deposit(
+    ctx: Context<Deposit>,
+    utxo: UtxoMeta,
+) -> Result<()> {
+    let pool = &mut ctx.accounts.pool;
+    require!(
+        validate_utxo_ownership(&utxo)?,
+        ErrorCode::InvalidUTXO,
+    );
+    // move the UTXO into the pool
+    pool_deposit(pool, utxo)?;
+    pool.total_deposits += utxo.amount;
+    update_utilization_rate(pool)?;
+    Ok(())
+}`,
   },
   {
     tag: "Swap",
     title: "Swap against real liquidity.",
-    desc: "Pooled, always-on liquidity for native Bitcoin — move in and out at a tight, predictable spread.",
-    link: "Swap in Arch Prime",
-    viz: (
-      <svg
-        viewBox="0 0 200 112"
-        role="img"
-        aria-label="Swap native Bitcoin in and out against a shared liquidity pool."
-        className="block h-auto w-full"
-      >
-        <defs>
-          <marker id="sA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0 0 L9 5 L0 10 z" fill="#9a9aa2" />
-          </marker>
-        </defs>
-        <rect x="30" y="34" width="28" height="28" rx="7" fill="#E9B949" stroke="#b8860b" />
-        <rect x="30" y="68" width="28" height="28" rx="7" fill="#fff" stroke="#7c7ce0" />
-        <path d="M64 48 L118 48" stroke="#9a9aa2" strokeWidth="1.3" markerEnd="url(#sA)" />
-        <path d="M118 82 L64 82" stroke="#9a9aa2" strokeWidth="1.3" markerEnd="url(#sA)" />
-        <rect x="124" y="42" width="46" height="46" rx="9" fill="#f6f6f8" stroke="#d3d3da" />
-        <text x="147" y="68" textAnchor="middle" className="font-mono tracking-[0.06em]" fontSize="8.5" fill="#7a7a82">
-          pool
-        </text>
-      </svg>
-    ),
-  },
-];
-
-type Eco = { name: string; desc: string; built: ReactNode };
-
-const ECO: Eco[] = [
-  {
-    name: "Arch Prime",
-    desc: "Self-custodial prime-brokerage terminal: swap, borrow, earn, invest.",
-    built: (
-      <>
-        Built on <b className="font-medium text-neutral-500">the full stack</b>
-      </>
-    ),
-  },
-  {
-    name: "HoneyB",
-    desc: "Institutional Bitcoin yield — idle BTC to real yield, 100% exposure kept.",
-    built: (
-      <>
-        Built on <b className="font-medium text-neutral-500">Arch Lend · APIs</b>
-      </>
-    ),
+    desc: "Pooled, always-on liquidity at a tight, predictable spread.",
+    liveName: "Arch Prime",
+    liveUrl: "https://www.arch.network/",
+    docsUrl: "https://docs.arch.network/",
+    code: `// settle a swap on native Bitcoin
+fn accept_offer(
+    accts: &[AccountInfo],
+    offer_id: u64,
+) -> Result<(), ProgramError> {
+    let mut offer = load_offer(accts)?;
+    require!(offer.is_active(&offer_id));
+    // both legs settle, or neither does
+    transfer_runes(maker, taker, give)?;
+    transfer_runes(taker, maker, want)?;
+    offer.status = Completed;
+    store_offer(accts, &offer)?;
+    Ok(())
+}`,
   },
 ];
 
 export function ChainApps() {
   return (
-    <section className="bg-white font-sans text-black antialiased">
-      <div className="mx-auto max-w-[64rem] px-6 pb-24 pt-16 md:pb-32 md:pt-20">
-        {/* sub-beat: use it (continues the WHAT YOU CAN DO macro beat) */}
+    <section className="bg-light font-sans text-black antialiased">
+      <div className="mx-auto max-w-[64rem] px-6 pb-24 pt-20 md:pb-32 md:pt-28">
+        {/* sub-beat: use it — flat serif title, no eyebrow */}
         <Reveal>
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-neutral-400">Use it</span>
-            <span className="h-px flex-1 bg-black/[0.08]" />
-          </div>
-          <h3 className="mt-5 max-w-[24ch] text-balance text-[1.5rem] font-medium leading-[1.18] tracking-[-0.018em] text-neutral-900 md:text-[1.8rem]">
-            Your Bitcoin, finally doing more — and still yours.
+          <h3 className="font-serif text-[2.25rem] font-light leading-[1.05] tracking-[-0.01em] text-neutral-900 md:text-[2.75rem]">
+            Now, use them.
           </h3>
-        </Reveal>
-
-        {/* flat app units — soft-gray viz panel + type, no card chrome */}
-        <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-3">
-          {APPS.map((app, i) => (
-            <Reveal key={app.tag} delay={i * 80} className="flex flex-col">
-              <div className="flex items-center justify-center rounded-[12px] bg-neutral-100 px-6 py-5">
-                <div className="w-full max-w-[220px]">{app.viz}</div>
-              </div>
-              <div className="mt-4">
-                <div className="font-mono text-[0.64rem] uppercase tracking-[0.06em] text-orange">{app.tag}</div>
-                <h4 className="mt-2 text-balance text-[1.05rem] font-semibold tracking-[-0.01em] text-neutral-900">
-                  {app.title}
-                </h4>
-                <p className="mt-1.5 text-pretty text-[0.88rem] leading-[1.5] text-neutral-600">{app.desc}</p>
-                <a
-                  href="#app"
-                  className="group mt-3 inline-flex items-center gap-[5px] font-mono text-[0.66rem] tracking-[0.02em] text-orange"
-                >
-                  {app.link}{" "}
-                  <span
-                    aria-hidden="true"
-                    className="transition-transform duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] group-hover:translate-x-[3px]"
-                  >
-                    ↗
-                  </span>
-                </a>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        {/* sub-beat: the ecosystem */}
-        <Reveal className="mt-20 md:mt-24">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-neutral-400">The ecosystem</span>
-            <span className="h-px flex-1 bg-black/[0.08]" />
-          </div>
-          <h3 className="mt-5 max-w-[24ch] text-balance text-[1.5rem] font-medium leading-[1.18] tracking-[-0.018em] text-neutral-900 md:text-[1.8rem]">
-            The whole stack, settling as one.
-          </h3>
-          <p className="mt-3 max-w-[58ch] text-pretty text-[1.02rem] leading-[1.55] text-neutral-600">
-            Built on once — by <em className="font-serif font-normal not-italic">Arch</em>, by partners, and by the
-            surfaces that reach real users.
+          <p className="mt-4 max-w-[44ch] text-pretty text-[1rem] leading-[1.55] text-neutral-600">
+            Borrow, earn, and swap against native Bitcoin — and it stays{" "}
+            <span className="text-orange">yours</span> the whole way through.
           </p>
         </Reveal>
 
-        {/* flat eco tiles — hairline-ruled, no card chrome */}
-        <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-8 min-[520px]:grid-cols-2">
-          {ECO.map((e, i) => (
-            <Reveal key={e.name} y={0} delay={i * 80} className="border-t border-black/[0.08] pt-5">
-              <h4 className="text-[1.05rem] font-semibold tracking-[-0.01em] text-neutral-900">{e.name}</h4>
-              <p className="mt-1.5 text-pretty text-[0.88rem] leading-[1.5] text-neutral-600">{e.desc}</p>
-              <div className="mt-3 font-mono text-[0.6rem] leading-[1.5] text-neutral-400">{e.built}</div>
+        {/* app cards — the card itself flips on hover to PEEK the real code (purely visual);
+            the Live + docs CTAs live BELOW the card, outside the hover zone, so they stay clickable. */}
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {APPS.map((app, i) => (
+            <Reveal key={app.tag} delay={i * 80}>
+              {/* the whole card links to the live product (Arch Prime / HoneyB); hover flips it to
+                  peek the real code. No more floating links underneath. */}
+              <a
+                href={app.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block h-[360px] [perspective:1400px] md:h-[380px]"
+              >
+                <div className="relative h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]">
+                  {/* FRONT */}
+                  <div className="absolute inset-0 flex flex-col justify-between rounded-[32px] bg-white p-6 ring-1 ring-inset ring-black/[0.06] [-webkit-backface-visibility:hidden] [backface-visibility:hidden] md:p-8">
+                    <div>
+                      <div className="text-[0.8rem] font-medium tracking-[0.01em] text-orange">{app.tag}</div>
+                      <h4 className="mt-3 text-balance font-serif text-[1.4rem] font-light leading-[1.18] tracking-[-0.01em] text-neutral-900">
+                        {app.title}
+                      </h4>
+                      <p className="mt-2.5 text-pretty text-[0.9rem] leading-[1.5] text-neutral-600">{app.desc}</p>
+                    </div>
+                    {/* footer — names the live product this card opens */}
+                    <div className="flex items-center gap-1.5 text-[0.82rem] font-medium text-orange">
+                      See it live on {app.liveName} <span aria-hidden="true">↗</span>
+                    </div>
+                  </div>
+                  {/* BACK — deep-indigo (the WhyBand band) + cream/tan code for contrast & brand tie */}
+                  <div className="absolute inset-0 flex flex-col rounded-[32px] bg-[#1f1c3e] p-5 [-webkit-backface-visibility:hidden] [backface-visibility:hidden] [transform:rotateY(180deg)] md:p-6">
+                    <div className="mb-3 flex items-center">
+                      <RustMark className="h-[18px] w-[18px] text-light/70" />
+                    </div>
+                    <pre className="min-h-0 flex-1 overflow-auto text-[0.66rem] leading-[1.55] text-light/[0.88] [scrollbar-width:none]">
+                      <code className="font-mono">{app.code}</code>
+                    </pre>
+                  </div>
+                </div>
+              </a>
             </Reveal>
           ))}
         </div>
 
-        <p className="mt-6 text-pretty font-mono text-[0.68rem] leading-[1.6] text-neutral-400">
-          + a mobile neobank, virtual debit card, on/off-ramp, get-paid-in-Bitcoin, and a Bitcoin-backed mortgage — all
-          on the same rails.
-        </p>
-
-        {/* closing beat: builder CTA — flat, centered, no card */}
-        <Reveal className="mt-20 border-t border-black/[0.08] pt-16 text-center md:mt-24 md:pt-20">
-          <div className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-neutral-500">For builders</div>
-          <h3 className="mx-auto mt-4 max-w-[20ch] text-balance text-[1.7rem] font-medium leading-[1.15] tracking-[-0.02em] text-neutral-900 md:text-[2rem]">
-            These primitives are <em className="font-serif not-italic font-normal">yours</em> to build on.
-          </h3>
-          <div className="mx-auto mt-7 inline-flex items-center overflow-hidden rounded-[10px] border border-black/[0.08]">
-            <code className="px-[14px] py-[10px] font-mono text-[0.84rem] text-neutral-900">
-              <span className="text-orange">$</span> npx create-arch-app
-            </code>
-            <span className="border-l border-black/[0.08] bg-neutral-50 px-[13px] py-[10px] font-mono text-[0.7rem] text-neutral-500">
-              copy
-            </span>
-          </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-[10px]">
-            <a
-              href="#build"
-              className="group inline-flex items-center gap-[7px] rounded-[11px] bg-orange px-[18px] py-[11px] text-[0.94rem] font-medium text-white no-underline ring-1 ring-inset ring-black/[0.06] transition-transform duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] active:scale-[0.96]"
-            >
-              Start building{" "}
-              <span className="transition-transform duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] group-hover:translate-x-[2px]">
-                ↗
+        {/* closing beat: builder CTA — full-width large rounded gray card (Jaidon's band, our palette) */}
+        <Reveal className="mt-20 md:mt-28">
+          <div className="rounded-[44px] bg-[#2e2d33] px-6 py-14 text-center md:px-8 md:py-16">
+            <div className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-light/55">For builders</div>
+            <h3 className="mx-auto mt-4 max-w-[20ch] text-balance text-[1.7rem] font-medium leading-[1.15] tracking-[-0.02em] text-light md:text-[2rem]">
+              These primitives are <em className="font-serif not-italic font-normal text-orange">yours</em> to build on.
+            </h3>
+            <div className="mx-auto mt-7 inline-flex items-center overflow-hidden rounded-[10px] border border-black/[0.08] bg-white">
+              <code className="px-[14px] py-[10px] font-mono text-[0.84rem] text-neutral-900">
+                <span className="text-orange">$</span> npx create-arch-app
+              </code>
+              <span className="border-l border-black/[0.08] bg-neutral-50 px-[13px] py-[10px] font-mono text-[0.7rem] text-neutral-500">
+                copy
               </span>
-            </a>
-            <a
-              href="#docs"
-              className="inline-flex items-center gap-[7px] rounded-[11px] border border-black/[0.08] px-[18px] py-[11px] text-[0.94rem] font-medium text-neutral-900 no-underline transition-transform duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] active:scale-[0.96]"
-            >
-              Read the docs
-            </a>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-[10px]">
+              <a
+                href="#build"
+                className="group inline-flex items-center gap-[7px] rounded-[11px] bg-[linear-gradient(180deg,#f4814a,#ec641d)] px-[18px] py-[11px] text-[0.94rem] font-medium text-white no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_1.5px_2px_rgba(0,0,0,0.13),0_0_0_1px_#c9520f] transition-[transform,filter] duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] hover:brightness-[1.04] active:scale-[0.96]"
+              >
+                Add to Claude Code{" "}
+                <span aria-hidden="true" className="transition-transform duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] group-hover:translate-x-[2px]">
+                  ↗
+                </span>
+              </a>
+              <a
+                href={EXTERNAL.docs}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-[7px] rounded-[11px] border border-light/25 px-[18px] py-[11px] text-[0.94rem] font-medium text-light no-underline transition-[transform,background-color] duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] hover:bg-light/10 active:scale-[0.96]"
+              >
+                Read the docs
+              </a>
+            </div>
           </div>
         </Reveal>
       </div>

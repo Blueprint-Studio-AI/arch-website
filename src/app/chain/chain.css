@@ -119,6 +119,11 @@
 .chain-scope .copyover{position:fixed;inset:0;z-index:2;pointer-events:none}
 .chain-scope .panel{position:absolute;left:50%;top:9vh;transform:translateX(-50%);
   width:min(760px,92vw);text-align:center;opacity:0;will-change:opacity,transform}
+/* Nav clearance: the fixed nav is 80px tall. The landing beat (11vh) clears it, but the section
+   beats sit at 9–10vh and their headings tuck under the nav (see "Native tech" clipping). Push ONLY
+   the section beats down by a fixed nav offset. Animation-safe: the illustration is placed relative
+   to each panel's LIVE offsetTop, so it follows the shifted text and every gap is preserved. */
+.chain-scope .panel--sec{margin-top:42px}
 
 .chain-scope .chip{font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;
   color:var(--muted);border:1px solid var(--hair);border-radius:999px;padding:5px 12px;
