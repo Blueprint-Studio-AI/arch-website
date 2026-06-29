@@ -293,7 +293,6 @@ const BEATS: Beat[] = [
     ],
   },
 ];
-const N = BEATS.length;
 
 // ---- shared pieces --------------------------------------------------------
 // renders text with a per-character "decode" glitch — each char resolves through
@@ -529,23 +528,22 @@ function BeatCard({
 }
 
 function DotNav({
+  beats,
   active,
-  hl,
   onJump,
 }: {
+  beats: Beat[];
   active: number;
-  hl: Principle[];
   onJump: (i: number) => void;
 }) {
-  // All dots stay mounted; when a principle is selected the non-matching ones COLLAPSE
-  // (height/margin/opacity/scale) so the count change animates smoothly instead of popping.
+  // One dot per VISIBLE beat — the list is already filtered, so dots simply appear/disappear
+  // as the filter changes; the active dot tracks the beat in view.
   return (
     <nav
       aria-label="How it works — sections"
       className="absolute left-full top-1/2 ml-4 hidden -translate-y-1/2 flex-col items-center lg:flex xl:ml-6"
     >
-      {BEATS.map((b, i) => {
-        const show = hl.length === 0 || b.principles.some((p) => hl.includes(p));
+      {beats.map((b, i) => {
         const isActive = i === active;
         return (
           <button
@@ -553,13 +551,9 @@ function DotNav({
             type="button"
             onClick={() => onJump(i)}
             aria-current={isActive ? "true" : undefined}
-            aria-hidden={!show}
-            tabIndex={show ? undefined : -1}
             aria-label={b.eyebrow}
             title={b.eyebrow}
-            className={`group grid w-5 shrink-0 place-items-center overflow-hidden transition-[height,margin,opacity,transform] duration-[350ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-              show ? "my-[3px] h-5 scale-100 opacity-100" : "pointer-events-none my-0 h-0 scale-50 opacity-0"
-            }`}
+            className="group my-[3px] grid h-5 w-5 shrink-0 place-items-center"
           >
             <span
               className={`h-2 w-2 rounded-full transition-[transform,background-color] duration-200 ${
@@ -597,19 +591,20 @@ function ChainHowStacked({
         </Reveal>
 
         <div className="mt-14 flex flex-col gap-12">
-          {BEATS.map((b, i) => {
-            const dim = hl.length > 0 && !b.principles.some((p) => hl.includes(p));
-            return (
+          {(() => {
+            const filtered = hl.length === 0 ? BEATS : BEATS.filter((b) => b.principles.some((p) => hl.includes(p)));
+            const list = filtered.length ? filtered : BEATS;
+            return list.map((b, i) => (
               <Reveal key={b.id} y={0} delay={i * 60}>
-                <div className="transition-opacity duration-300" style={dim ? { opacity: 0.4 } : undefined}>
+                <div>
                   <StatRow beat={b} />
                   <div className="mt-4">
                     <BeatCard beat={b} hl={hl} onToggle={onToggle} variant={variant} />
                   </div>
                 </div>
               </Reveal>
-            );
-          })}
+            ));
+          })()}
         </div>
       </div>
     </section>
@@ -620,7 +615,8 @@ function ChainHowStacked({
 export function ChainHow() {
   const sectionRef = useRef<HTMLElement>(null);
   const sentinels = useRef<(HTMLDivElement | null)[]>([]);
-  const [active, setActive] = useState(0);
+  // active beat tracked by ID (not index) so it stays stable as the filter reshapes the list
+  const [activeId, setActiveId] = useState(BEATS[0].id);
   const [hl, setHl] = useState<Principle[]>([]);
   // SSR + first paint = stacked (safe everywhere, no hydration mismatch); a mount
   // effect upgrades to the pinned story only on a real desktop browser.
@@ -628,6 +624,18 @@ export function ChainHow() {
   // card layout variant — default is "below" (diagram on top, text below); flip with
   // ?v=center or ?v=fill for review
   const [variant, setVariant] = useState<CardVariant>("below");
+  // skip the re-anchor effect's first run (mount / pinned flip) so we never auto-scroll on load
+  const didAnchor = useRef(false);
+
+  // FILTERED VIEW — when principles are selected, only the beats that embody one of them remain.
+  // M drives the section height AND the sentinel count, so the scroll runs through ONLY the matching
+  // beats. activeId is the cursor; activeIndex is its slot within the current (filtered) list.
+  const hlKey = hl.join(",");
+  const filtered = hl.length === 0 ? BEATS : BEATS.filter((b) => b.principles.some((p) => hl.includes(p)));
+  const visible = filtered.length ? filtered : BEATS;
+  const M = visible.length;
+  const activeIndex = Math.max(0, visible.findIndex((b) => b.id === activeId));
+  const beat = visible[activeIndex] ?? visible[0];
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -638,31 +646,60 @@ export function ChainHow() {
     if (v === "below" || v === "fill" || v === "center") setVariant(v);
   }, []);
 
+  // active beat = whichever VISIBLE sentinel straddles the viewport center line. Re-runs when the
+  // filter changes so it observes the current (filtered) sentinel set with a fresh `visible`.
   useEffect(() => {
     if (!pinned) return;
-    // one observer collapses the viewport to a center line; exactly one sentinel band
-    // straddles it at a time → that's the active beat.
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (e.isIntersecting) {
             const i = sentinels.current.indexOf(e.target as HTMLDivElement);
-            if (i !== -1) setActive(i);
+            if (i !== -1 && i < visible.length) setActiveId(visible[i].id);
           }
         }
       },
       { rootMargin: "-50% 0px -50% 0px", threshold: 0 },
     );
-    sentinels.current.forEach((el) => el && io.observe(el));
+    sentinels.current.slice(0, M).forEach((el) => el && io.observe(el));
     return () => io.disconnect();
-  }, [pinned]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinned, hlKey]);
 
-  // dot-nav jump — route through the shared Lenis instance so it eases smoothly instead of
-  // fighting it with native behavior:"smooth". The pinned story itself needs NO wheel machine:
-  // Lenis owns the page scroll, the sticky frame pins the card, and the IntersectionObserver
-  // above advances the active beat from scroll position. (The old per-beat wheel machine and its
-  // `__chainOwnsWheel` handshake with the hero were removed when /chain moved onto a single Lenis
-  // instance — two competing scroll authorities were exactly what made the scroll glitch/skip.)
+  // RE-FILTER → re-anchor: the section height changes with the filter, so scroll onto the beat we
+  // want to show. If the current beat survived the filter, keep it (small scroll adjust); if it was
+  // filtered out, jump to the first match — that slides the window + re-rolls the stats (the
+  // "animation" on a re-filter). Skipped on the first run so load never auto-scrolls.
+  useEffect(() => {
+    if (!pinned) return;
+    if (!didAnchor.current) {
+      didAnchor.current = true;
+      return;
+    }
+    const idx = visible.findIndex((b) => b.id === activeId);
+    const target = idx === -1 ? 0 : idx;
+    if (idx === -1) setActiveId(visible[0].id);
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      // two frames: let the new height + sentinels lay out before measuring the scroll target
+      raf2 = requestAnimationFrame(() => {
+        const el = sentinels.current[target];
+        if (!el) return;
+        const lenis = (window as Window & { __lenis?: { scrollTo: (t: HTMLElement, o?: Record<string, unknown>) => void } }).__lenis;
+        if (lenis) lenis.scrollTo(el, { duration: 0.55 });
+        else el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hlKey, pinned]);
+
+  // dot-nav jump — route through the shared Lenis instance so it eases smoothly. The pinned story
+  // needs NO wheel machine: Lenis owns the page scroll, the sticky frame pins the card, and the
+  // IntersectionObserver advances the active beat from scroll position.
   const jump = (i: number) => {
     const el = sentinels.current[i];
     if (!el) return;
@@ -675,52 +712,51 @@ export function ChainHow() {
 
   if (!pinned) return <ChainHowStacked hl={hl} onToggle={toggle} variant={variant} />;
 
-  const beat = BEATS[active];
   return (
-    <section ref={sectionRef} className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
+    <section ref={sectionRef} className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${M} * 100svh)` }}>
       {/* pinned frame — fills the viewport while the story advances */}
-      <div className="sticky top-0 flex h-svh flex-col overflow-clip px-6 py-[clamp(1.75rem,5vh,3.25rem)]">
+      {/* pt clears the fixed 80px nav so the title + filter legend aren't tucked under it (the
+          legend is the filter control — it must be visible and clickable). */}
+      <div className="sticky top-0 flex h-svh flex-col overflow-clip px-6 pb-[clamp(1.75rem,5vh,3.25rem)] pt-[5.5rem]">
         <div className="mx-auto flex w-full max-w-[64rem] flex-1 flex-col">
-          {/* header: title + clickable principle legend */}
+          {/* header: title + clickable principle legend (the filter) */}
           <header className="flex flex-col gap-y-4 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
             <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] md:text-[2rem]">How it works.</h2>
             <PrincipleLegend hl={hl} onToggle={toggle} />
           </header>
 
-          {/* three stat boxes — re-roll on beat change */}
+          {/* three stat boxes — re-roll on beat change (keyed by the beat's own index) */}
           <div className="mt-7">
-            <StatRow beat={beat} reKey={active} />
+            <StatRow beat={beat} reKey={BEATS.findIndex((b) => b.id === beat.id)} />
           </div>
 
-          {/* beat "window" — the white frame stays put; each beat's content slides up & out
-              while the next slides in from below (overflow-clipped by the frame). The dot
-              nav sits beside it, vertically centered on the card (not the viewport).
-              mt-4 matches the gap between the three stat boxes. */}
+          {/* beat "window" — the white frame stays put; each visible beat's content slides up & out
+              while the next slides in from below (overflow-clipped by the frame). */}
           <div className="relative mt-4 min-h-0 flex-1">
             <div className="relative h-full overflow-hidden rounded-[20px] border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(24,24,24,0.04),0_10px_30px_-16px_rgba(24,24,24,0.12)]">
-              {BEATS.map((b, i) => (
+              {visible.map((b, i) => (
                 <div
                   key={b.id}
-                  aria-hidden={i !== active}
+                  aria-hidden={i !== activeIndex}
                   className="absolute inset-0 p-7 transition-transform duration-[600ms] will-change-transform md:p-9"
                   style={{
                     transitionTimingFunction: SLIDE,
-                    transform: `translateY(${(i - active) * 100}%)`,
-                    pointerEvents: i === active ? "auto" : "none",
+                    transform: `translateY(${(i - activeIndex) * 100}%)`,
+                    pointerEvents: i === activeIndex ? "auto" : "none",
                   }}
                 >
                   <BeatContent beat={b} hl={hl} onToggle={toggle} variant={variant} fill />
                 </div>
               ))}
             </div>
-            <DotNav active={active} hl={hl} onJump={jump} />
+            <DotNav beats={visible} active={activeIndex} onJump={jump} />
           </div>
         </div>
       </div>
 
-      {/* sentinels — N equal bands the IO center line passes through */}
-      <div className="pointer-events-none absolute inset-0 grid" aria-hidden style={{ gridTemplateRows: `repeat(${N}, 1fr)` }}>
-        {BEATS.map((b, i) => (
+      {/* sentinels — M equal bands the IO center line passes through (one per visible beat) */}
+      <div className="pointer-events-none absolute inset-0 grid" aria-hidden style={{ gridTemplateRows: `repeat(${M}, 1fr)` }}>
+        {visible.map((b, i) => (
           <div
             key={b.id}
             ref={(el) => {
