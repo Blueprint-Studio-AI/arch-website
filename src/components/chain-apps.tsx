@@ -41,8 +41,10 @@ function highlightRust(code: string): ReactNode {
 }
 
 type App = {
-  /** action label (also React key) */
+  /** action label (React key) */
   tag: string;
+  /** upper-left line icon (24×24 stroke paths, four-rules style) */
+  icon: ReactNode;
   /** display title — brand serif */
   title: string;
   /** one tight line of our copy */
@@ -59,8 +61,17 @@ type App = {
 const APPS: App[] = [
   {
     tag: "Borrow",
-    title: "Borrow against it. Keep it.",
-    desc: "Draw a loan against native BTC — not a wrapped IOU.",
+    icon: (
+      <path
+        d="M12 3v10m0 0-4-4m4 4 4-4M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+    title: "Borrow without selling.",
+    desc: "Draw a loan against native BTC — without a wrapped IOU.",
     liveName: "Arch Prime",
     liveUrl: "https://www.arch.network/",
     docsUrl: "https://docs.arch.network/",
@@ -83,6 +94,15 @@ pub fn borrow(
   },
   {
     tag: "Earn",
+    icon: (
+      <path
+        d="M4 16.5 9.5 11l3.5 3.5L20 7M20 7h-4.5M20 7v4.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
     title: "Put idle Bitcoin to work.",
     desc: "Earn yield that accrues to real Bitcoin — not a receipt.",
     liveName: "HoneyB",
@@ -107,6 +127,15 @@ pub fn deposit(
   },
   {
     tag: "Swap",
+    icon: (
+      <path
+        d="M4 9h14m0 0-3.5-3.5M18 9l-3.5 3.5M20 15H6m0 0 3.5 3.5M6 15l3.5-3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
     title: "Swap against real liquidity.",
     desc: "Pooled, always-on liquidity at a tight, predictable spread.",
     liveName: "Arch Prime",
@@ -139,49 +168,63 @@ export function ChainApps() {
             Now, use them.
           </h3>
           <p className="mt-4 max-w-[44ch] text-pretty text-[1rem] leading-[1.55] text-neutral-600">
-            Borrow, earn, and swap against native Bitcoin — and it stays{" "}
-            <span className="text-neutral-900">yours</span> the whole way through.
+            Borrow, earn, and swap against native Bitcoin.<br/>
+            It stays yours the whole way through.
           </p>
         </Reveal>
 
-        {/* app cards — the card itself flips on hover to PEEK the real code (purely visual);
-            the Live + docs CTAs live BELOW the card, outside the hover zone, so they stay clickable. */}
+        {/* app cards — the card links to the docs (its back says "More in the docs"); hover flips it
+            to PEEK the real code. The "See it live" link sits BELOW the card, outside the anchor. */}
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
           {APPS.map((app, i) => (
             <Reveal key={app.tag} delay={i * 80}>
-              {/* the whole card links to the live product (Arch Prime / HoneyB); hover flips it to
-                  peek the real code. No more floating links underneath. */}
-              <a
-                href={app.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block h-[360px] [perspective:1400px] md:h-[380px]"
-              >
+              {/* the card is NOT a link — it just flips on hover to peek the code. The only clickable
+                  things are the docs comment (on the back) and the live link (below). */}
+              <div className="group block h-[360px] [perspective:1400px] md:h-[380px]">
                 <div className="relative h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]">
-                  {/* FRONT */}
-                  <div className="absolute inset-0 flex flex-col justify-between rounded-[12px] bg-white p-6 ring-1 ring-inset ring-black/[0.06] [-webkit-backface-visibility:hidden] [backface-visibility:hidden] md:p-8">
-                    <div>
-                      <div className="text-[0.8rem] font-medium tracking-[0.01em] text-orange">{app.tag}</div>
-                      <h4 className="mt-3 text-balance font-serif text-[1.4rem] font-light leading-[1.18] tracking-[-0.01em] text-neutral-900">
+                  {/* FRONT — typographic: icon top-left, title + body centered vertically */}
+                  <div className="absolute inset-0 flex flex-col rounded-[8px] bg-white p-6 ring-1 ring-inset ring-black/[0.06] [-webkit-backface-visibility:hidden] [backface-visibility:hidden] md:p-8">
+                    {/* small light-gray word mark — a quiet visual tag in the corner, not a CTA.
+                        Page sans (Geist), normal case + tracking. */}
+                    <span className="text-[0.82rem] font-medium text-neutral-400" aria-hidden="true">
+                      {app.tag}
+                    </span>
+                    <div className="flex flex-1 flex-col justify-center">
+                      <h4 className="text-balance text-[1.4rem] font-medium leading-[1.18] tracking-[-0.02em] text-neutral-900">
                         {app.title}
                       </h4>
-                      <p className="mt-2.5 text-pretty text-[0.9rem] leading-[1.5] text-neutral-600">{app.desc}</p>
-                    </div>
-                    {/* footer — names the live product this card opens */}
-                    <div className="flex items-center gap-1.5 text-[0.82rem] font-medium text-orange">
-                      See it live on {app.liveName} <span aria-hidden="true">↗</span>
+                      <p className="mt-3 text-pretty text-[0.92rem] leading-[1.5] text-neutral-600">{app.desc}</p>
                     </div>
                   </div>
                   {/* BACK — deep-indigo (the WhyBand band) + cream/tan code for contrast & brand tie */}
-                  <div className="absolute inset-0 flex flex-col rounded-[12px] bg-[#1f1c3e] p-5 [-webkit-backface-visibility:hidden] [backface-visibility:hidden] [transform:rotateY(180deg)] md:p-6">
+                  <div className="absolute inset-0 flex flex-col rounded-[8px] bg-[#1f1c3e] p-5 [-webkit-backface-visibility:hidden] [backface-visibility:hidden] [transform:rotateY(180deg)] md:p-6">
                     <div className="mb-3 flex items-center">
                       <RustMark className="h-[18px] w-[18px] text-light/70" />
                     </div>
                     <pre className="min-h-0 flex-1 overflow-hidden text-[0.66rem] leading-[1.55] text-light/[0.88]">
                       <code className="font-mono">{highlightRust(app.code)}</code>
                     </pre>
+                    {/* docs link disguised as the snippet's trailing comment — dimmed + underlined
+                        like a clickable comment; this is the card's only docs affordance. */}
+                    <a
+                      href={app.docsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 self-start font-mono text-[0.66rem] leading-[1.55] text-light/45 underline decoration-light/25 underline-offset-2 transition-colors hover:text-light hover:decoration-light/60"
+                    >
+                      {"// more in the docs"}
+                    </a>
                   </div>
                 </div>
+              </div>
+              {/* live case study — separate link, centered below the card */}
+              <a
+                href={app.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3.5 flex items-center justify-center gap-1.5 text-[0.82rem] font-medium text-orange transition-opacity hover:opacity-70"
+              >
+                See it live on {app.liveName} <span aria-hidden="true">↗</span>
               </a>
             </Reveal>
           ))}
@@ -189,7 +232,7 @@ export function ChainApps() {
 
         {/* closing beat: builder CTA — full-width large rounded gray card (Jaidon's band, our palette) */}
         <Reveal className="mt-20 md:mt-28">
-          <div className="rounded-[44px] bg-[#2e2d33] px-6 py-14 text-center md:px-8 md:py-16">
+          <div className="rounded-[20px] bg-[#2e2d33] px-6 pt-10 pb-14 text-center md:px-8 md:pt-12 md:pb-16">
             <div className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-light/55">For builders</div>
             <h3 className="mx-auto mt-4 max-w-[20ch] text-balance text-[1.7rem] font-medium leading-[1.15] tracking-[-0.02em] text-light md:text-[2rem]">
               These primitives are <em className="font-serif not-italic font-normal text-orange">yours</em> to build on.
