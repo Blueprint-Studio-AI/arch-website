@@ -449,8 +449,12 @@ export default function Hero() {
 
   return (
     <main className={`root${ready ? " ready" : ""}`} ref={rootRef}>
+      {/* glow lives OUTSIDE .illo-stage: that stage is promoted to its own GPU layer
+          (translateZ/will-change/backface), which clips overflowing children — and the glow
+          deliberately overflows the viewport bottom. As its own fixed layer it isn't clipped,
+          so the soft orange falloff reaches the bottom with no hard line. */}
+      <div className="glow" aria-hidden />
       <div className="illo-stage" aria-hidden>
-        <div className="glow" />
         <div className="illo" ref={illoRef}>
           {/* inline illustration (was an iframe) — createIllustration() builds into #iso */}
           <svg

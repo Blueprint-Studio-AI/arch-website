@@ -34,6 +34,7 @@
 /* once the scroll is fully past the hero, the below-fold occludes it — hard-hide the fixed
    overlays so the same-origin iframe can't composite/flicker behind the scrolling content. */
 .chain-scope .root.hero-done .illo-stage,
+.chain-scope .root.hero-done .glow,
 .chain-scope .root.hero-done .copyover{visibility:hidden;pointer-events:none}
 
 /* ============================================================
@@ -44,8 +45,8 @@
    illustration iframe each frame — that repaint was the open/close flicker at the WhyBand seam. */
 .chain-scope .illo-stage{position:fixed;inset:0;z-index:1;pointer-events:none;
   will-change:transform;transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.chain-scope .glow{position:absolute;left:50%;bottom:-220px;width:1240px;height:440px;
-  transform:translateX(-50%);pointer-events:none;
+.chain-scope .glow{position:fixed;z-index:0;left:50%;bottom:-220px;width:1240px;height:440px;
+  transform:translateX(-50%) translateZ(0);pointer-events:none;
   /* The look is a big soft orange glow. It was a soft radial gradient with filter:blur(150px) on
      top — but a 150px blur is one of the most expensive ops on Safari (each output pixel samples a
      ~300px kernel over a 1240x440 area) and was a prime suspect for the hero lag. The radial
@@ -244,3 +245,13 @@
   .chain-scope .sub{font-size:13px}
   .chain-scope .panel--sec .body{font-size:13px;margin-top:12px}
 }
+
+/* ============================================================
+   CTA CITY — a second, static illustration instance (top/city
+   layer only), cropped at the bottom of the builders CTA.
+   Reuses .chain-scope .illo styles via a local display:contents
+   .chain-scope wrapper (see chain-city.tsx).
+   ============================================================ */
+.chain-scope .cta-city{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+/* x / y / scale are set inline from the CITY levers in chain-city.tsx */
+.chain-scope .cta-city .illo{left:auto;top:auto;margin-left:0;pointer-events:none;contain:none;transform-origin:bottom right}

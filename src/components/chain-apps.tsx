@@ -11,6 +11,7 @@
 import type { ReactNode } from "react";
 import { Reveal } from "./chain-reveal";
 import { RustMark } from "./rust-mark";
+import { ChainCity } from "./chain-city";
 import { EXTERNAL } from "@/lib/site";
 
 // dependency-free Rust syntax highlighter for the card-back code peeks. Tokenizes into
@@ -230,14 +231,17 @@ export function ChainApps() {
           ))}
         </div>
 
-        {/* closing beat: builder CTA — full-width large rounded gray card (Jaidon's band, our palette) */}
+        {/* closing beat: builder CTA — full-width rounded gray card with a big bottom well that the
+            reused hero "city" (top layer) rises into and gets cropped by the card's bottom edge. */}
         <Reveal className="mt-20 md:mt-28">
-          <div className="rounded-[20px] bg-[#2e2d33] px-6 pt-10 pb-14 text-center md:px-8 md:pt-12 md:pb-16">
+          <div className="relative overflow-hidden rounded-[20px] bg-[#2e2d33] px-7 py-12 md:min-h-[440px] md:px-12 md:py-16">
+            <ChainCity />
+            <div className="relative z-10 max-w-[30rem]">
             <div className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-light/55">For builders</div>
-            <h3 className="mx-auto mt-4 max-w-[20ch] text-balance text-[1.7rem] font-medium leading-[1.15] tracking-[-0.02em] text-light md:text-[2rem]">
+            <h3 className="mt-4 max-w-[20ch] text-balance text-[1.7rem] font-medium leading-[1.15] tracking-[-0.02em] text-light md:text-[2rem]">
               These primitives are <em className="font-serif not-italic font-normal text-orange">yours</em> to build on.
             </h3>
-            <div className="mx-auto mt-7 inline-flex items-center overflow-hidden rounded-[10px] border border-black/[0.08] bg-white">
+            <div className="mt-7 inline-flex items-center overflow-hidden rounded-[10px] border border-black/[0.08] bg-white">
               <code className="px-[14px] py-[10px] font-mono text-[0.84rem] text-neutral-900">
                 <span className="text-orange">$</span> npx create-arch-app
               </code>
@@ -245,7 +249,7 @@ export function ChainApps() {
                 copy
               </span>
             </div>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-[10px]">
+            <div className="mt-[17px] flex flex-col items-start gap-[17px]">
               <a
                 href="#build"
                 className="group inline-flex items-center gap-[7px] rounded-[11px] bg-[linear-gradient(180deg,#f4814a,#ec641d)] px-[18px] py-[11px] text-[0.94rem] font-medium text-white no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_1.5px_2px_rgba(0,0,0,0.13),0_0_0_1px_#c9520f] transition-[transform,filter] duration-200 ease-[cubic-bezier(0.645,0.045,0.355,1)] hover:brightness-[1.04] active:scale-[0.96]"
@@ -263,6 +267,7 @@ export function ChainApps() {
               >
                 Read the docs
               </a>
+            </div>
             </div>
           </div>
         </Reveal>
