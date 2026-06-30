@@ -46,11 +46,24 @@
   will-change:transform;transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .chain-scope .glow{position:absolute;left:50%;bottom:-220px;width:1240px;height:440px;
   transform:translateX(-50%);pointer-events:none;
-  background:radial-gradient(ellipse 50% 50% at 50% 50%, var(--orange) 0%, rgba(236,100,29,.55) 38%, rgba(236,100,29,0) 72%);
-  filter:blur(150px);opacity:.30}
+  /* The look is a big soft orange glow. It was a soft radial gradient with filter:blur(150px) on
+     top — but a 150px blur is one of the most expensive ops on Safari (each output pixel samples a
+     ~300px kernel over a 1240x440 area) and was a prime suspect for the hero lag. The radial
+     gradient is already soft, so we drop the filter entirely and widen/soften the stops to match
+     the diffuse look at zero filter cost. */
+  background:radial-gradient(ellipse 72% 78% at 50% 52%, rgba(236,100,29,.5) 0%, rgba(236,100,29,.24) 40%, rgba(236,100,29,0) 76%);
+  opacity:.42}
 .chain-scope .illo{position:absolute;left:50%;top:0;width:680px;height:790px;margin-left:-340px;
-  transform-origin:center top;transform:translateY(45vh) scale(.9)}
-.chain-scope .illo #iso{display:block;width:680px;height:790px;overflow:visible}
+  transform-origin:center top;transform:translateY(45vh) scale(.9);
+  /* Per-frame JS sets `transform: translate3d(...) scale(s)` here. Safari was re-rasterizing the
+     whole inline vector SVG at every scale value (the lag de-iframing introduced — an iframe is
+     implicitly its own raster boundary). Make .illo a self-contained isolated compositing layer at
+     its fixed size so Safari snapshots its paint into a cached bitmap once and scales THAT texture.
+     Layer/raster hints only — no geometry/visible change, so Chromium is unaffected. */
+  will-change:transform;contain:layout paint;isolation:isolate;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.chain-scope .illo #iso{display:block;width:680px;height:790px;overflow:visible;
+  transform:translateZ(0);-webkit-transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 /* The illustration is now an INLINE svg (not an iframe), so it no longer traps the wheel — wheel
    scroll reaches Lenis directly. pointer-events:auto lets the on-art nodes hover-highlight on mouse;
    on touch devices we drop pointer-events so a swipe scrolls the page instead of grabbing the art. */

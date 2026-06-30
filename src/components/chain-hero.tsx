@@ -208,7 +208,16 @@ export default function Hero() {
       const scale = lerp(s[i0].is, s[i1].is, f) * Math.min(1, window.innerHeight / 880);
       const y = textBottom + gap - at * scale + intro * 42;
       if (illoRef.current) {
-        illoRef.current.style.transform = `translate(${illoXRef.current}px, ${y.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+        // Safari re-rasterizes the inline vector SVG every time the scale VALUE changes; a
+        // per-frame scale(toFixed(3)) meant a re-raster on every single frame (the real lag the
+        // de-iframing introduced — an iframe scaled a bitmap, not vectors). So quantize the scale
+        // to ~1% steps: the transform string stays identical across most frames, so Safari just
+        // re-composites the cached layer for the translate (cheap) and only re-rasters on the rare
+        // step. The 1% steps are imperceptible (scale range is ~0.95–1.02) and translate stays
+        // frame-smooth. translate3d keeps it on the GPU layer. `scale` (full precision) still feeds
+        // `y` above so positioning stays continuous.
+        const qScale = (Math.round(scale * 100) / 100).toFixed(2);
+        illoRef.current.style.transform = `translate3d(${illoXRef.current}px, ${y.toFixed(1)}px, 0) scale(${qScale})`;
         illoRef.current.style.opacity = "1"; // no fade — the below-fold occludes the artwork as it rises
       }
       // Once fully past the hero (the below-fold completely covers it), hard-hide the fixed

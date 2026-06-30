@@ -1111,8 +1111,19 @@ export function createIllustration(
   function tr(g, ux, uy) { g.setAttribute('transform', 'translate(' + ((ux - uy) * CX).toFixed(2) + ',' + ((ux + uy) * CY).toFixed(2) + ')'); }
   var rafId = 0, stopped = false;
   var t0 = performance.now();
+  // Safari re-rasterizes the SVG on every attribute mutation, and this loop mutates dozens of
+  // nodes per frame — at 60fps that pegs Safari (Chromium handles it fine). Cap Safari to ~30fps;
+  // the motion is slow/ambient so it stays smooth-looking. `t` uses real elapsed time, so the
+  // animation plays at the same speed regardless of frame rate — just fewer samples.
+  var FRAME_MS = (typeof navigator !== 'undefined'
+    && /^((?!chrome|crios|android).)*safari/i.test(navigator.userAgent)
+    && /apple/i.test(navigator.vendor || '')) ? 1000 / 30 : 0;
+  var lastPaint = 0;
   function frame(now) {
     if (stopped) return;
+    rafId = requestAnimationFrame(frame);
+    if (now - lastPaint < FRAME_MS) return;   // Safari throttle: skip this frame's repaint
+    lastPaint = now;
     var t = (now - t0) / 1000;
     var ob = ((t % TM_CYCLE) / TM_CYCLE) * BSP;   // one block-slot per treemap cycle — synced to the seal
     tr(gBtc, -ob, 0);                      // bitcoin crawl, leftward away
@@ -1163,7 +1174,6 @@ export function createIllustration(
       } else { w.g.style.opacity = ''; }                            // otherwise hand opacity back to CSS
     });
     tiles.forEach(function (tg, i) { tg.setAttribute('transform', 'translate(0,' + (Math.sin(t * 1.4 + i * 1.3) * 3).toFixed(2) + ')'); });
-    rafId = requestAnimationFrame(frame);
   }
   rafId = requestAnimationFrame(frame);
 

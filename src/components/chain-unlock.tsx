@@ -15,7 +15,6 @@ import { Reveal } from "./chain-reveal";
 type Section = {
   title: ReactNode;
   lede: ReactNode;
-  points: string[];
   figure: ReactNode;
 };
 
@@ -28,11 +27,6 @@ const SECTIONS: Section[] = [
         one alone; Arch can, while every coin stays native.
       </>
     ),
-    points: [
-      "Shared liquidity from native UTXOs",
-      "The basis for AMMs and efficient markets",
-      "A market anyone can trade against",
-    ],
     figure: (
       <svg
         viewBox="0 0 680 228"
@@ -94,11 +88,6 @@ const SECTIONS: Section[] = [
         mechanically and settles to Bitcoin — the borrower can&apos;t yank it back.
       </>
     ),
-    points: [
-      "Seized by rule, not by permission",
-      "Moving the coin needs the validators’ signature",
-      "Settles on Bitcoin — no wrapping, no bridge",
-    ],
     figure: (
       <svg
         viewBox="0 0 680 216"
@@ -166,11 +155,6 @@ const SECTIONS: Section[] = [
         broadcasts the closeout in under three seconds, then settles on Bitcoin.
       </>
     ),
-    points: [
-      "Price locked at the moment of signing",
-      "Closeout broadcast in under three seconds",
-      "Final with Bitcoin’s own settlement",
-    ],
     figure: (
       <svg
         viewBox="0 0 680 184"
@@ -230,11 +214,6 @@ const SECTIONS: Section[] = [
         lending possible on Bitcoin itself.
       </>
     ),
-    points: [
-      "Pools + enforceable collateral + fast liquidation",
-      "Pooled lending on native Bitcoin",
-      "No wrapping, no bridge, no custodian",
-    ],
     figure: (
       <svg
         viewBox="0 0 680 220"
@@ -304,16 +283,6 @@ export function ChainUnlock() {
                 <p className="mt-4 max-w-[44ch] text-pretty text-[1rem] leading-[1.6] text-neutral-600 md:text-[1.05rem]">
                   {s.lede}
                 </p>
-                <ul className="mt-7 flex flex-col gap-2.5">
-                  {s.points.map((p) => (
-                    <li
-                      key={p}
-                      className="border-l border-black/[0.12] pl-4 text-[0.92rem] leading-[1.45] text-neutral-500"
-                    >
-                      {p}
-                    </li>
-                  ))}
-                </ul>
               </div>
               {/* big airy panel — refined technical diagram centered with generous whitespace */}
               <figure className="flex min-h-[340px] items-center justify-center rounded-[12px] bg-neutral-100 px-6 py-12 md:min-h-[440px] md:px-10 md:py-16">

@@ -80,7 +80,7 @@ function WhyBand() {
     // transform-gpu puts this opaque band on its own GPU layer so, as it scrolls over the fixed
     // hero illustration iframe at the seam, the compositor blends layers instead of repainting the
     // iframe each frame (that repaint was the open/close flicker).
-    <section className="bg-[#1f1c3e] transform-gpu">
+    <section data-nav-theme="dark" className="bg-[#1f1c3e] transform-gpu">
       <div className="mx-auto max-w-[64rem] px-6 py-[7.5rem]">
         {/* large opening statement — the section's hook, brand serif, LEFT-aligned so it leads the
             same column as the four-rules header + cards below (no centered/left mismatch). */}
@@ -97,7 +97,8 @@ function WhyBand() {
               Four rules we couldn&apos;t break.
             </h3>
             <p className="mt-3.5 max-w-[48ch] text-pretty text-[1rem] leading-[1.5] text-light/[0.72]">
-              Real finance on Bitcoin needs all four at once. Every prior attempt broke at least one — so the markets never came, and Bitcoin&apos;s liquidity went everywhere except Bitcoin. Arch is the first to hold all four.
+              Real finance on Bitcoin needs all four at once. Every prior attempt broke at least one — so markets never formed, and capital sat idle. Arch is the first to hold all four.
+              {/* Every attempt to unlock finance on Bitcoin broke one of these rules. Markets never formed, and capital sat idle. Arch is the first to hold all four. */}
             </p>
           </div>
         </Reveal>
@@ -136,9 +137,9 @@ export function ChainBelow() {
       <WhyBand />
       {/* black spacers give the off-black HOW band extra breathing room before/after it meets
           the neighbouring sections — NOT part of the pinned/sticky area. */}
-      <div aria-hidden className="h-[12vh] min-h-20 bg-[#2e2d33]" />
+      <div aria-hidden data-nav-theme="dark" className="h-[12vh] min-h-20 bg-[#2e2d33]" />
       <ChainHow />
-      <div aria-hidden className="h-[12vh] min-h-20 bg-[#2e2d33]" />
+      <div aria-hidden data-nav-theme="dark" className="h-[12vh] min-h-20 bg-[#2e2d33]" />
       <ChainUnlock />
       <ChainApps />
     </div>

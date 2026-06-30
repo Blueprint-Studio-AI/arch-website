@@ -14,6 +14,9 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // true while the nav sits over a section that opted into a dark theme
+  // (`data-nav-theme="dark"`) → light content, no glass.
+  const [overDark, setOverDark] = useState(false);
 
   const isEcosystem = pathname === "/ecosystem";
   const cta = isEcosystem
@@ -21,14 +24,29 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
     : { label: "Become a partner", href: EXTERNAL.typeform };
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY >= window.innerHeight - 80);
+    const onScroll = () => {
+      setScrolled(window.scrollY >= window.innerHeight - 80);
+      const line = 40; // mid-nav probe line
+      let over = false;
+      document.querySelectorAll('[data-nav-theme="dark"]').forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top <= line && r.bottom > line) over = true;
+      });
+      setOverDark(over);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   const dark = scrolled || menuOpen;
-  const darkText = dark || lightHero;
+  // glass only over light sections; over dark sections the bar goes bare + light
+  const glassShown = dark && !overDark;
+  const darkText = !overDark && (dark || lightHero);
   const linkColor = darkText ? "text-black" : "text-white";
 
   function NavLink({ link, onClick, big }: { link: (typeof NAV_LINKS)[number]; onClick?: () => void; big?: boolean }) {
@@ -53,7 +71,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
     <nav className="fixed inset-x-0 top-0 z-100 flex h-20 items-center">
       <div
         className={`pointer-events-none absolute inset-0 bg-white/30 backdrop-blur-[12px] transition-opacity duration-400 ${
-          dark ? "opacity-100" : "opacity-0"
+          glassShown ? "opacity-100" : "opacity-0"
         }`}
       />
       <div className="relative z-10 mx-auto flex w-[94%] max-w-(--container-site) items-center justify-between">

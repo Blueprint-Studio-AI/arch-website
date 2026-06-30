@@ -8,9 +8,37 @@
 // purple-2 → purple, orange → orange; gray ramp ink/body/muted/faint → neutral-900/600/500/400;
 // hairline (--hair) → border-black/[0.08].
 
+import type { ReactNode } from "react";
 import { Reveal } from "./chain-reveal";
 import { RustMark } from "./rust-mark";
 import { EXTERNAL } from "@/lib/site";
+
+// dependency-free Rust syntax highlighter for the card-back code peeks. Tokenizes into
+// comments / strings / numbers / idents / punctuation and tints them for the indigo card:
+// keywords + macros orange, types (PascalCase) gold, comments dimmed; everything else cream.
+const RUST_KW = new Set([
+  "pub", "fn", "let", "mut", "return", "use", "impl", "struct", "enum", "self", "as", "ref", "match", "if", "else", "for", "while", "loop", "move", "where", "const", "static", "in",
+]);
+function highlightRust(code: string): ReactNode {
+  const re = /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|(\b\d[\d_]*(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*!?)|(\s+)|([^\s])/g;
+  const out: ReactNode[] = [];
+  let m: RegExpExecArray | null;
+  let k = 0;
+  while ((m = re.exec(code)) !== null) {
+    const [, comment, str, num, ident, ws] = m;
+    if (comment !== undefined) out.push(<span key={k++} className="text-light/40">{comment}</span>);
+    else if (str !== undefined) out.push(<span key={k++} className="text-[#e6c98a]">{str}</span>);
+    else if (num !== undefined) out.push(<span key={k++} className="text-[#f0a36a]">{num}</span>);
+    else if (ident !== undefined) {
+      const macro = ident.endsWith("!");
+      const bare = macro ? ident.slice(0, -1) : ident;
+      const cls = RUST_KW.has(bare) || macro ? "text-[#f4814a]" : /^[A-Z]/.test(bare) ? "text-[#e6c98a]" : "";
+      out.push(cls ? <span key={k++} className={cls}>{ident}</span> : <span key={k++}>{ident}</span>);
+    } else if (ws !== undefined) out.push(ws);
+    else out.push(m[6]);
+  }
+  return out;
+}
 
 type App = {
   /** action label (also React key) */
@@ -112,7 +140,7 @@ export function ChainApps() {
           </h3>
           <p className="mt-4 max-w-[44ch] text-pretty text-[1rem] leading-[1.55] text-neutral-600">
             Borrow, earn, and swap against native Bitcoin — and it stays{" "}
-            <span className="text-orange">yours</span> the whole way through.
+            <span className="text-neutral-900">yours</span> the whole way through.
           </p>
         </Reveal>
 
@@ -131,7 +159,7 @@ export function ChainApps() {
               >
                 <div className="relative h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] motion-reduce:transition-none motion-reduce:group-hover:[transform:none]">
                   {/* FRONT */}
-                  <div className="absolute inset-0 flex flex-col justify-between rounded-[32px] bg-white p-6 ring-1 ring-inset ring-black/[0.06] [-webkit-backface-visibility:hidden] [backface-visibility:hidden] md:p-8">
+                  <div className="absolute inset-0 flex flex-col justify-between rounded-[12px] bg-white p-6 ring-1 ring-inset ring-black/[0.06] [-webkit-backface-visibility:hidden] [backface-visibility:hidden] md:p-8">
                     <div>
                       <div className="text-[0.8rem] font-medium tracking-[0.01em] text-orange">{app.tag}</div>
                       <h4 className="mt-3 text-balance font-serif text-[1.4rem] font-light leading-[1.18] tracking-[-0.01em] text-neutral-900">
@@ -145,12 +173,12 @@ export function ChainApps() {
                     </div>
                   </div>
                   {/* BACK — deep-indigo (the WhyBand band) + cream/tan code for contrast & brand tie */}
-                  <div className="absolute inset-0 flex flex-col rounded-[32px] bg-[#1f1c3e] p-5 [-webkit-backface-visibility:hidden] [backface-visibility:hidden] [transform:rotateY(180deg)] md:p-6">
+                  <div className="absolute inset-0 flex flex-col rounded-[12px] bg-[#1f1c3e] p-5 [-webkit-backface-visibility:hidden] [backface-visibility:hidden] [transform:rotateY(180deg)] md:p-6">
                     <div className="mb-3 flex items-center">
                       <RustMark className="h-[18px] w-[18px] text-light/70" />
                     </div>
-                    <pre className="min-h-0 flex-1 overflow-auto text-[0.66rem] leading-[1.55] text-light/[0.88] [scrollbar-width:none]">
-                      <code className="font-mono">{app.code}</code>
+                    <pre className="min-h-0 flex-1 overflow-hidden text-[0.66rem] leading-[1.55] text-light/[0.88]">
+                      <code className="font-mono">{highlightRust(app.code)}</code>
                     </pre>
                   </div>
                 </div>

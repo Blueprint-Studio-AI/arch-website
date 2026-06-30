@@ -17,9 +17,6 @@ import { Reveal } from "./chain-reveal";
 // ease-in-out for the on-screen "window" slide between beats (craft bar)
 const SLIDE = "cubic-bezier(0.65, 0, 0.35, 1)";
 
-// SVG diagram label — sans (no monospace anywhere in this section), light letter-spacing
-const lmono = "tracking-[0.01em]";
-
 // The four principle axes. Icons reuse the WhyBand "rules" vocabulary so the "Four rules"
 // band and this filter speak one language. Native ₿ / Fast ⚡ / Decentralized mesh / Programmable </>
 type Principle = "native" | "fast" | "decentralized" | "programmable";
@@ -59,155 +56,6 @@ const PRINCIPLES: PrincipleDef[] = [
   },
 ];
 
-const figExecution = (
-  <svg viewBox="0 0 680 140" role="img" aria-label="Floating app transactions enter ArchVM, which sequences them into a fast chain of Arch blocks." className="h-auto w-full">
-    <defs>
-      <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-        <path d="M0 0 L9 5 L0 10 z" fill="#c4c4cc" />
-      </marker>
-    </defs>
-    <text x="40" y="34" className={lmono} fontSize="9.5" fill="#8a8a92">FLOATING TXNS</text>
-    <g fill="#fff" stroke="#b6b6be">
-      <rect x="44" y="48" width="12" height="12" rx="2.5" />
-      <rect x="78" y="42" width="12" height="12" rx="2.5" />
-      <rect x="60" y="74" width="12" height="12" rx="2.5" />
-      <rect x="96" y="70" width="12" height="12" rx="2.5" />
-    </g>
-    <g stroke="#dcdce2" fill="none">
-      <path d="M58 60 L150 96" markerEnd="url(#a2)" />
-      <path d="M90 54 L150 92" markerEnd="url(#a2)" />
-      <path d="M104 82 L150 100" markerEnd="url(#a2)" />
-    </g>
-    <rect x="150" y="74" width="96" height="52" rx="9" fill="#fff" stroke="#ec641d" strokeWidth="1.4" />
-    <text x="198" y="98" textAnchor="middle" className={lmono} fontSize="12" letterSpacing="1.5px" fill="#ec641d">ArchVM</text>
-    <text x="198" y="113" textAnchor="middle" className={lmono} fontSize="8" fill="#b6b6be">UTXO-aware</text>
-    <path d="M246 100 L286 100" stroke="#c4c4cc" markerEnd="url(#a2)" />
-    <text x="468" y="56" textAnchor="middle" className={lmono} fontSize="9.5" fill="#8a8a92">ARCH CHAIN · one block / 180ms</text>
-    <line x1="290" y1="100" x2="650" y2="100" stroke="#d3d3da" />
-    <g fill="#fff" stroke="#c4c4cc">
-      <rect x="296" y="93" width="14" height="14" rx="3" /><rect x="330" y="93" width="14" height="14" rx="3" fill="#f2f2f4" />
-      <rect x="364" y="93" width="14" height="14" rx="3" /><rect x="398" y="93" width="14" height="14" rx="3" fill="#f2f2f4" />
-      <rect x="432" y="93" width="14" height="14" rx="3" /><rect x="466" y="93" width="14" height="14" rx="3" fill="#f2f2f4" />
-      <rect x="500" y="93" width="14" height="14" rx="3" /><rect x="534" y="93" width="14" height="14" rx="3" fill="#f2f2f4" />
-      <rect x="568" y="93" width="14" height="14" rx="3" /><rect x="602" y="93" width="14" height="14" rx="3" fill="#f2f2f4" />
-      <rect x="636" y="93" width="14" height="14" rx="3" />
-    </g>
-  </svg>
-);
-
-const figCrypto = (
-  <svg viewBox="0 0 680 232" role="img" aria-label="Validator key-shares combine via threshold signing into one ordinary Bitcoin signature; no single key exists." className="h-auto w-full">
-    <defs>
-      <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-        <path d="M0 0 L9 5 L0 10 z" fill="#c4c4cc" />
-      </marker>
-    </defs>
-    <text x="40" y="34" className={lmono} fontSize="9.5" fill="#8a8a92">VALIDATOR SET · key-shares</text>
-    <g>
-      <g transform="translate(60,62)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
-      <g transform="translate(60,118)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
-      <g transform="translate(60,174)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
-      <g transform="translate(118,90)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
-      <g transform="translate(118,146)"><circle r="20" fill="#fff" stroke="#d3d3da" /><g fill="none" stroke="#ec641d" strokeWidth="1.5" strokeLinecap="round"><circle cx="-6" cy="0" r="4" /><path d="M-2 0 H8" /><path d="M5 0 V3.5 M8 0 V3" /></g></g>
-    </g>
-    <g stroke="#dcdce2" fill="none">
-      <path d="M84 66 C200 72 230 102 300 114" markerEnd="url(#a3)" />
-      <path d="M84 118 C210 118 240 117 300 118" markerEnd="url(#a3)" />
-      <path d="M84 170 C200 164 230 134 300 123" markerEnd="url(#a3)" />
-      <path d="M142 93 C220 100 250 110 300 116" markerEnd="url(#a3)" />
-      <path d="M142 149 C220 142 250 128 300 121" markerEnd="url(#a3)" />
-    </g>
-    <rect x="312" y="92" width="150" height="52" rx="10" fill="#fff" stroke="#ec641d" strokeWidth="1.4" />
-    <text x="387" y="116" textAnchor="middle" className={lmono} fontSize="11" fill="#ec641d">1 signature</text>
-    <text x="387" y="131" textAnchor="middle" className={lmono} fontSize="8.5" fill="#b6b6be">no single key exists</text>
-    <path d="M462 118 L502 118" stroke="#c4c4cc" markerEnd="url(#a3)" />
-    <rect x="506" y="86" width="148" height="64" rx="10" fill="#faf1d8" stroke="#b8860b" />
-    <text x="580" y="112" textAnchor="middle" className={lmono} fontSize="10" fill="#9a7a1a">Bitcoin spend</text>
-    <text x="580" y="128" textAnchor="middle" className={lmono} fontSize="8" fill="#b59a4a">an ordinary Taproot tx</text>
-  </svg>
-);
-
-// Jaidon's foundation graphic — your BTC is one real UTXO in Bitcoin's own ledger.
-// Ported verbatim from public/below/index.html (§1.1).
-const figFoundation = (
-  <svg viewBox="0 0 440 188" role="img" aria-label="Your Bitcoin is one real UTXO living inside Bitcoin's own ledger — not a receipt for one." className="h-auto w-full">
-    <text x="220" y="30" textAnchor="middle" className={lmono} fontSize="10" fill="#8a8a92">BITCOIN · THE LEDGER</text>
-    <g stroke="#d3d3da" strokeWidth="1.3">
-      <line x1="117" y1="105" x2="131" y2="105" />
-      <line x1="165" y1="105" x2="179" y2="105" />
-      <line x1="213" y1="105" x2="227" y2="105" />
-      <line x1="261" y1="105" x2="275" y2="105" />
-      <line x1="309" y1="105" x2="323" y2="105" />
-    </g>
-    <g fill="#fff" stroke="#c4c4cc">
-      <rect x="83" y="88" width="34" height="34" rx="7" />
-      <rect x="131" y="88" width="34" height="34" rx="7" />
-      <rect x="227" y="88" width="34" height="34" rx="7" />
-      <rect x="275" y="88" width="34" height="34" rx="7" />
-      <rect x="323" y="88" width="34" height="34" rx="7" />
-    </g>
-    <rect x="179" y="88" width="34" height="34" rx="7" fill="#fff" stroke="#ec641d" strokeWidth="1.6" />
-    <rect x="189" y="98" width="14" height="14" rx="3" fill="#34343a" />
-    <line x1="196" y1="88" x2="196" y2="68" stroke="#ec641d" strokeWidth="1.2" strokeDasharray="2 2" />
-    <rect x="144" y="48" width="104" height="20" rx="10" fill="#fff" stroke="#ec641d" />
-    <text x="196" y="61.5" textAnchor="middle" className={lmono} fontSize="8.5" fill="#ec641d">your BTC · UTXO</text>
-    <text x="220" y="158" textAnchor="middle" className={lmono} fontSize="10" fill="#8a8a92">a real coin in the chain — not a receipt for one</text>
-  </svg>
-);
-
-// Settlement graphic — many fast Arch blocks above, one slow Bitcoin block below.
-// Ported verbatim from public/below/index.html (§1.4).
-const figSettlement = (
-  <svg viewBox="0 0 680 220" role="img" aria-label="Many fast Arch blocks above versus one slow ten-minute Bitcoin block below; single-movement settlements drop down." className="h-auto w-full">
-    <defs>
-      <marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-        <path d="M0 0 L9 5 L0 10 z" fill="#34343a" />
-      </marker>
-    </defs>
-    <text x="40" y="36" className={lmono} fontSize="9.5" fill="#ec641d">ARCH · executes · 180ms</text>
-    <line x1="40" y1="58" x2="640" y2="58" stroke="#d3d3da" />
-    <g fill="#fff" stroke="#c4c4cc">
-      <rect x="44" y="52" width="11" height="11" rx="2" />
-      <rect x="70" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="96" y="52" width="11" height="11" rx="2" />
-      <rect x="122" y="52" width="11" height="11" rx="2" />
-      <rect x="148" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="174" y="52" width="11" height="11" rx="2" />
-      <rect x="200" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="226" y="52" width="11" height="11" rx="2" />
-      <rect x="252" y="52" width="11" height="11" rx="2" />
-      <rect x="278" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="304" y="52" width="11" height="11" rx="2" />
-      <rect x="330" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="356" y="52" width="11" height="11" rx="2" />
-      <rect x="382" y="52" width="11" height="11" rx="2" />
-      <rect x="408" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="434" y="52" width="11" height="11" rx="2" />
-      <rect x="460" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="486" y="52" width="11" height="11" rx="2" />
-      <rect x="512" y="52" width="11" height="11" rx="2" />
-      <rect x="538" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="564" y="52" width="11" height="11" rx="2" />
-      <rect x="590" y="52" width="11" height="11" rx="2" fill="#f2f2f4" />
-      <rect x="616" y="52" width="11" height="11" rx="2" />
-    </g>
-    <g stroke="#d3d3da" strokeDasharray="3 3" fill="none">
-      <path d="M310 66 L330 150" markerEnd="url(#a4)" />
-      <path d="M360 66 L344 150" markerEnd="url(#a4)" />
-      <path d="M412 66 L362 150" markerEnd="url(#a4)" />
-    </g>
-    <text x="40" y="130" className={lmono} fontSize="9.5" fill="#8a8a92">BITCOIN · settles · ~10 min</text>
-    <line x1="40" y1="172" x2="640" y2="172" stroke="#d3d3da" />
-    <g fill="#fff" stroke="#c4c4cc">
-      <rect x="120" y="152" width="40" height="40" rx="6" />
-      <rect x="520" y="152" width="40" height="40" rx="6" />
-    </g>
-    <rect x="298" y="152" width="84" height="40" rx="6" fill="#ededed" stroke="#34343a" />
-    <text x="340" y="176" textAnchor="middle" className={lmono} fontSize="8.5" fill="#8a8a92">1 block</text>
-    <text x="640" y="130" textAnchor="end" className={lmono} fontSize="8.5" fill="#b6b6be">not batched · one user → one user</text>
-  </svg>
-);
-
 // ---- beats ----------------------------------------------------------------
 type Stat = { v: string; u?: string; l: string };
 type Beat = {
@@ -215,8 +63,7 @@ type Beat = {
   eyebrow: string;
   title: ReactNode;
   body: ReactNode;
-  fig: ReactNode;
-  figClass?: string;
+  img: string; // illustration (wide SVG, transparent) shown in the diagram panel
   // every principle this beat genuinely embodies — MANY-TO-MANY (primary first)
   principles: Principle[];
   stats: [Stat, Stat, Stat];
@@ -229,11 +76,10 @@ const BEATS: Beat[] = [
     title: "It never stops being Bitcoin.",
     body: (
       <>
-        What you hold is the coin itself — <b className="font-medium text-neutral-900">one real UTXO</b> on Bitcoin&apos;s own ledger, not a wrapped token or a receipt for coins held elsewhere. Every move settles straight into a Bitcoin block.
+        What you hold is the coin itself — <b className="font-medium text-white">a real UTXO </b>on Bitcoin&apos;s own ledger, not a wrapped token or a receipt for coins held elsewhere. Every move settles straight into a Bitcoin block.
       </>
     ),
-    fig: figFoundation,
-    figClass: "max-w-[62%]",
+    img: "/img/chain/arch_utxos.svg",
     principles: ["native", "decentralized"],
     stats: [
       { v: "1", u: "UTXO", l: "your coin is one real output" },
@@ -247,10 +93,10 @@ const BEATS: Beat[] = [
     title: "A chain that speaks Bitcoin natively.",
     body: (
       <>
-        Apps fire transactions; Arch sequences them into blocks every <b className="font-medium text-neutral-900">180&nbsp;ms</b> and executes them against real Bitcoin UTXOs — reorg-safe, so its record stays consistent with Bitcoin itself.
+        Apps fire transactions; Arch sequences them into blocks every <b className="font-medium text-white">180&nbsp;ms</b> and executes them against real Bitcoin UTXOs — reorg-safe, so its record stays consistent with Bitcoin itself.
       </>
     ),
-    fig: figExecution,
+    img: "/img/chain/arch_chain.svg",
     principles: ["native", "fast", "programmable", "decentralized"],
     stats: [
       { v: "180", u: "ms", l: "one block, every" },
@@ -264,10 +110,10 @@ const BEATS: Beat[] = [
     title: <>There&apos;s no single key to hold.</>,
     body: (
       <>
-        The authority to move a coin lives only as shares split across the validators. <b className="font-medium text-neutral-900">No single party</b>, Arch included, can move anything alone.
+        The authority to move a coin lives only as shares split across the validators. <b className="font-medium text-white">No single party</b>, Arch included, can move anything alone.
       </>
     ),
-    fig: figCrypto,
+    img: "/img/chain/arch_keys.svg",
     principles: ["decentralized", "native"],
     stats: [
       { v: "1", u: "signature", l: "on-chain: an ordinary Bitcoin spend" },
@@ -278,13 +124,19 @@ const BEATS: Beat[] = [
   {
     id: "settlement",
     eyebrow: "Settlement",
-    title: "Fast where it needs to be. Final where it counts.",
-    body: (
+    title: (
       <>
-        Move faster than Bitcoin alone ever could, then settle with <b className="font-medium text-neutral-900">Bitcoin&apos;s own finality</b>.
+        Fast where it needs to be.
+        <br />
+        Final where it counts.
       </>
     ),
-    fig: figSettlement,
+    body: (
+      <>
+        Move faster than Bitcoin alone ever could, then settle with <b className="font-medium text-white">Bitcoin&apos;s own finality</b>.
+      </>
+    ),
+    img: "/img/chain/arch_settlement.svg",
     principles: ["fast", "native"],
     stats: [
       { v: "180", u: "ms", l: "Arch executes (fast)" },
@@ -310,23 +162,22 @@ function GlitchText({ text, delayBase = 0 }: { text: string; delayBase?: number 
   );
 }
 
-function StatRow({ beat, reKey }: { beat: Beat; reKey?: number }) {
+// the three metrics — sit to the RIGHT of the beat copy, separated by vertical hairlines
+// (no card surface anymore). Numbers re-roll (glitch) on each beat change when `reKey` is set.
+function MetricsRail({ beat, reKey }: { beat: Beat; reKey?: number }) {
   const anim = reKey !== undefined; // pinned story → glitch the numbers on each beat change
   return (
-    <div className="grid grid-cols-3 gap-3 md:gap-4">
+    <div className="grid grid-cols-3">
       {beat.stats.map((s, i) => {
         const base = i * 55;
         return (
-          <div
-            key={i}
-            className="flex flex-col justify-center overflow-hidden rounded-[18px] border border-black/[0.06] bg-white px-4 py-5 shadow-[0_1px_2px_rgba(24,24,24,0.04),0_10px_30px_-16px_rgba(24,24,24,0.12)] md:px-5"
-          >
+          <div key={i} className={`min-w-0 ${i === 0 ? "pr-3" : "border-l border-[#4d4c52] px-3"}`}>
             <div key={reKey}>
-              <div className="text-[1.9rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-neutral-900 md:text-[2.4rem]">
+              <div className="whitespace-nowrap text-[1.55rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-white md:text-[1.95rem]">
                 {anim ? <GlitchText text={s.v} delayBase={base} /> : s.v}
                 {s.u && (
                   <span
-                    className={`ml-0.5 text-[1.1rem] text-neutral-400 md:text-[1.3rem] ${anim ? "chain-reroll" : ""}`}
+                    className={`ml-0.5 text-[0.95rem] text-neutral-400 md:text-[1.05rem] ${anim ? "chain-reroll" : ""}`}
                     style={anim ? { animationDelay: `${base + Array.from(s.v).length * 35}ms` } : undefined}
                   >
                     {s.u}
@@ -334,7 +185,7 @@ function StatRow({ beat, reKey }: { beat: Beat; reKey?: number }) {
                 )}
               </div>
               <div
-                className={`mt-1.5 text-[0.72rem] leading-[1.35] text-neutral-500 ${anim ? "chain-reroll" : ""}`}
+                className={`mt-2 text-[0.72rem] leading-[1.35] text-neutral-400 ${anim ? "chain-reroll" : ""}`}
                 style={anim ? { animationDelay: `${base + 120}ms` } : undefined}
               >
                 {s.l}
@@ -352,26 +203,33 @@ function StatRow({ beat, reKey }: { beat: Beat; reKey?: number }) {
 function PrinciplePill({
   def,
   on,
+  lit = false,
   onClick,
   tone = "dark",
   iconOnly = false,
 }: {
   def: PrincipleDef;
   on: boolean;
+  // `lit` = this principle belongs to the current scroll step → glow brighter than hover
+  lit?: boolean;
   onClick: () => void;
   tone?: "dark" | "light";
   iconOnly?: boolean;
 }) {
   const surface = on
-    ? "bg-orange/15 text-orange"
-    : tone === "light"
-      ? "bg-black/[0.04] text-neutral-600 hover:bg-black/[0.07] hover:text-neutral-900"
-      : "bg-white/[0.06] text-white/55 hover:bg-white/[0.1] hover:text-white";
+    ? "bg-orange/20 text-orange"
+    : lit
+      ? "bg-white/[0.14] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.16)]"
+      : tone === "light"
+        ? "bg-black/[0.04] text-neutral-600 hover:bg-black/[0.07] hover:text-neutral-900"
+        : "bg-white/[0.06] text-white/55 hover:bg-white/[0.1] hover:text-white";
   const iconColor = on
     ? "text-orange"
-    : tone === "light"
-      ? "text-neutral-400 group-hover:text-orange"
-      : "text-white/40 group-hover:text-orange";
+    : lit
+      ? "text-orange/80"
+      : tone === "light"
+        ? "text-neutral-400 group-hover:text-orange"
+        : "text-white/40 group-hover:text-orange";
 
   if (iconOnly) {
     return (
@@ -405,60 +263,45 @@ function PrinciplePill({
   );
 }
 
-function PrincipleLegend({ hl, onToggle }: { hl: Principle[]; onToggle: (p: Principle) => void }) {
+function PrincipleLegend({
+  hl,
+  lit = [],
+  onToggle,
+}: {
+  hl: Principle[];
+  // principles of the current scroll step — these pills glow to mirror where you are
+  lit?: Principle[];
+  onToggle: (p: Principle) => void;
+}) {
   return (
     <div className="flex flex-wrap items-center gap-1.5 md:justify-end">
       {PRINCIPLES.map((p) => (
-        <PrinciplePill key={p.id} def={p} on={hl.includes(p.id)} onClick={() => onToggle(p.id)} />
+        <PrinciplePill key={p.id} def={p} on={hl.includes(p.id)} lit={lit.includes(p.id)} onClick={() => onToggle(p.id)} />
       ))}
     </div>
   );
 }
 
-function PrincipleTags({
-  beat,
-  hl,
-  onToggle,
-  iconOnly = false,
-}: {
-  beat: Beat;
-  hl: Principle[];
-  onToggle: (p: Principle) => void;
-  iconOnly?: boolean;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {beat.principles.map((pid) => {
-        const def = PRINCIPLES.find((p) => p.id === pid)!;
-        return <PrinciplePill key={pid} def={def} on={hl.includes(pid)} onClick={() => onToggle(pid)} tone="light" iconOnly={iconOnly} />;
-      })}
-    </div>
-  );
-}
-
-function BeatCopy({ beat, hl, onToggle }: { beat: Beat; hl: Principle[]; onToggle: (p: Principle) => void }) {
+function BeatCopy({ beat }: { beat: Beat }) {
   return (
     <>
-      {/* eyebrow on the left, icon-only principle tags aligned opposite on the right */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-[0.7rem] uppercase tracking-[0.1em] text-neutral-500">{beat.eyebrow}</div>
-        <PrincipleTags beat={beat} hl={hl} onToggle={onToggle} iconOnly />
-      </div>
-      <h3 className="mt-3 text-balance text-[1.35rem] font-medium leading-[1.18] tracking-[-0.018em] text-neutral-900 md:text-[1.5rem]">
+      <div className="text-[0.7rem] uppercase tracking-[0.1em] text-neutral-400">{beat.eyebrow}</div>
+      <h3 className="mt-3 font-serif text-[1.7rem] font-light leading-[1.12] tracking-[-0.01em] text-white md:text-[2rem]">
         {beat.title}
       </h3>
-      <p className="mt-2.5 max-w-[62ch] text-pretty text-[0.95rem] leading-[1.55] text-neutral-600">{beat.body}</p>
+      <p className="mt-2.5 max-w-[42ch] text-pretty text-[0.95rem] leading-[1.55] text-neutral-300">{beat.body}</p>
     </>
   );
 }
 
-// the light diagram panel that lives inside a beat card
+// the diagram panel that lives inside a beat card — the only surface with a background
 function BeatDiagram({ beat, className = "" }: { beat: Beat; className?: string }) {
   return (
     <div
-      className={`flex min-w-0 items-center justify-center overflow-hidden rounded-[14px] bg-neutral-100 p-5 lg:p-6 [&_text]:[font-variant-numeric:tabular-nums] ${className}`}
+      className={`flex min-w-0 items-center justify-center overflow-hidden rounded-[6px] bg-[#38383E] px-12 py-12 lg:px-32 lg:py-16 ${className}`}
     >
-      <div className={`mx-auto w-full ${beat.figClass ?? ""}`}>{beat.fig}</div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={beat.img} alt="" aria-hidden className="max-h-full w-auto max-w-full object-contain" />
     </div>
   );
 }
@@ -473,24 +316,28 @@ type CardVariant = "center" | "fill" | "below";
 // fill a fixed-height parent — used by the pinned "window" slide; otherwise it sizes naturally.
 function BeatContent({
   beat,
-  hl,
-  onToggle,
   variant,
   fill = false,
+  reKey,
 }: {
   beat: Beat;
-  hl: Principle[];
-  onToggle: (p: Principle) => void;
   variant: CardVariant;
   fill?: boolean;
+  reKey?: number;
 }) {
-  const copy = <BeatCopy beat={beat} hl={hl} onToggle={onToggle} />;
+  const copy = <BeatCopy beat={beat} />;
 
   if (variant === "below") {
     return (
-      <div className={`flex flex-col gap-6 ${fill ? "h-full" : ""}`}>
+      <div className={`flex flex-col gap-7 ${fill ? "h-full" : ""}`}>
         <BeatDiagram beat={beat} className={fill ? "min-h-0 flex-1" : ""} />
-        <div>{copy}</div>
+        {/* copy left (narrowed) · the three metrics fill the freed space on the right */}
+        <div className="flex flex-col gap-7 md:flex-row md:items-start md:justify-between md:gap-10">
+          <div className="md:flex-1">{copy}</div>
+          <div className="md:w-[44%] md:shrink-0 md:pt-1">
+            <MetricsRail beat={beat} reKey={reKey} />
+          </div>
+        </div>
       </div>
     );
   }
@@ -499,6 +346,9 @@ function BeatContent({
     <div className={`flex flex-col gap-7 md:flex-row md:gap-10 ${fill ? "h-full" : ""}`}>
       <div className={`flex flex-col md:w-[40%] md:shrink-0 ${variant === "fill" ? "md:justify-between" : "md:justify-center"}`}>
         {copy}
+        <div className="mt-6">
+          <MetricsRail beat={beat} reKey={reKey} />
+        </div>
       </div>
       <BeatDiagram beat={beat} className={fill ? "flex-1" : "flex-1 md:h-[15rem]"} />
     </div>
@@ -506,24 +356,10 @@ function BeatContent({
 }
 
 // a complete beat card (frame + content) — used by the stacked fallback
-function BeatCard({
-  beat,
-  hl,
-  onToggle,
-  variant = "center",
-  className = "",
-}: {
-  beat: Beat;
-  hl: Principle[];
-  onToggle: (p: Principle) => void;
-  variant?: CardVariant;
-  className?: string;
-}) {
+function BeatCard({ beat, variant = "center", className = "" }: { beat: Beat; variant?: CardVariant; className?: string }) {
   return (
-    <div
-      className={`rounded-[20px] border border-black/[0.06] bg-white p-7 shadow-[0_1px_2px_rgba(24,24,24,0.04),0_10px_30px_-16px_rgba(24,24,24,0.12)] md:p-9 ${className}`}
-    >
-      <BeatContent beat={beat} hl={hl} onToggle={onToggle} variant={variant} />
+    <div className={className}>
+      <BeatContent beat={beat} variant={variant} />
     </div>
   );
 }
@@ -584,7 +420,7 @@ function ChainHowStacked({
   variant: CardVariant;
 }) {
   return (
-    <section className="bg-[#2e2d33] font-sans text-white antialiased">
+    <section data-nav-theme="dark" className="bg-[#2e2d33] font-sans text-white antialiased">
       <div className="mx-auto max-w-[64rem] px-6 py-24 md:py-28">
         <Reveal>
           <header className="flex flex-col gap-y-5 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
@@ -602,10 +438,7 @@ function ChainHowStacked({
             return (
               <Reveal key={b.id} y={0} delay={i * 60}>
                 <div className="transition-opacity duration-300" style={dim ? { opacity: 0.4 } : undefined}>
-                  <StatRow beat={b} />
-                  <div className="mt-4">
-                    <BeatCard beat={b} hl={hl} onToggle={onToggle} variant={variant} />
-                  </div>
+                  <BeatCard beat={b} variant={variant} />
                 </div>
               </Reveal>
             );
@@ -657,12 +490,111 @@ export function ChainHow() {
     return () => io.disconnect();
   }, [pinned]);
 
+  // Per-beat scroll resistance — the SAME machine the hero uses, scoped to this section's range.
+  // It hooks Lenis's `virtual-scroll` (not native wheel) and eases with `lenis.scrollTo`, so it
+  // cooperates with the single Lenis instance instead of fighting it (the conflict that earlier
+  // forced removing How's own machine was two machines BOTH owning the page; this one is guarded
+  // to `inHow()` and the hero's to `inHero()`, so their ranges never overlap). One deliberate
+  // gesture = one beat; the decelerating tail of a flick is ignored, so momentum can't fly past
+  // a beat before you've read it. idle-settle rubber-bands onto the nearest beat on any coast.
+  useEffect(() => {
+    if (!pinned) return;
+    type L = {
+      scrollTo: (t: number, o: Record<string, unknown>) => void;
+      on: (e: string, f: (a: { deltaY: number }) => void) => void;
+      off: (e: string, f: (a: { deltaY: number }) => void) => void;
+    };
+    const ease = (x: number) => 1 - Math.pow(1 - x, 3);
+    const THRESH = 90; // accumulated wheel a gesture must build before the current beat releases
+    const PAUSE = 200; // ms gap that begins a fresh gesture
+    let armed = true;
+    let acc = 0;
+    let lastT = 0;
+    let idleT = 0;
+    let waitRaf = 0;
+    let mags: number[] = []; // recent |deltaY| → accel-vs-momentum-tail detection
+    let lenis: L | null = null;
+
+    const ih = () => window.innerHeight;
+    const top = () => {
+      const el = sectionRef.current;
+      return el ? el.getBoundingClientRect().top + window.scrollY : 0;
+    };
+    const lastBeatY = () => top() + (N - 1) * ih();
+    // own ONLY the pinned range; above (spacer/WhyBand) and below (ChainUnlock) stay free scroll
+    const inHow = () => window.scrollY >= top() - 2 && window.scrollY <= lastBeatY() + 2;
+    const beatY = (i: number) => top() + Math.max(0, Math.min(N - 1, i)) * ih();
+    const curBeat = () => Math.max(0, Math.min(N - 1, Math.round((window.scrollY - top()) / ih())));
+
+    const avg = (a: number[], n: number) => {
+      const len = a.length;
+      if (!len) return 0;
+      const k = Math.min(n, len);
+      let s = 0;
+      for (let i = len - k; i < len; i++) s += a[i];
+      return s / k;
+    };
+    const rearm = () => window.setTimeout(() => { armed = true; }, 60);
+    const snapTo = (y: number, dur: number) => {
+      if (!lenis) return;
+      armed = false;
+      acc = 0;
+      lenis.scrollTo(y, { lock: true, duration: dur, easing: ease, onComplete: rearm });
+    };
+
+    const onV = (e: { deltaY: number }) => {
+      if (!lenis) return;
+      const now = performance.now();
+      if (now - lastT > PAUSE) { acc = 0; mags = []; } // a real pause = a fresh gesture
+      lastT = now;
+      if (!inHow()) return; // outside the section → inert; free scroll owns it
+      mags.push(Math.abs(e.deltaY));
+      if (mags.length > 80) mags.shift();
+      if (!armed) return; // mid-snap → the scrollTo lock also blocks input
+      if (avg(mags, 8) < avg(mags, 30) * 0.9) { acc = 0; return; } // decelerating tail → ignore
+      if (acc * e.deltaY < 0) acc = 0; // direction reversed → accumulate fresh
+      acc += e.deltaY;
+      if (Math.abs(acc) < THRESH) return; // sub-threshold → idle-settle handles it
+      const dir = acc > 0 ? 1 : -1;
+      const cur = curBeat();
+      if (dir > 0) {
+        if (cur >= N - 1) { acc = 0; return; } // last beat → hand off to free scroll below
+        snapTo(beatY(cur + 1), 0.55);
+      } else {
+        if (cur <= 0) { acc = 0; return; } // first beat → hand off to free scroll above
+        snapTo(beatY(cur - 1), 0.55);
+      }
+    };
+
+    // idle-settle: whenever scrolling STOPS inside the section off a beat, ease onto the nearest.
+    const onScroll = () => {
+      if (idleT) clearTimeout(idleT);
+      idleT = window.setTimeout(() => {
+        if (!armed || !lenis || !inHow()) return;
+        const target = beatY(curBeat());
+        if (Math.abs(window.scrollY - target) > 6) snapTo(target, 0.4);
+      }, 130);
+    };
+
+    const attach = () => {
+      lenis = (window as Window & { __lenis?: L }).__lenis ?? null;
+      if (!lenis) { waitRaf = requestAnimationFrame(attach); return; }
+      lenis.on("virtual-scroll", onV);
+      lenis.on("scroll", onScroll as (a: { deltaY: number }) => void);
+    };
+    attach();
+    return () => {
+      if (waitRaf) cancelAnimationFrame(waitRaf);
+      if (idleT) clearTimeout(idleT);
+      if (lenis) {
+        lenis.off("virtual-scroll", onV);
+        lenis.off("scroll", onScroll as (a: { deltaY: number }) => void);
+      }
+    };
+  }, [pinned]);
+
   // dot-nav jump — route through the shared Lenis instance so it eases smoothly instead of
-  // fighting it with native behavior:"smooth". The pinned story itself needs NO wheel machine:
-  // Lenis owns the page scroll, the sticky frame pins the card, and the IntersectionObserver
-  // above advances the active beat from scroll position. (The old per-beat wheel machine and its
-  // `__chainOwnsWheel` handshake with the hero were removed when /chain moved onto a single Lenis
-  // instance — two competing scroll authorities were exactly what made the scroll glitch/skip.)
+  // fighting it with native behavior:"smooth".
   const jump = (i: number) => {
     const el = sentinels.current[i];
     if (!el) return;
@@ -675,45 +607,64 @@ export function ChainHow() {
 
   if (!pinned) return <ChainHowStacked hl={hl} onToggle={toggle} variant={variant} />;
 
-  const beat = BEATS[active];
   return (
-    <section ref={sectionRef} className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
-      {/* pinned frame — fills the viewport while the story advances */}
-      <div className="sticky top-0 flex h-svh flex-col overflow-clip px-6 py-[clamp(1.75rem,5vh,3.25rem)]">
+    <section ref={sectionRef} data-nav-theme="dark" className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
+      {/* pinned frame — fills the viewport while the story advances. Top padding clears the
+          fixed 5rem nav so the header never tucks underneath it. */}
+      <div className="sticky top-0 flex h-svh flex-col overflow-clip px-6 pb-[clamp(2.25rem,5vh,3.5rem)] pt-[calc(5rem+clamp(1rem,3vh,2rem))]">
         <div className="mx-auto flex w-full max-w-[64rem] flex-1 flex-col">
-          {/* header: title + clickable principle legend */}
+          {/* header: title + clickable principle legend. The active step's principles glow. */}
           <header className="flex flex-col gap-y-4 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
             <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] md:text-[2rem]">How it works.</h2>
-            <PrincipleLegend hl={hl} onToggle={toggle} />
+            <PrincipleLegend hl={hl} lit={BEATS[active].principles} onToggle={toggle} />
           </header>
 
-          {/* three stat boxes — re-roll on beat change */}
-          <div className="mt-7">
-            <StatRow beat={beat} reKey={active} />
-          </div>
-
-          {/* beat "window" — the white frame stays put; each beat's content slides up & out
-              while the next slides in from below (overflow-clipped by the frame). The dot
-              nav sits beside it, vertically centered on the card (not the viewport).
-              mt-4 matches the gap between the three stat boxes. */}
-          <div className="relative mt-4 min-h-0 flex-1">
-            <div className="relative h-full overflow-hidden rounded-[20px] border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(24,24,24,0.04),0_10px_30px_-16px_rgba(24,24,24,0.12)]">
-              {BEATS.map((b, i) => (
-                <div
-                  key={b.id}
-                  aria-hidden={i !== active}
-                  className="absolute inset-0 p-7 transition-transform duration-[600ms] will-change-transform md:p-9"
-                  style={{
-                    transitionTimingFunction: SLIDE,
-                    transform: `translateY(${(i - active) * 100}%)`,
-                    pointerEvents: i === active ? "auto" : "none",
-                  }}
-                >
-                  <BeatContent beat={b} hl={hl} onToggle={toggle} variant={variant} fill />
-                </div>
-              ))}
+          {/* beat "window" — the diagram (top, shrunk) and copy (bottom-left) slide together
+              between beats; the three metrics (bottom-right) stay put and just re-roll on each
+              step instead of sliding. The dot nav sits beside it. */}
+          <div className="relative mt-6 flex min-h-0 flex-1 flex-col gap-2">
+            {/* diagram zone — fills the leftover height so the panel stretches to fill the screen.
+                The dot-nav lives here so it centers on the illustration, not the whole window. */}
+            <div className="relative min-h-0 flex-1">
+              <div className="absolute inset-0 overflow-hidden">
+                {BEATS.map((b, i) => (
+                  <div
+                    key={b.id}
+                    aria-hidden={i !== active}
+                    className="absolute inset-0 transition-transform duration-[600ms] will-change-transform"
+                    style={{ transitionTimingFunction: SLIDE, transform: `translateY(${(i - active) * 100}%)` }}
+                  >
+                    <BeatDiagram beat={b} className="h-full" />
+                  </div>
+                ))}
+              </div>
+              <DotNav active={active} hl={hl} onJump={jump} />
             </div>
-            <DotNav active={active} hl={hl} onJump={jump} />
+
+            {/* bottom row: copy slides on the left · metrics are static on the right. Both are
+                vertically centered so the metrics' weight lines up with the copy's center. Each
+                slide clips its own content so neighbouring beats never peek past the cutoff. */}
+            <div className="flex h-[clamp(12rem,26vh,16rem)] shrink-0 items-center gap-6">
+              <div className="relative h-full min-w-0 flex-1 overflow-hidden">
+                {BEATS.map((b, i) => (
+                  <div
+                    key={b.id}
+                    aria-hidden={i !== active}
+                    className="absolute inset-0 flex flex-col justify-center overflow-hidden transition-transform duration-[600ms] will-change-transform"
+                    style={{
+                      transitionTimingFunction: SLIDE,
+                      transform: `translateY(${(i - active) * 100}%)`,
+                      pointerEvents: i === active ? "auto" : "none",
+                    }}
+                  >
+                    <BeatCopy beat={b} />
+                  </div>
+                ))}
+              </div>
+              <div className="w-[44%] shrink-0">
+                <MetricsRail beat={BEATS[active]} reKey={active} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
