@@ -78,6 +78,7 @@ export function SiteFooter({ variant = "home" }: { variant?: "home" | "ecosystem
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-1 h-1/2 bg-gradient-to-b from-black/[0.92] to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-1 h-2/5 bg-[linear-gradient(to_top,rgba(0,0,0,0.9)_10%,transparent)]" />
+      {variant === "ecosystem" && <div className="pointer-events-none absolute inset-0 z-1 bg-black/15" />}
     </footer>
   );
 }

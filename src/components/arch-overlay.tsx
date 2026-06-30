@@ -29,10 +29,12 @@ export function ArchOverlay({
   ease = "linear",
   duration = 2.6,
   opacity = 0.22,
+  blend,
 }: {
   ease?: string;
   duration?: number;
   opacity?: number;
+  blend?: "soft-light" | "overlay" | "screen";
 }) {
   return (
     <>
@@ -40,6 +42,7 @@ export function ArchOverlay({
         viewBox="0 -350 1920 1900"
         preserveAspectRatio="xMidYMid slice"
         aria-hidden
+        style={blend ? { mixBlendMode: blend } : undefined}
         className="pointer-events-none absolute inset-0 z-4 h-full w-full min-[939px]:hidden"
       >
         <defs>
@@ -53,6 +56,7 @@ export function ArchOverlay({
         viewBox="0 -160 1920 1240"
         preserveAspectRatio="xMidYMax meet"
         aria-hidden
+        style={blend ? { mixBlendMode: blend } : undefined}
         className="pointer-events-none absolute inset-0 z-4 hidden h-full w-full min-[939px]:block"
       >
         <ArchPath d={ARCH_PATH} ease={ease} duration={duration} opacity={opacity} />

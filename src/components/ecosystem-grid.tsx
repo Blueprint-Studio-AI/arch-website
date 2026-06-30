@@ -26,7 +26,7 @@ function Card({ partner }: { partner: EcosystemPartner }) {
       </div>
 
       <div className="absolute inset-0 bg-light p-5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-        <div className="mb-2.5 flex items-center justify-between border-b border-dark-purple pb-2.5 text-dark-purple">
+        <div className="mb-4 flex items-center justify-between border-b border-dark-purple pb-3.5 text-dark-purple">
           <span>{partner.name}</span>
           <span className="rounded-full border border-dark-purple px-2 py-0.5 text-xs">
             {partner.category}
@@ -47,13 +47,13 @@ function Card({ partner }: { partner: EcosystemPartner }) {
 }
 
 export function EcosystemGrid() {
-  const [filter, setFilter] = useState<string>("All");
+  const [filter, setFilter] = useState<string>("");
   const [query, setQuery] = useState("");
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return ECOSYSTEM_PARTNERS.filter((p) => {
-      const matchesFilter = filter === "All" || p.category === filter;
+      const matchesFilter = filter === "" || filter === "All" || p.category === filter;
       const matchesQuery = q === "" || p.name.toLowerCase().includes(q);
       return matchesFilter && matchesQuery;
     });
@@ -87,7 +87,7 @@ export function EcosystemGrid() {
               onClick={() => setFilter(cat)}
               className={`cursor-pointer rounded-full border px-4 py-2 text-sm leading-none transition-colors duration-200 ${
                 filter === cat
-                  ? "border-dark-purple bg-dark-purple text-white"
+                  ? "border-orange bg-orange text-white"
                   : "border-light-grey hover:border-dark-purple"
               }`}
             >
