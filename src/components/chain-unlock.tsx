@@ -13,11 +13,12 @@ type Section = {
 
 const SECTIONS: Section[] = [
   {
-    title: <>Bitcoin could send value. It couldn&apos;t pool&nbsp;it.</>,
+    title: <>Bitcoin could send value. It just couldn&apos;t pool&nbsp;it.</>,
     lede: (
       <>
-        A pool is shared capital many people draw on at once — the basis of almost every market. Bitcoin can&apos;t form
-        one alone; Arch can, while every coin stays&nbsp;native.
+        A pool is shared capital that many people can trade against at once.
+        It's a fundamental primitive for any non P2P market. 
+        Bitcoin can&apos;t do it alone. Arch can, while keeping every coin&nbsp;native.
       </>
     ),
     figure: {

@@ -22,7 +22,7 @@ type Rule = { n: string; title: string; icon: ReactNode; body: ReactNode };
 const RULES: Rule[] = [
   {
     n: "01",
-    title: "Native",
+    title: "Native — real Bitcoin, or nothing.",
     icon: (
       <>
         <path d="M8.5 5.5v13M11 3.5v2.5M14 3.5v2.5M11 18.5v2.5M14 18.5v2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -31,23 +31,25 @@ const RULES: Rule[] = [
     ),
     body: (
       <>
-        If it isn&apos;t your <b className="font-normal text-inherit">real Bitcoin</b>, you&apos;ve already lost. So it always&nbsp;is.
+        Every position is your actual BTC, held under Taproot scripts and settled on Bitcoin&apos;s base layer — never a wrapped token, an IOU, or a bridge claim. If it isn&apos;t your real Bitcoin, you&apos;ve already lost the thing that made it worth holding.
+        {/* If it isn&apos;t your real Bitcoin, you&apos;ve already lost. So it always&nbsp;is. */}
       </>
     ),
   },
   {
     n: "02",
-    title: "Fast",
+    title: "Fast & Deterministic — recovery is certain, not best-effort.",
     icon: <path d="M13 2.5 5 13.2h5.4L11 21.5 19 10.8h-5.4L13 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />,
     body: (
       <>
-        Markets can&apos;t form on slow, uncertain recovery. So <b className="font-normal text-inherit">execution is&nbsp;sub-second</b>.
+        Markets can&apos;t form on discretionary recovery. When a position breaches, Arch liquidates mechanically and settles to Bitcoin in the next block — no human, no queue, no negotiation. 180ms blocks make recovery fast enough to clear before risk cascades.
+        {/* Markets can&apos;t form on slow, uncertain recovery. So <b className="font-normal text-inherit">execution is&nbsp;sub-second</b>. */}
       </>
     ),
   },
   {
     n: "03",
-    title: "Decentralized",
+    title: "Decentralized — no single party can move your coin.",
     icon: (
       <>
         <circle cx="12" cy="5" r="2.6" stroke="currentColor" strokeWidth="1.5" />
@@ -58,17 +60,19 @@ const RULES: Rule[] = [
     ),
     body: (
       <>
-        One custodian is one point of failure. So <b className="font-normal text-inherit">no single party</b> can move your coin — the validators sign&nbsp;together.
+        One custodian is one point of failure — the model that froze withdrawals at Celsius and BlockFills. On Arch, no single key exists: a threshold of validators must sign together (FROST + ROAST) to move any coin. Custody without a custodian.
+        {/* One custodian is one point of failure. So no single party can move your coin — the validators sign&nbsp;together. */}
       </>
     ),
   },
   {
     n: "04",
-    title: "Programmable",
+    title: "Programmable — real financial logic, native to Bitcoin.",
     icon: <path d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.5 5l-3 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
     body: (
       <>
-        Payments alone don&apos;t make a market. So Arch runs <b className="font-normal text-inherit">real programs</b> on native&nbsp;Bitcoin.
+        Payments alone don&apos;t make a market. ArchVM runs real programs — lending, margining, liquidation, structured products — directly against Bitcoin UTXOs, so financial logic executes and settles natively instead of on a foreign chain.
+        {/* Payments alone don&apos;t make a market. So Arch runs real programs on native&nbsp;Bitcoin. */}
       </>
     ),
   },
