@@ -3,7 +3,7 @@ import { Nav } from "@/components/nav";
 import { SiteFooter } from "@/components/site-footer";
 import { ChainBelow } from "@/components/chain-below";
 import { SmoothScroll } from "@/components/smooth-scroll";
-import { BreakpointOverlay } from "@/components/breakpoint-overlay";
+// import { BreakpointOverlay } from "@/components/breakpoint-overlay"; // DEV overlay — re-enable to dial breakpoints
 import "./chain.css";
 
 export const metadata: Metadata = {
@@ -28,8 +28,8 @@ export default function ChainLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <SmoothScroll>
-      {/* DEV: breakpoint name overlay — remove before shipping */}
-      <BreakpointOverlay />
+      {/* DEV: breakpoint name overlay — re-enable the import + this line to dial breakpoints */}
+      {/* <BreakpointOverlay /> */}
       <Nav lightHero />
       <div className="chain-scope">{children}</div>
       {/* Below-fold renders as a REAL sibling OUTSIDE .chain-scope (the namespaced reset would
