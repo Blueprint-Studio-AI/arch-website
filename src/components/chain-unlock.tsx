@@ -71,7 +71,7 @@ const SECTIONS: Section[] = [
 export function ChainUnlock() {
   return (
     <section className="border-t border-black/[0.08] bg-white font-sans text-black antialiased">
-      <div className="mx-auto max-w-[64rem] px-6 pb-28 pt-24 md:pb-40 md:pt-32">
+      <div className="mx-auto w-[92%] max-w-[64rem] pb-28 pt-24 md:pb-40 md:pt-32">
         {/* macro intro — confident heading + a tight lede (Jaidon's flat editorial voice), no eyebrow.
             Brand serif, but a notch below the WhyBand hook ("Finance, finally native to Bitcoin.") —
             this is a chapter opener, not the page thesis. */}
@@ -91,7 +91,8 @@ export function ChainUnlock() {
         <div className="mt-20 flex flex-col gap-28 md:mt-28 md:gap-44">
           {SECTIONS.map((s, i) => (
             <Reveal key={i} delay={i * 60} className="grid items-center gap-10 md:grid-cols-[2fr_3fr] md:gap-16">
-              <div>
+              {/* image-first when stacked (order-1), text-left when side-by-side (md:order-1) */}
+              <div className="order-2 md:order-1">
                 <h3 className="text-balance text-[1.4rem] font-medium leading-[1.16] tracking-[-0.018em] text-neutral-900 md:text-[1.6rem]">
                   {s.title}
                 </h3>
@@ -101,12 +102,12 @@ export function ChainUnlock() {
               </div>
               {/* big airy panel — fixed footprint (same as the prior diagrams); illustration scaled
                   down and centered with generous padding */}
-              <figure className="flex h-[340px] items-center justify-center rounded-[12px] bg-neutral-100 p-12 md:h-[440px] md:p-20">
+              <figure className="order-1 flex h-[340px] min-w-0 items-center justify-center rounded-[12px] bg-neutral-100 p-12 md:order-2 md:h-[440px] md:p-20">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={s.figure.src}
                   alt={s.figure.alt}
-                  className={`block h-full max-h-full w-auto object-contain ${s.figure.tight ? "max-w-[300px]" : "max-w-full"}`}
+                  className={`block h-full max-h-full w-auto object-contain ${s.figure.tight ? "max-w-[min(300px,100%)]" : "max-w-full"}`}
                 />
               </figure>
             </Reveal>
