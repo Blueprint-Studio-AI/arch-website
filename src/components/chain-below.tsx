@@ -110,7 +110,7 @@ function WhyBand() {
               key={r.n}
               y={0}
               delay={i * 80}
-              className="flex min-h-[258px] flex-col rounded-[6px] bg-light/5 p-[30px]"
+              className="flex min-h-[258px] flex-col rounded-[6px] bg-light/5 p-4 min-[520px]:p-5 md:p-6 lg:p-[30px]"
             >
               <span className="text-light/[0.78]" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" className="h-[26px] w-[26px]">
