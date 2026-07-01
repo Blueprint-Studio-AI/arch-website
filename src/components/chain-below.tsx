@@ -31,7 +31,7 @@ const RULES: Rule[] = [
     ),
     body: (
       <>
-        If it isn&apos;t your <b className="font-normal text-inherit">real Bitcoin</b>, you&apos;ve already lost. So it always is.
+        If it isn&apos;t your <b className="font-normal text-inherit">real Bitcoin</b>, you&apos;ve already lost. So it always&nbsp;is.
       </>
     ),
   },
@@ -41,7 +41,7 @@ const RULES: Rule[] = [
     icon: <path d="M13 2.5 5 13.2h5.4L11 21.5 19 10.8h-5.4L13 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />,
     body: (
       <>
-        Markets can&apos;t form on slow, uncertain recovery. So <b className="font-normal text-inherit">execution is sub-second</b>.
+        Markets can&apos;t form on slow, uncertain recovery. So <b className="font-normal text-inherit">execution is&nbsp;sub-second</b>.
       </>
     ),
   },
@@ -58,7 +58,7 @@ const RULES: Rule[] = [
     ),
     body: (
       <>
-        One custodian is one point of failure. So <b className="font-normal text-inherit">no single party</b> can move your coin — the validators sign together.
+        One custodian is one point of failure. So <b className="font-normal text-inherit">no single party</b> can move your coin — the validators sign&nbsp;together.
       </>
     ),
   },
@@ -68,7 +68,7 @@ const RULES: Rule[] = [
     icon: <path d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.5 5l-3 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
     body: (
       <>
-        Payments alone don&apos;t make a market. So Arch runs <b className="font-normal text-inherit">real programs</b> on native Bitcoin.
+        Payments alone don&apos;t make a market. So Arch runs <b className="font-normal text-inherit">real programs</b> on native&nbsp;Bitcoin.
       </>
     ),
   },
@@ -81,7 +81,7 @@ function WhyBand() {
     // hero illustration iframe at the seam, the compositor blends layers instead of repainting the
     // iframe each frame (that repaint was the open/close flicker).
     <section data-nav-theme="dark" className="bg-[#1f1c3e] transform-gpu">
-      <div className="mx-auto max-w-[64rem] px-6 py-[7.5rem]">
+      <div className="mx-auto w-[92%] max-w-[64rem] py-[7.5rem]">
         {/* large opening statement — the section's hook, brand serif, LEFT-aligned so it leads the
             same column as the four-rules header + cards below (no centered/left mismatch). */}
         <Reveal>
