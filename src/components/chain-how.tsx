@@ -90,7 +90,7 @@ const BEATS: Beat[] = [
   {
     id: "execution",
     eyebrow: "The execution layer",
-    title: "A chain that speaks Bitcoin natively.",
+    title: "A chain that speaks Bitcoin natively.",
     body: (
       <>
         Apps fire transactions; Arch sequences them into blocks every <b className="font-medium text-white">180&nbsp;ms</b> and executes them against real Bitcoin UTXOs — reorg-safe, so its record stays consistent with Bitcoin itself.
@@ -166,18 +166,29 @@ function GlitchText({ text, delayBase = 0 }: { text: string; delayBase?: number 
 // (no card surface anymore). Numbers re-roll (glitch) on each beat change when `reKey` is set.
 function MetricsRail({ beat, reKey }: { beat: Beat; reKey?: number }) {
   const anim = reKey !== undefined; // pinned story → glitch the numbers on each beat change
+  // Responsive orientation, one component for both code paths:
+  //   mobile (<md)      → 3 columns, shrunk to fit a phone (sits under the diagram)
+  //   tablet (md→lg)    → a COLUMN of 3, each fact full-width so its words stretch freely
+  //   desktop (≥lg)     → back to 3 columns beside the copy
   return (
-    <div className="grid grid-cols-3">
+    <div className="grid grid-cols-3 gap-x-0 gap-y-4 md:grid-cols-1 lg:grid-cols-3 lg:gap-y-0">
       {beat.stats.map((s, i) => {
         const base = i * 55;
         return (
-          <div key={i} className={`min-w-0 ${i === 0 ? "pr-3" : "border-l border-[#4d4c52] px-3"}`}>
+          <div
+            key={i}
+            className={`min-w-0 ${
+              i === 0
+                ? "pr-3 md:pr-0 lg:pr-3"
+                : "border-l border-[#4d4c52] px-3 md:border-l-0 md:px-0 lg:border-l lg:px-3"
+            }`}
+          >
             <div key={reKey}>
-              <div className="whitespace-nowrap text-[1.55rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-white md:text-[1.95rem]">
+              <div className="whitespace-nowrap text-[1.2rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-white md:text-[1.95rem]">
                 {anim ? <GlitchText text={s.v} delayBase={base} /> : s.v}
                 {s.u && (
                   <span
-                    className={`ml-0.5 text-[0.95rem] text-neutral-400 md:text-[1.05rem] ${anim ? "chain-reroll" : ""}`}
+                    className={`ml-0.5 text-[0.8rem] text-neutral-400 md:text-[1.05rem] ${anim ? "chain-reroll" : ""}`}
                     style={anim ? { animationDelay: `${base + Array.from(s.v).length * 35}ms` } : undefined}
                   >
                     {s.u}
@@ -185,7 +196,7 @@ function MetricsRail({ beat, reKey }: { beat: Beat; reKey?: number }) {
                 )}
               </div>
               <div
-                className={`mt-2 text-[0.72rem] leading-[1.35] text-neutral-400 ${anim ? "chain-reroll" : ""}`}
+                className={`mt-1.5 text-[0.7rem] leading-[1.35] text-neutral-400 md:mt-0.5 md:text-[0.72rem] lg:mt-2 ${anim ? "chain-reroll" : ""}`}
                 style={anim ? { animationDelay: `${base + 120}ms` } : undefined}
               >
                 {s.l}
@@ -253,9 +264,9 @@ function PrinciplePill({
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`group inline-flex items-center gap-1.5 rounded-full px-2.5 py-[5px] text-[0.62rem] uppercase tracking-[0.1em] transition-colors duration-200 ${surface}`}
+      className={`group inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[0.55rem] uppercase tracking-[0.08em] transition-colors duration-200 md:gap-1.5 md:px-2.5 md:py-[5px] md:text-[0.62rem] md:tracking-[0.1em] ${surface}`}
     >
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`h-3 w-3 transition-colors duration-200 ${iconColor}`}>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`h-2.5 w-2.5 transition-colors duration-200 md:h-3 md:w-3 ${iconColor}`}>
         {def.icon}
       </svg>
       {def.label}
@@ -298,7 +309,7 @@ function BeatCopy({ beat }: { beat: Beat }) {
 function BeatDiagram({ beat, className = "" }: { beat: Beat; className?: string }) {
   return (
     <div
-      className={`flex min-w-0 items-center justify-center overflow-hidden rounded-[6px] bg-[#38383E] px-12 py-12 lg:px-32 lg:py-16 ${className}`}
+      className={`flex min-w-0 items-center justify-center overflow-hidden rounded-[6px] bg-[#38383E] px-8 py-8 md:px-12 md:py-12 lg:px-32 lg:py-16 ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={beat.img} alt="" aria-hidden className="max-h-full w-auto max-w-full object-contain" />
@@ -329,14 +340,17 @@ function BeatContent({
 
   if (variant === "below") {
     return (
-      <div className={`flex flex-col gap-7 ${fill ? "h-full" : ""}`}>
-        <BeatDiagram beat={beat} className={fill ? "min-h-0 flex-1" : ""} />
-        {/* copy left (narrowed) · the three metrics fill the freed space on the right */}
-        <div className="flex flex-col gap-7 md:flex-row md:items-start md:justify-between md:gap-10">
-          <div className="md:flex-1">{copy}</div>
+      <div className={`flex flex-col gap-6 ${fill ? "h-full" : ""}`}>
+        {/* mobile: shorten the illustration panel a touch so it doesn't dominate the fold */}
+        <BeatDiagram beat={beat} className={fill ? "min-h-0 flex-1" : "max-h-[210px] md:max-h-none"} />
+        {/* mobile: metrics sit DIRECTLY under the image (3 cols), copy below.
+            ≥md (reduced-motion stacked): copy left · metrics right — flex-row-reverse keeps
+            metrics first in the DOM (so they stay under the image on mobile) yet render right. */}
+        <div className="flex flex-col gap-6 md:flex-row-reverse md:items-start md:justify-between md:gap-10">
           <div className="md:w-[44%] md:shrink-0 md:pt-1">
             <MetricsRail beat={beat} reKey={reKey} />
           </div>
+          <div className="md:flex-1">{copy}</div>
         </div>
       </div>
     );
@@ -421,7 +435,7 @@ function ChainHowStacked({
 }) {
   return (
     <section data-nav-theme="dark" className="bg-[#2e2d33] font-sans text-white antialiased">
-      <div className="mx-auto max-w-[64rem] px-6 py-24 md:py-28">
+      <div className="mx-auto w-[92%] max-w-[64rem] py-24 md:py-28">
         <Reveal>
           <header className="flex flex-col gap-y-5 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
             <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] text-white md:text-[2rem]">How it works.</h2>
@@ -465,10 +479,16 @@ export function ChainHow() {
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const framed = window.frameElement !== null || window.self !== window.top;
-    const desktop = window.matchMedia("(min-width: 768px)").matches;
-    setPinned(!reduce && !framed && desktop);
+    // Re-evaluate on resize (not just mount): below 768 the pinned story hands off to the
+    // stacked layout (image → full-width metrics row → copy), instead of latching to the
+    // load-time width and cramming the metrics into a bottom-right row.
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const sync = () => setPinned(!reduce && !framed && desktop.matches);
+    sync();
+    desktop.addEventListener("change", sync);
     const v = new URLSearchParams(window.location.search).get("v");
     if (v === "below" || v === "fill" || v === "center") setVariant(v);
+    return () => desktop.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
@@ -611,7 +631,7 @@ export function ChainHow() {
     <section ref={sectionRef} data-nav-theme="dark" className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
       {/* pinned frame — fills the viewport while the story advances. Top padding clears the
           fixed 5rem nav so the header never tucks underneath it. */}
-      <div className="sticky top-0 flex h-svh flex-col overflow-clip px-6 pb-[clamp(2.25rem,5vh,3.5rem)] pt-[calc(5rem+clamp(1rem,3vh,2rem))]">
+      <div className="sticky top-0 flex h-svh flex-col overflow-clip px-[4%] pb-[clamp(2.25rem,5vh,3.5rem)] pt-[calc(5rem+clamp(1rem,3vh,2rem))]">
         <div className="mx-auto flex w-full max-w-[64rem] flex-1 flex-col">
           {/* header: title + clickable principle legend. The active step's principles glow. */}
           <header className="flex flex-col gap-y-4 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
@@ -661,7 +681,8 @@ export function ChainHow() {
                   </div>
                 ))}
               </div>
-              <div className="w-[44%] shrink-0">
+              {/* column view (768–1024): narrower + pushed to the right; row again at ≥1024 */}
+              <div className="w-[36%] shrink-0 lg:w-[44%]">
                 <MetricsRail beat={BEATS[active]} reKey={active} />
               </div>
             </div>
