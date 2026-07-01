@@ -537,23 +537,56 @@ function buildFinanceCity(parent, baseZ) {
     cyl(p, { cx: 0.4, cy: 0.4, r: 0.5, h: 0.4, z: 0.3, c: TREEc }); cyl(p, { cx: 0.4, cy: 0.4, r: 0.34, h: 0.4, z: 0.62, c: TREEc }); cyl(p, { cx: 0.4, cy: 0.4, r: 0.18, h: 0.36, z: 0.92, c: TREEc });
   }
 
-  var objs = []; function add(gx, gy, k, fn) { objs.push([gx, gy, k, fn]); }
+  // ═════════════════════════ CITY PLACEMENT LEVERS ═════════════════════════
+  // Slide any building across the plate by bumping its dx / dy below — no need to
+  // touch the add() calls or the grid coords. On the isometric grid:
+  //   +dx → moves it toward the RIGHT of the plate  (east; down-right on screen)
+  //   +dy → moves it toward the FRONT of the plate  (south; down-left  on screen)
+  //   negatives go the other way. ~0.5 = a nudge · ~2 = a clear move · whole units = big.
+  // CITY.dx / CITY.dy shift the WHOLE district (every building + tree) at once.
+  // Edits here feed BOTH the hero top-layer animation AND the builders-CTA / footer city.
+  var CITY = { dx: 0, dy: 0 };            // ← global offset for the entire city
+  var LV = {
+    // ── 7 landmark buildings ──
+    lend:    { dx: 0, dy: 0 },
+    dexs:    { dx: 0, dy: 0 },
+    prime:   { dx: 0, dy: 0 },
+    vaults:  { dx: 0, dy: 0 },
+    stables: { dx: 0, dy: 0 },
+    looping: { dx: 0, dy: 0 },
+    rwas:    { dx: 0, dy: 0 },
+    // ── 10 skyline filler buildings ──
+    backLeftTower:  { dx: 0, dy: 0 },
+    tallByPrime:    { dx: 0, dy: 0 },
+    backRightTower: { dx: 0, dy: 0 },
+    rightTower:     { dx: 0, dy: 0 },
+    midBlock:       { dx: 0, dy: 0 },
+    frontMidBlock:  { dx: 0, dy: 0 },
+    frontRight:     { dx: 0, dy: 0 },
+    shed:           { dx: 0, dy: 0 },
+    frontBlockL:    { dx: 0, dy: 0 },
+    frontBlockR:    { dx: 0, dy: 0 },
+  };
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // add() folds in the global CITY offset + this building's per-building lever.
+  var objs = []; function add(gx, gy, k, fn, lv) { lv = lv || { dx: 0, dy: 0 }; objs.push([gx + CITY.dx + lv.dx, gy + CITY.dy + lv.dy, k, fn]); }
   // HERO buildings
-  add(5.5, 4.0, 0.85, build_lend); add(4.0, 12.0, 0.85, build_dexs); add(12.0, 6.0, 0.48, build_prime);
-  add(10.0, 11.0, 0.86, build_vaults); add(20.5, 4.5, 0.85, build_stables); add(13.5, 15.5, 0.80, build_looping);
-  add(19.5, 11.5, 0.85, build_rwas);
+  add(5.5, 4.0, 0.85, build_lend, LV.lend); add(4.0, 12.0, 0.85, build_dexs, LV.dexs); add(12.0, 6.0, 0.48, build_prime, LV.prime);
+  add(10.0, 11.0, 0.86, build_vaults, LV.vaults); add(20.5, 4.5, 0.85, build_stables, LV.stables); add(13.5, 15.5, 0.80, build_looping, LV.looping);
+  add(19.5, 11.5, 0.85, build_rwas, LV.rwas);
   // FILLER buildings — varied heights for skyline rhythm
-  add(2.6, 4.8, 0.85, function (p) { fbox(p, 2.0, 1.9, 4.6, FILL1, 1); });   // back-left tower
-  add(14.6, 4.2, 0.85, function (p) { fbox(p, 1.5, 1.9, 5.0, FILL2, 1); });   // tall tower beside Prime
-  add(18.2, 6.6, 0.85, function (p) { fbox(p, 1.3, 1.3, 3.6, FILL1, 1); });   // back-right tower
-  add(25.6, 10.8, 0.85, function (p) { fbox(p, 1.9, 1.9, 4.2, FILL2, 1); });   // right tower
-  add(14.9, 6.4, 0.85, function (p) { fbox(p, 1.4, 1.4, 2.0, GREYB, 1); });   // mid block
-  add(8.6, 18.4, 0.85, function (p) { fbox(p, 1.5, 1.5, 2.6, GREYB, 1); });   // front mid block
-  add(26.2, 16.6, 0.85, function (p) { fbox(p, 1.3, 1.3, 3.0, FILL2, 1); });   // front-right
-  add(24.6, 5.6, 0.85, function (p) { fbox(p, 2.2, 2.4, 1.3, GREYB, 0); });   // low industrial shed
-  add(3.2, 17.4, 0.85, function (p) { fbox(p, 2.3, 1.7, 1.2, FILL1, 0); });   // low front block
-  add(22.2, 16.2, 0.85, function (p) { fbox(p, 1.9, 2.1, 1.5, FILL1, 1); });   // low front block
-  // TREES
+  add(2.6, 4.8, 0.85, function (p) { fbox(p, 2.0, 1.9, 4.6, FILL1, 1); }, LV.backLeftTower);   // back-left tower
+  add(14.6, 4.2, 0.85, function (p) { fbox(p, 1.5, 1.9, 5.0, FILL2, 1); }, LV.tallByPrime);   // tall tower beside Prime
+  add(18.2, 6.6, 0.85, function (p) { fbox(p, 1.3, 1.3, 3.6, FILL1, 1); }, LV.backRightTower);   // back-right tower
+  add(25.6, 10.8, 0.85, function (p) { fbox(p, 1.9, 1.9, 4.2, FILL2, 1); }, LV.rightTower);   // right tower
+  add(14.9, 6.4, 0.85, function (p) { fbox(p, 1.4, 1.4, 2.0, GREYB, 1); }, LV.midBlock);   // mid block
+  add(8.6, 18.4, 0.85, function (p) { fbox(p, 1.5, 1.5, 2.6, GREYB, 1); }, LV.frontMidBlock);   // front mid block
+  add(26.2, 16.6, 0.85, function (p) { fbox(p, 1.3, 1.3, 3.0, FILL2, 1); }, LV.frontRight);   // front-right
+  add(24.6, 5.6, 0.85, function (p) { fbox(p, 2.2, 2.4, 1.3, GREYB, 0); }, LV.shed);   // low industrial shed
+  add(3.2, 17.4, 0.85, function (p) { fbox(p, 2.3, 1.7, 1.2, FILL1, 0); }, LV.frontBlockL);   // low front block
+  add(22.2, 16.2, 0.85, function (p) { fbox(p, 1.9, 2.1, 1.5, FILL1, 1); }, LV.frontBlockR);   // low front block
+  // TREES — decorative; they ride the global CITY offset (no per-tree lever)
   [[2.4, 11.4], [15.4, 8.6], [16.2, 12.8], [7.0, 15.0], [11.6, 18.6], [17.4, 18.0],
   [24.0, 9.0], [27.2, 9.4], [20.2, 16.6], [3.4, 15.6], [6.6, 9.0], [19.0, 9.0]]
     .forEach(function (t) { add(t[0], t[1], 0.7, tree); });
