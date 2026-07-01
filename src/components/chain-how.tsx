@@ -177,7 +177,7 @@ function MetricsRail({ beat, reKey }: { beat: Beat; reKey?: number }) {
         return (
           <div
             key={i}
-            className={`min-w-0 ${
+            className={`flex min-w-0 flex-col justify-center ${
               i === 0
                 ? "pr-3 md:pr-0 lg:pr-3"
                 : "border-l border-[#4d4c52] px-3 md:border-l-0 md:px-0 lg:border-l lg:px-3"
@@ -264,9 +264,9 @@ function PrinciplePill({
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`group inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[0.55rem] uppercase tracking-[0.08em] transition-colors duration-200 md:gap-1.5 md:px-2.5 md:py-[5px] md:text-[0.62rem] md:tracking-[0.1em] ${surface}`}
+      className={`group inline-flex items-center gap-[3px] rounded-full px-[7px] py-[2px] text-[0.5rem] uppercase tracking-[0.06em] transition-colors duration-200 md:gap-1.5 md:px-2.5 md:py-[5px] md:text-[0.62rem] md:tracking-[0.1em] ${surface}`}
     >
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`h-2.5 w-2.5 transition-colors duration-200 md:h-3 md:w-3 ${iconColor}`}>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`h-2 w-2 transition-colors duration-200 md:h-3 md:w-3 ${iconColor}`}>
         {def.icon}
       </svg>
       {def.label}
@@ -285,7 +285,7 @@ function PrincipleLegend({
   onToggle: (p: Principle) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5 md:justify-end">
+    <div className="flex flex-wrap items-center gap-1 md:justify-end md:gap-1.5">
       {PRINCIPLES.map((p) => (
         <PrinciplePill key={p.id} def={p} on={hl.includes(p.id)} lit={lit.includes(p.id)} onClick={() => onToggle(p.id)} />
       ))}
@@ -296,11 +296,11 @@ function PrincipleLegend({
 function BeatCopy({ beat }: { beat: Beat }) {
   return (
     <>
-      <div className="text-[0.7rem] uppercase tracking-[0.1em] text-neutral-400">{beat.eyebrow}</div>
-      <h3 className="mt-3 font-serif text-[1.7rem] font-light leading-[1.12] tracking-[-0.01em] text-white md:text-[2rem]">
+      <div className="text-[0.65rem] uppercase tracking-[0.1em] text-neutral-400 md:text-[0.7rem]">{beat.eyebrow}</div>
+      <h3 className="mt-1.5 font-serif text-[1.4rem] font-light leading-[1.1] tracking-[-0.01em] text-white md:mt-3 md:text-[2rem] md:leading-[1.12]">
         {beat.title}
       </h3>
-      <p className="mt-2.5 max-w-[42ch] text-pretty text-[0.95rem] leading-[1.55] text-neutral-300">{beat.body}</p>
+      <p className="mt-2 max-w-[42ch] text-pretty text-[0.82rem] leading-[1.45] text-neutral-300 md:mt-2.5 md:text-[0.95rem] md:leading-[1.55]">{beat.body}</p>
     </>
   );
 }
@@ -479,16 +479,14 @@ export function ChainHow() {
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const framed = window.frameElement !== null || window.self !== window.top;
-    // Re-evaluate on resize (not just mount): below 768 the pinned story hands off to the
-    // stacked layout (image → full-width metrics row → copy), instead of latching to the
-    // load-time width and cramming the metrics into a bottom-right row.
-    const desktop = window.matchMedia("(min-width: 768px)");
-    const sync = () => setPinned(!reduce && !framed && desktop.matches);
-    sync();
-    desktop.addEventListener("change", sync);
+    // Pinned scroll-story on ALL breakpoints — only reduced-motion / embedded fall back to the
+    // plain stacked list. The pinned frame's internal layout is responsive: mobile stacks
+    // diagram → metrics row → copy; desktop puts copy + metrics in a row under the diagram.
+    // (On pointer devices the wheel snaps a beat per gesture; touch scrolls freely and the
+    // IntersectionObserver still cross-fades each beat as it passes the centre line.)
+    setPinned(!reduce && !framed);
     const v = new URLSearchParams(window.location.search).get("v");
     if (v === "below" || v === "fill" || v === "center") setVariant(v);
-    return () => desktop.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
@@ -634,15 +632,15 @@ export function ChainHow() {
       <div className="sticky top-0 flex h-svh flex-col overflow-clip px-[4%] pb-[clamp(2.25rem,5vh,3.5rem)] pt-[calc(5rem+clamp(1rem,3vh,2rem))]">
         <div className="mx-auto flex w-full max-w-[64rem] flex-1 flex-col">
           {/* header: title + clickable principle legend. The active step's principles glow. */}
-          <header className="flex flex-col gap-y-4 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
-            <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] md:text-[2rem]">How it works.</h2>
+          <header className="flex flex-col gap-y-2.5 md:flex-row md:items-baseline md:justify-between md:gap-x-10 md:gap-y-4">
+            <h2 className="text-[1.35rem] font-medium tracking-[-0.02em] md:text-[2rem]">How it works.</h2>
             <PrincipleLegend hl={hl} lit={BEATS[active].principles} onToggle={toggle} />
           </header>
 
           {/* beat "window" — the diagram (top, shrunk) and copy (bottom-left) slide together
               between beats; the three metrics (bottom-right) stay put and just re-roll on each
               step instead of sliding. The dot nav sits beside it. */}
-          <div className="relative mt-6 flex min-h-0 flex-1 flex-col gap-2">
+          <div className="relative mt-4 flex min-h-0 flex-1 flex-col gap-3 md:mt-6 md:gap-2">
             {/* diagram zone — fills the leftover height so the panel stretches to fill the screen.
                 The dot-nav lives here so it centers on the illustration, not the whole window. */}
             <div className="relative min-h-0 flex-1">
@@ -661,11 +659,16 @@ export function ChainHow() {
               <DotNav active={active} hl={hl} onJump={jump} />
             </div>
 
-            {/* bottom row: copy slides on the left · metrics are static on the right. Both are
-                vertically centered so the metrics' weight lines up with the copy's center. Each
-                slide clips its own content so neighbouring beats never peek past the cutoff. */}
-            <div className="flex h-[clamp(12rem,26vh,16rem)] shrink-0 items-center gap-6">
-              <div className="relative h-full min-w-0 flex-1 overflow-hidden">
+            {/* bottom: MOBILE stacks copy then metrics (full-width row) below it; DESKTOP is copy
+                (slides, left) + metrics (static, right). The copy slides between beats; the metrics
+                re-roll. Each slide clips so neighbours never peek. */}
+            <div className="flex shrink-0 flex-col gap-3 md:h-[clamp(12rem,26vh,16rem)] md:flex-row md:items-center md:gap-6">
+              {/* metrics — mobile: full-width row, below the copy; desktop: right column */}
+              <div className="order-2 w-full shrink-0 md:w-[36%] lg:w-[44%]">
+                <MetricsRail beat={BEATS[active]} reKey={active} />
+              </div>
+              {/* copy — sliding crossfade; fixed height so the absolute beats can slide + clip */}
+              <div className="relative order-1 h-[clamp(8.5rem,22vh,11rem)] min-w-0 overflow-hidden md:h-full md:flex-1">
                 {BEATS.map((b, i) => (
                   <div
                     key={b.id}
@@ -680,10 +683,6 @@ export function ChainHow() {
                     <BeatCopy beat={b} />
                   </div>
                 ))}
-              </div>
-              {/* column view (768–1024): narrower + pushed to the right; row again at ≥1024 */}
-              <div className="w-[36%] shrink-0 lg:w-[44%]">
-                <MetricsRail beat={BEATS[active]} reKey={active} />
               </div>
             </div>
           </div>
