@@ -57,7 +57,7 @@ const SECTIONS: Section[] = [
 const STEP_LABELS = ["Hero", "Layer 1", "Layer 2", "Layer 3", "Layer 4", "Placeholder"];
 // Per snap point: ty = text top (vh), gap = vh from text to artwork, is = illustration scale.
 const DEFAULT_STEPS = [
-  { ty: 11, gap: 2, is: 1.02 },
+  { ty: 14, gap: 2, is: 1.02 },
   { ty: 12, gap: 3, is: 1.0 },
   { ty: 9, gap: 3, is: 1.0 },
   { ty: 10, gap: 3, is: 1.0 },
@@ -66,7 +66,7 @@ const DEFAULT_STEPS = [
 ];
 // Mobile keeps its own keyframes (smaller art, tighter top) — tuned via the same levers.
 const DEFAULT_STEPS_M = [
-  { ty: 9, gap: 7, is: 1.15 },
+  { ty: 15, gap: 7, is: 1.15 },
   { ty: 18, gap: 8, is: 1.15 },
   { ty: 5, gap: 0, is: 1.15 },
   { ty: 6, gap: 5, is: 1.15 },
