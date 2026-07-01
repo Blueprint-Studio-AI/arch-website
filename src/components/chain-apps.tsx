@@ -162,21 +162,20 @@ fn accept_offer(
 export function ChainApps() {
   return (
     <section className="bg-light font-sans text-black antialiased">
-      <div className="mx-auto max-w-[64rem] px-6 pb-24 pt-20 md:pb-32 md:pt-28">
+      <div className="mx-auto w-[92%] max-w-[64rem] pb-24 pt-20 md:pb-32 md:pt-28">
         {/* sub-beat: use it — flat serif title, no eyebrow */}
         <Reveal>
           <h3 className="font-serif text-[2.25rem] font-light leading-[1.05] tracking-[-0.01em] text-neutral-900 md:text-[2.75rem]">
             Now, use them.
           </h3>
           <p className="mt-4 max-w-[44ch] text-pretty text-[1rem] leading-[1.55] text-neutral-600">
-            Borrow, earn, and swap against native Bitcoin.<br/>
-            It stays yours the whole way through.
+            Borrow, earn, and swap against native&nbsp;Bitcoin. It stays yours the whole way&nbsp;through.
           </p>
         </Reveal>
 
         {/* app cards — the card links to the docs (its back says "More in the docs"); hover flips it
             to PEEK the real code. The "See it live" link sits BELOW the card, outside the anchor. */}
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {APPS.map((app, i) => (
             <Reveal key={app.tag} delay={i * 80}>
               {/* the card is NOT a link — it just flips on hover to peek the code. The only clickable
@@ -234,7 +233,9 @@ export function ChainApps() {
         {/* closing beat: builder CTA — full-width rounded gray card with a big bottom well that the
             reused hero "city" (top layer) rises into and gets cropped by the card's bottom edge. */}
         <Reveal className="mt-20 md:mt-28">
-          <div className="relative overflow-hidden rounded-[20px] bg-[#2e2d33] px-7 py-12 md:min-h-[440px] md:px-12 md:py-16">
+          {/* min-height per city tier (aligned to chain-city.tsx breakpoints):
+              <640 Mobile · 640–1024 Small-Medium · ≥1024 Large (main design height) */}
+          <div className="relative overflow-hidden rounded-[20px] bg-[#2e2d33] px-7 py-12 md:px-12 md:py-16 max-[639px]:min-h-[520px] min-[640px]:max-[1023px]:min-h-[560px] min-[1024px]:min-h-[440px]">
             <ChainCity />
             <div className="relative z-10 max-w-[30rem]">
             <div className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-light/55">For builders</div>
