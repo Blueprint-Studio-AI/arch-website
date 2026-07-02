@@ -217,15 +217,16 @@ export function ChainApps() {
                   </div>
                 </div>
               </div>
-              {/* live case study — separate link, centered below the card */}
-              <a
+              {/* live case study — separate link, centered below the card.
+                  Hidden for now — uncomment to restore the "See it live" affordance. */}
+              {/* <a
                 href={app.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-3.5 flex items-center justify-center gap-1.5 text-[0.82rem] font-medium text-orange transition-opacity hover:opacity-70"
               >
                 See it live on {app.liveName} <span aria-hidden="true">↗</span>
-              </a>
+              </a> */}
             </Reveal>
           ))}
         </div>

@@ -545,18 +545,18 @@ function buildFinanceCity(parent, baseZ) {
   //   negatives go the other way. ~0.5 = a nudge · ~2 = a clear move · whole units = big.
   // CITY.dx / CITY.dy shift the WHOLE district (every building + tree) at once.
   // Edits here feed BOTH the hero top-layer animation AND the builders-CTA / footer city.
-  var CITY = { dx: 0, dy: 0 };            // ← global offset for the entire city
+  var CITY = { dx: 2.05, dy: 0.1 };            // ← global offset for the entire city
   var LV = {
     // ── 7 landmark buildings ──
-    lend:    { dx: 0, dy: 0 },
-    dexs:    { dx: 0, dy: 0 },
-    prime:   { dx: 0, dy: 0 },
+    lend:    { dx: 0, dy: 0.7 },
+    dexs:    { dx: 0, dy: -0.9 },
+    prime:   { dx: -0.5, dy: 0.2 },
     vaults:  { dx: 0, dy: 0 },
     stables: { dx: 0, dy: 0 },
-    looping: { dx: 0, dy: 0 },
+    looping: { dx: 2.5, dy: 0 },
     rwas:    { dx: 0, dy: 0 },
     // ── 10 skyline filler buildings ──
-    backLeftTower:  { dx: 0, dy: 0 },
+    backLeftTower:  { dx: -0.2, dy: 1.5 },
     tallByPrime:    { dx: 0, dy: 0 },
     backRightTower: { dx: 0, dy: 0 },
     rightTower:     { dx: 0, dy: 0 },
@@ -952,24 +952,32 @@ export function createIllustration(
   wtrace([VMR, VMcy], [wbusX, VMcy]);
   for (var wj = 0; wj < WAL_N; wj++) { var wcy = WAL_Y + wj * WAL_SY + wCardD / 2; wtrace([wbusX, VMcy], [wbusX, wcy], [WAL_X + 0.4, wcy]); }
 
+  /* =================  FINANCIAL PRIMITIVES — board nudge lever  =================
+     nudge the whole primitives board on its slab to offset the iso visual illusion.
+     +x = down-right · +y = down-left (grid units). The hover dots follow it. */
+  var PRIM_DX = -0.3, PRIM_DY = -0.5;
+
   /* ---- the Financial Primitives layer: 6 plumbing modules ---- */
   function buildPrimitives(parent, bz) {
-    var CARD = { t: '#e7e2cb', e: '#d8d3bc', s: '#cac5ad' };   // module base card
-    var BLK = { t: '#dad5be', e: '#cbc6af', s: '#bdb8a1' };    // raised component block
+    var CARD = { t: '#efead3', e: '#e0dbc4', s: '#d2cdb5' };   // plate + cube share ONE hue now, a touch lighter than before
+    var BLK = CARD;                                            // raised component cube — same color as the plate it sits on (unified)
+    var GA = '#6d6d6d';                                        // glyph accent — de-orange'd; a mid-gray (split between the old light gray and the dark stroke)
+    // gy nudges a glyph up-and-right on the cube top (this iso projection: −y = up-right) — used to
+    // lift the icons that were hugging the bottom-left edge.
     var PRIMS = [
-      { id: 'pools', x: 6.4, y: 5.8, g: '<path d="M3 19 C3 9 9 3 19 3" fill="none" stroke="#1c1c1c" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="10" r="2.1" fill="#ec641d"/>' },
-      { id: 'oracle', x: 14.4, y: 5.8, g: '<circle cx="12" cy="6" r="2.6" fill="#ec641d"/><path d="M6 9 Q12 14 18 9 M12 8.5 L12 20" fill="none" stroke="#1c1c1c" stroke-width="2" stroke-linecap="round"/>' },
-      { id: 'collateral', x: 22.4, y: 5.8, g: '<rect x="5.5" y="11" width="13" height="9.5" rx="1.6" fill="none" stroke="#1c1c1c" stroke-width="2"/><path d="M8 11 V8 a4 4 0 0 1 8 0 V11" fill="none" stroke="#1c1c1c" stroke-width="2"/><circle cx="12" cy="15.4" r="1.8" fill="#ec641d"/>' },
-      { id: 'liquidation', x: 6.4, y: 13.8, g: '<path d="M13 3 L6 13 H11 L9 21 L18 10 H12 Z" fill="#ec641d" stroke="#1c1c1c" stroke-width="1.4" stroke-linejoin="round"/>' },
-      { id: 'issuance', x: 14.4, y: 13.8, g: '<circle cx="12" cy="12" r="8" fill="none" stroke="#1c1c1c" stroke-width="2"/><path d="M12 5.5 V18.5 M9.6 9 H14 M9.6 15 H14" fill="none" stroke="#ec641d" stroke-width="2" stroke-linecap="round"/>' },
-      { id: 'risk', x: 22.4, y: 13.8, g: '<path d="M3.5 17 A8.5 8.5 0 0 1 20.5 17" fill="none" stroke="#1c1c1c" stroke-width="2"/><path d="M12 17 L16.5 10.5" stroke="#ec641d" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17" r="1.6" fill="#1c1c1c"/>' }
+      { id: 'pools', x: 6.4, y: 5.8, g: '<path d="M3 19 C3 9 9 3 19 3" fill="none" stroke="#1c1c1c" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="10" r="2.1" fill="' + GA + '"/>' },
+      { id: 'oracle', x: 14.4, y: 5.8, gy: -0.18, g: '<circle cx="12" cy="6" r="2.6" fill="' + GA + '"/><path d="M6 9 Q12 14 18 9 M12 8.5 L12 20" fill="none" stroke="#1c1c1c" stroke-width="1.5" stroke-linecap="round"/>' },
+      { id: 'collateral', x: 22.4, y: 5.8, gy: -0.18, g: '<rect x="5.5" y="11" width="13" height="9.5" rx="1.6" fill="none" stroke="#1c1c1c" stroke-width="1.5"/><path d="M8 11 V8 a4 4 0 0 1 8 0 V11" fill="none" stroke="#1c1c1c" stroke-width="1.5"/><circle cx="12" cy="15.4" r="1.8" fill="' + GA + '"/>' },
+      { id: 'liquidation', x: 6.4, y: 13.8, gy: -0.18, g: '<path d="M13 3 L6 13 H11 L9 21 L18 10 H12 Z" fill="' + GA + '" stroke="#1c1c1c" stroke-width="1.1" stroke-linejoin="round"/>' },
+      { id: 'issuance', x: 14.4, y: 13.8, g: '<circle cx="12" cy="12" r="8" fill="none" stroke="#1c1c1c" stroke-width="1.5"/><path d="M12 5.5 V18.5 M9.6 9 H14 M9.6 15 H14" fill="none" stroke="' + GA + '" stroke-width="1.5" stroke-linecap="round"/>' },
+      { id: 'risk', x: 22.4, y: 13.8, gy: -0.18, g: '<path d="M3.5 17 A8.5 8.5 0 0 1 20.5 17" fill="none" stroke="#1c1c1c" stroke-width="1.5"/><path d="M12 17 L16.5 10.5" stroke="' + GA + '" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1.6" fill="#1c1c1c"/>' }
     ];
     PRIMS.sort(function (a, b) { return (a.x + a.y) - (b.x + b.y); });   // append back-to-front (iso occlusion)
     PRIMS.forEach(function (p) {
       var g = el('g', { 'class': 'comp', id: 'comp-' + p.id, 'data-cb': 'comp-' + p.id }, parent);
-      box(g, { x: p.x, y: p.y, w: 5.2, d: 4.4, h: .5, z: bz, c: CARD });   // base card
-      box(g, { x: p.x + 1.2, y: p.y + 1.0, w: 2.8, d: 2.4, h: 1.2, z: bz + .5, c: BLK });    // raised component
-      onTop(g, p.x + 1.45, p.y + 1.2, bz + 1.7, 2.2, 24, p.g);                     // glyph on top
+      box(g, { x: p.x + PRIM_DX, y: p.y + PRIM_DY, w: 5.2, d: 4.4, h: .5, z: bz, c: CARD });   // base plate
+      box(g, { x: p.x + PRIM_DX + 1.2, y: p.y + PRIM_DY + 1.0, w: 2.8, d: 2.4, h: 1.2, z: bz + .5, c: BLK });    // raised cube
+      onTop(g, p.x + PRIM_DX + 1.45 + (p.gx || 0), p.y + PRIM_DY + 1.2 + (p.gy || 0), bz + 1.7, 2.2, 24, p.g);   // glyph on top (per-glyph nudge)
     });
   }
 
@@ -990,13 +998,13 @@ export function createIllustration(
 
   /* ============ callout dots (layers 3 & 4; layer 2 uses the L2STATES highlight system) ============ */
   var CALLOUTS = {
-    // L3 — financial primitives (the plumbing). Anchors sit over each module's glyph.
-    pools: { l: 3, a: [9.0, 8.0, cz + 2.0], t: 'Pooled liquidity', b: 'Pooling on real UTXOs enables AMMs — deep markets in the actual coin.' },
-    oracle: { l: 3, a: [17.0, 8.0, cz + 2.0], t: 'Oracle price feeds', b: 'Live prices on-chain, read on every state change — not on a schedule.' },
-    collateral: { l: 3, a: [25.0, 8.0, cz + 2.0], t: 'Collateral enforcement', b: 'Native BTC locked under threshold scripts. No wrapped IOU, no custodian.' },
-    liquidation: { l: 3, a: [9.0, 16.0, cz + 2.0], t: 'Liquidation engine', b: 'Breach to settled in one atomic bundle, price locked at signing.' },
-    issuance: { l: 3, a: [17.0, 16.0, cz + 2.0], t: 'Token issuance', b: 'Mint native assets — stablecoins, RWAs, vault shares.' },
-    risk: { l: 3, a: [25.0, 16.0, cz + 2.0], t: 'Risk & margin', b: 'Every position monitored and cleared mechanically inside the stack.' },
+    // L3 — financial primitives (the plumbing). Anchors sit over each module's glyph; PRIM_DX/DY keeps them on the board.
+    pools: { l: 3, a: [9.0 + PRIM_DX, 8.0 + PRIM_DY, cz + 2.0], t: 'Pooled liquidity', b: 'Pooling on real UTXOs enables AMMs — deep markets in the actual coin.' },
+    oracle: { l: 3, a: [17.0 + PRIM_DX, 8.0 + PRIM_DY, cz + 2.0], t: 'Oracle price feeds', b: 'Live prices on-chain, read on every state change — not on a schedule.' },
+    collateral: { l: 3, a: [25.0 + PRIM_DX, 8.0 + PRIM_DY, cz + 2.0], t: 'Collateral enforcement', b: 'Native BTC locked under threshold scripts. No wrapped IOU, no custodian.' },
+    liquidation: { l: 3, a: [9.0 + PRIM_DX, 16.0 + PRIM_DY, cz + 2.0], t: 'Liquidation engine', b: 'Breach to settled in one atomic bundle, price locked at signing.' },
+    issuance: { l: 3, a: [17.0 + PRIM_DX, 16.0 + PRIM_DY, cz + 2.0], t: 'Token issuance', b: 'Mint native assets — stablecoins, RWAs, vault shares.' },
+    risk: { l: 3, a: [25.0 + PRIM_DX, 16.0 + PRIM_DY, cz + 2.0], t: 'Risk & margin', b: 'Every position monitored and cleared mechanically inside the stack.' },
     // L4 — finance city (apps / markets built on the primitives). Same buildings, elevated to cz4.
     dexs: { l: 4, a: [5.96, 13.45, cz4 + 3.21], t: 'DEXs', b: 'Deep markets in the actual coin, built on UTXO-native pools.' },
     looping: { l: 4, a: [15.14, 17.1, cz4 + 1.44], t: 'Looping', b: 'Leverage from lend + swap in one atomic transaction.' },
@@ -1007,9 +1015,12 @@ export function createIllustration(
     rwas: { l: 4, a: [21.54, 12.95, cz4 + 2.13], t: 'RWAs', b: 'Treasuries and funds as tokens with transfer rules.' }
   };
 
+  /* shift the L3 primitive callout dots OFF their glyphs (screen px) so the icons stay visible.
+     +x = right · +y = down. The tooltip card follows the same offset (see select()). */
+  var DOT_DX = 20, DOT_DY = 25;
   var dotLayers = {
     2: el('g', { 'class': 'dots', id: 'dots2' }, world),
-    3: el('g', { 'class': 'dots', id: 'dots3' }, world),
+    3: el('g', { 'class': 'dots', id: 'dots3', transform: 'translate(' + DOT_DX + ',' + DOT_DY + ')' }, world),
     4: el('g', { 'class': 'dots', id: 'dots4' }, world)
   };
   function WS(n) { return -150 + (n - 1) * 96; }   // world shift: keeps the active layer vertically centered
@@ -1077,7 +1088,7 @@ export function createIllustration(
     if (c.l === 3 || c.l === 4) stage.querySelectorAll('#L' + c.l + ' [data-cb]').forEach(function (w) { w.style.opacity = (w.getAttribute('data-cb') === 'comp-' + id) ? '' : '0.4'; });
     // callout card (positioned at the projected anchor)
     if (card) {
-      var p = P.apply(null, c.a), sx = p[0] - VBX, sy = p[1] - VBY + WS(state);
+      var p = P.apply(null, c.a), sx = p[0] - VBX + (c.l === 3 ? DOT_DX : 0), sy = p[1] - VBY + WS(state) + (c.l === 3 ? DOT_DY : 0);
       card.querySelector('.t').textContent = c.t; card.querySelector('.b').textContent = c.b;
       if (sx > 430) { card.style.left = (sx - 238) + 'px'; card.classList.add('flip'); } else { card.style.left = (sx + 16) + 'px'; card.classList.remove('flip'); }
       card.style.top = (sy - 22) + 'px'; card.style.opacity = 1;

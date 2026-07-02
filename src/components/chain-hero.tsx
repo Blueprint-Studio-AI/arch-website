@@ -1,16 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createIllustration, type IllustrationApi } from "./chain-illustration";
 import { EXTERNAL } from "@/lib/site";
 
 type Item = { c: string; b: string; lite?: string };
-type Section = { h2: string; body: string; list?: Item[] };
+type Section = { h2: string; body: ReactNode; list?: Item[] };
 
 const SECTIONS: Section[] = [
   {
     h2: "How is that possible?",
-    body: "Arch is a chain — a Bitcoin-native VM and validator network.\nTogether they execute on Bitcoin UTXOs and settle back to Bitcoin’s ledger.",
+    // Two lines on wider screens; below the sm breakpoint the forced break is hidden so it
+    // flows as one sentence instead of wrapping awkwardly into three lines.
+    body: (
+      <>
+        Arch is a chain — a Bitcoin-native VM and validator network.{" "}
+        <br className="hidden sm:block" />
+        Together they execute on Bitcoin UTXOs and settle back to Bitcoin’s ledger.
+      </>
+    ),
   },
   {
     h2: "Native tech",

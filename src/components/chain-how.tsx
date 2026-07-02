@@ -64,6 +64,7 @@ type Beat = {
   title: ReactNode;
   body: ReactNode;
   img: string; // illustration (wide SVG, transparent) shown in the diagram panel
+  imgM?: string; // optional narrow variant swapped in below the md breakpoint (<768px)
   // every principle this beat genuinely embodies — MANY-TO-MANY (primary first)
   principles: Principle[];
   stats: [Stat, Stat, Stat];
@@ -76,32 +77,34 @@ const BEATS: Beat[] = [
     title: "It never stops being Bitcoin.",
     body: (
       <>
-        What you hold is the coin itself — <b className="font-medium text-white">a real UTXO </b>on Bitcoin&apos;s own ledger, not a wrapped token or a receipt for coins held elsewhere. Every move settles straight into a Bitcoin block.
+        What you hold is the coin itself — <b className="font-medium text-white">a real UTXO </b>on Bitcoin&apos;s own ledger, not a receipt token for coins held elsewhere. Every move settles straight into a Bitcoin block.
       </>
     ),
     img: "/img/chain/arch_utxos.svg",
+    imgM: "/img/chain/arch_utxos_mobile.svg",
     principles: ["native", "decentralized"],
     stats: [
-      { v: "1", u: "UTXO", l: "your coin is one real output" },
-      { v: "0", u: "IOUs", l: "no wrapper, no synthetic" },
-      { v: "100%", l: "real, native Bitcoin" },
+      { v: "1", u: "UTXO", l: "your coin is one real\u00A0output" },
+      { v: "0", u: "IOUs", l: "no wrapper, no\u00A0synthetic" },
+      { v: "100%", l: "real, native\u00A0Bitcoin" },
     ],
   },
   {
     id: "execution",
     eyebrow: "The execution layer",
-    title: "A chain that speaks Bitcoin natively.",
+    title: "Fast and programmable.",
     body: (
       <>
         Apps fire transactions; Arch sequences them into blocks every <b className="font-medium text-white">180&nbsp;ms</b> and executes them against real Bitcoin UTXOs — reorg-safe, so its record stays consistent with Bitcoin itself.
       </>
     ),
     img: "/img/chain/arch_chain.svg",
+    imgM: "/img/chain/arch_chain_mobile.svg",
     principles: ["native", "fast", "programmable", "decentralized"],
     stats: [
-      { v: "180", u: "ms", l: "one block, every" },
+      { v: "180", u: "ms", l: "one block,\u00A0every" },
       { v: "1,500", u: "TPS", l: "throughput" },
-      { v: "eBPF", u: "VM", l: "Solana’s VM, on UTXOs" },
+      { v: "eBPF", u: "VM", l: "Solana-like VM, on\u00A0UTXOs" },
     ],
   },
   {
@@ -114,11 +117,12 @@ const BEATS: Beat[] = [
       </>
     ),
     img: "/img/chain/arch_keys.svg",
+    imgM: "/img/chain/arch_keys_mobile.svg",
     principles: ["decentralized", "native"],
     stats: [
-      { v: "1", u: "signature", l: "on-chain: an ordinary Bitcoin spend" },
-      { v: "0", u: "single keys", l: "no party can sign alone" },
-      { v: "FROST", u: "·ROAST", l: "threshold signing" },
+      { v: "1", u: "signature", l: "on-chain: an ordinary Bitcoin\u00A0spend" },
+      { v: "0", u: "single keys", l: "no party can sign\u00A0alone" },
+      { v: "FROST", u: "·ROAST", l: "threshold\u00A0signing" },
     ],
   },
   {
@@ -137,11 +141,12 @@ const BEATS: Beat[] = [
       </>
     ),
     img: "/img/chain/arch_settlement.svg",
+    imgM: "/img/chain/arch_settlement_mobile.svg",
     principles: ["fast", "native"],
     stats: [
-      { v: "180", u: "ms", l: "Arch executes (fast)" },
-      { v: "~10", u: "min", l: "Bitcoin settles (final)" },
-      { v: "1", u: "block", l: "one settlement = one block" },
+      { v: "180", u: "ms", l: "Arch executes\u00A0(fast)" },
+      { v: "~10", u: "min", l: "Bitcoin settles\u00A0(final)" },
+      { v: "1", u: "block", l: "one settlement = one\u00A0block" },
     ],
   },
 ];
@@ -155,7 +160,7 @@ function GlitchText({ text, delayBase = 0 }: { text: string; delayBase?: number 
     <>
       {Array.from(text).map((ch, i) => (
         <span key={i} className="chain-char" style={{ animationDelay: `${delayBase + i * 35}ms` }}>
-          {ch === " " ? " " : ch}
+          {ch === " " ? " " : ch}
         </span>
       ))}
     </>
@@ -311,8 +316,12 @@ function BeatDiagram({ beat, className = "" }: { beat: Beat; className?: string 
     <div
       className={`flex min-w-0 items-center justify-center overflow-hidden rounded-[6px] bg-[#38383E] px-8 py-8 md:px-12 md:py-12 lg:px-32 lg:py-16 ${className}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={beat.img} alt="" aria-hidden className="max-h-full w-auto max-w-full object-contain" />
+      {/* below md (<768px) swap in the narrow variant when a beat provides one */}
+      <picture>
+        {beat.imgM && <source media="(max-width:767px)" srcSet={beat.imgM} />}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={beat.img} alt="" aria-hidden className="max-h-full w-auto max-w-full object-contain" />
+      </picture>
     </div>
   );
 }

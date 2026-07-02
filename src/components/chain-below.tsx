@@ -17,12 +17,24 @@ import { ChainHow } from "./chain-how";
 import { ChainUnlock } from "./chain-unlock";
 import { ChainApps } from "./chain-apps";
 
-type Rule = { n: string; title: string; icon: ReactNode; body: ReactNode };
+type Rule = { n: string; title: ReactNode; icon: ReactNode; body: ReactNode };
+
+// A rule title: lead keyword(s) on the first line, the descriptive clause on a
+// second line (line break, no em dash).
+function RuleTitle({ keyword, rest }: { keyword: string; rest: string }) {
+  return (
+    <>
+      {keyword}
+      <br />
+      <span className="text-light/50">{rest}</span>
+    </>
+  );
+}
 
 const RULES: Rule[] = [
   {
     n: "01",
-    title: "Native — real Bitcoin, or nothing.",
+    title: <RuleTitle keyword="Native" rest="Real Bitcoin, or nothing." />,
     icon: (
       <>
         <path d="M8.5 5.5v13M11 3.5v2.5M14 3.5v2.5M11 18.5v2.5M14 18.5v2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -31,25 +43,23 @@ const RULES: Rule[] = [
     ),
     body: (
       <>
-        Every position is your actual BTC, held under Taproot scripts and settled on Bitcoin&apos;s base layer — never a wrapped token, an IOU, or a bridge claim. If it isn&apos;t your real Bitcoin, you&apos;ve already lost the thing that made it worth holding.
-        {/* If it isn&apos;t your real Bitcoin, you&apos;ve already lost. So it always&nbsp;is. */}
+        Your actual BTC, settled on Bitcoin. Never an IOU. Never a bridge&nbsp;claim.
       </>
     ),
   },
   {
     n: "02",
-    title: "Fast & Deterministic — recovery is certain, not best-effort.",
+    title: <RuleTitle keyword="Fast & Deterministic" rest="Recovery is certain, not best-effort." />,
     icon: <path d="M13 2.5 5 13.2h5.4L11 21.5 19 10.8h-5.4L13 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />,
     body: (
       <>
-        Markets can&apos;t form on discretionary recovery. When a position breaches, Arch liquidates mechanically and settles to Bitcoin in the next block — no human, no queue, no negotiation. 180ms blocks make recovery fast enough to clear before risk cascades.
-        {/* Markets can&apos;t form on slow, uncertain recovery. So <b className="font-normal text-inherit">execution is&nbsp;sub-second</b>. */}
+        When a position breaches, liquidation fires mechanically and clears in the next&nbsp;block.
       </>
     ),
   },
   {
     n: "03",
-    title: "Decentralized — no single party can move your coin.",
+    title: <RuleTitle keyword="Decentralized" rest="No single party can move your coin." />,
     icon: (
       <>
         <circle cx="12" cy="5" r="2.6" stroke="currentColor" strokeWidth="1.5" />
@@ -60,19 +70,17 @@ const RULES: Rule[] = [
     ),
     body: (
       <>
-        One custodian is one point of failure — the model that froze withdrawals at Celsius and BlockFills. On Arch, no single key exists: a threshold of validators must sign together (FROST + ROAST) to move any coin. Custody without a custodian.
-        {/* One custodian is one point of failure. So no single party can move your coin — the validators sign&nbsp;together. */}
+        No single key exists — a threshold of validators must sign together. Custody without a&nbsp;custodian.
       </>
     ),
   },
   {
     n: "04",
-    title: "Programmable — real financial logic, native to Bitcoin.",
+    title: <RuleTitle keyword="Programmable" rest="Real financial logic, native to Bitcoin." />,
     icon: <path d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.5 5l-3 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
     body: (
       <>
-        Payments alone don&apos;t make a market. ArchVM runs real programs — lending, margining, liquidation, structured products — directly against Bitcoin UTXOs, so financial logic executes and settles natively instead of on a foreign chain.
-        {/* Payments alone don&apos;t make a market. So Arch runs real programs on native&nbsp;Bitcoin. */}
+        Lending, margining, liquidation, and structured products run directly against Bitcoin&nbsp;UTXOs.
       </>
     ),
   },
@@ -124,7 +132,7 @@ function WhyBand() {
               <h3 className="mt-[2.4rem] text-balance text-[1.3rem] font-normal leading-[1.3] tracking-[-0.014em] text-light">
                 {r.title}
               </h3>
-              <p className="mt-[0.55rem] text-pretty text-[0.95rem] leading-[1.42] text-light/50">
+              <p className="mt-[0.55rem] text-balance text-[0.95rem] leading-[1.42] text-light/50">
                 {r.body}
               </p>
             </Reveal>

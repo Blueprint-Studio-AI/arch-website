@@ -159,14 +159,21 @@
   color:var(--body);line-height:1.6}
 
 .chain-scope .flist{list-style:none;margin:22px auto 0;max-width:660px;display:grid;gap:6px;text-align:left;
-  grid-template-columns:repeat(3,1fr)}
-.chain-scope .flist li{font-size:12px;line-height:1.35;color:var(--body);padding:7px 9px;cursor:default;
-  border-left:2px solid rgba(236,100,29,.25);background:rgba(236,100,29,.04);border-radius:0 6px 6px 0;
-  transition:background .12s,border-color .12s}
+  grid-template-columns:repeat(3,1fr);counter-reset:flist}
+.chain-scope .flist li{font-size:12px;line-height:1.35;color:var(--body);padding:7px 11px 7px 40px;cursor:default;
+  position:relative;counter-increment:flist;overflow:hidden;
+  background:rgba(24,24,24,.03);border-radius:6px;
+  transition:background .12s}
+/* index number seated in a band down the left edge (clipped to the card radius) — sans, grayscale
+   until active, then the band goes bright orange over a faded-orange card. */
+.chain-scope .flist li::before{content:counter(flist);position:absolute;left:0;top:0;bottom:0;width:28px;
+  display:flex;align-items:center;justify-content:center;background:rgba(24,24,24,.06);
+  font-family:var(--sans);font-weight:600;font-size:13px;color:var(--muted);
+  font-variant-numeric:tabular-nums;transition:background .12s,color .12s}
 .chain-scope .flist li b{display:block;font-weight:600;color:var(--ink);font-size:12.5px}
 .chain-scope .flist li .lite{display:block;color:var(--muted);font-size:11px;margin-top:1px}
-.chain-scope .flist li.on{border-left-color:var(--orange);background:rgba(236,100,29,.12)}
-.chain-scope .flist li.on b{color:var(--orange)}
+.chain-scope .flist li.on{background:rgba(236,100,29,.1)}
+.chain-scope .flist li.on::before{background:var(--orange);color:#fff}
 
 /* ============================================================
    FEATURE INDEX RAIL — the flist pulled out to a fixed left column so the
@@ -232,7 +239,8 @@
 @media(max-width:760px){
   .chain-scope .illo{transform-origin:center top}
   .chain-scope .flist{grid-template-columns:repeat(2,1fr);margin-top:10px;gap:5px}
-  .chain-scope .flist li{font-size:10px;padding:5px 7px}
+  .chain-scope .flist li{font-size:10px;padding:5px 8px 5px 34px}
+  .chain-scope .flist li::before{width:24px;font-size:12px}
   .chain-scope .flist li b{font-size:10.5px}
   .chain-scope .flist li .lite{font-size:9px}
   .chain-scope .btns{gap:8px;margin-top:20px}
