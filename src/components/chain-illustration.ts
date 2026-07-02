@@ -368,8 +368,8 @@ function build_stables(parent, ox, oy, bz) {
     for (var i = 0; i < 3; i++) C({ cx: p[0], cy: p[1], r: 0.3, h: 0.16, z: zf + i * 0.16 });
   });
 
-  // 5. ACCENT — a big orange coin lying proud on the roof centre (the one orange)
-  C({ cx: 2.35, cy: 1.5, r: 0.52, h: 0.17, z: 2.66, c: COLO });
+  // 5. a big coin lying proud on the roof centre — beige to match the buildings (was orange)
+  C({ cx: 2.35, cy: 1.5, r: 0.52, h: 0.17, z: 2.66, c: STONE });
   return g;
 }
 
@@ -496,6 +496,39 @@ function build_looping(parent, ox, oy, bz) {
   return g;
 }
 
+// ═════════════════════════ CITY PLACEMENT LEVERS ═════════════════════════
+// Slide any building across the plate by bumping its dx / dy below — no need to
+// touch the add() calls or the grid coords. On the isometric grid:
+//   +dx → moves it toward the RIGHT of the plate  (east; down-right on screen)
+//   +dy → moves it toward the FRONT of the plate  (south; down-left  on screen)
+//   negatives go the other way. ~0.5 = a nudge · ~2 = a clear move · whole units = big.
+// CITY.dx / CITY.dy shift the WHOLE district (every building + tree) at once.
+// Module-scoped so the L4 hover dots (CALLOUTS, in createIllustration) can read the SAME
+// offsets and stay locked to each building. Feeds the hero AND the builders-CTA / footer city.
+var CITY = { dx: 2.05, dy: 0.1 };            // ← global offset for the entire city
+var LV = {
+  // ── 7 landmark buildings ──
+  lend:    { dx: 0, dy: 0.7 },
+  dexs:    { dx: 0, dy: -0.9 },
+  prime:   { dx: -0.5, dy: -0.1 },
+  vaults:  { dx: -0.4, dy: 0 },
+  stables: { dx: 0, dy: 0 },
+  looping: { dx: 2.5, dy: 0 },
+  rwas:    { dx: 0, dy: 0 },
+  // ── 10 skyline filler buildings ──
+  backLeftTower:  { dx: -0.2, dy: 1.5 },
+  tallByPrime:    { dx: 1.2, dy: 0 },
+  backRightTower: { dx: 0.3, dy: 0 },
+  rightTower:     { dx: 1, dy: 0 },
+  midBlock:       { dx: 1.2, dy: 0 },
+  frontMidBlock:  { dx: 0, dy: 0 },
+  frontRight:     { dx: 0, dy: 0 },
+  shed:           { dx: 1.2, dy: -0.2 },
+  frontBlockL:    { dx: 0, dy: 0 },
+  frontBlockR:    { dx: 0, dy: 0 },
+};
+// ══════════════════════════════════════════════════════════════════════════
+
 /* ============================================================
    inlined: city-lab/city.js  (the district assembly)
    ============================================================ */
@@ -511,16 +544,19 @@ function buildFinanceCity(parent, baseZ) {
   box(parent, { x: SL.x, y: 9.2, w: SL.w, d: 0.9, h: 0.04, z: Z, c: ROAD });
   box(parent, { x: 16.4, y: SL.y, w: 0.9, d: SL.d, h: 0.04, z: Z, c: ROAD });
 
-  // DASHED orange value-network (segments every 0.5 grid units), node at each building
-  function dash(x, y, w, d) { box(parent, { x: x, y: y, w: w, d: d, h: 0.05, z: Z, c: COLO }); }
+  // DASHED orange value-network (segments every 0.5 grid units), node at each building.
+  // dash() + nd() fold in CITY.dx/dy so the WHOLE network rides the global city offset and stays
+  // aligned with the buildings; each tp() node adds its building's LV so it tracks that building.
+  function dash(x, y, w, d) { box(parent, { x: x + CITY.dx, y: y + CITY.dy, w: w, d: d, h: 0.05, z: Z, c: COLO }); }
   function hl(x1, x2, y) { var a = Math.min(x1, x2), b = Math.max(x1, x2), x; for (x = a; x < b - 0.05; x += 0.5) { dash(x, y - 0.05, Math.min(0.32, b - x), 0.1); } }
   function vl(y1, y2, x) { var a = Math.min(y1, y2), b = Math.max(y1, y2), y; for (y = a; y < b - 0.05; y += 0.5) { dash(x - 0.05, y, 0.1, Math.min(0.32, b - y)); } }
-  function nd(x, y) { box(parent, { x: x - 0.17, y: y - 0.17, w: 0.34, d: 0.34, h: 0.07, z: Z, c: COLO }); }
+  function nd(x, y) { box(parent, { x: x - 0.17 + CITY.dx, y: y - 0.17 + CITY.dy, w: 0.34, d: 0.34, h: 0.07, z: Z, c: COLO }); }
   function tp(x, y, s) { vl(s, y, x); nd(x, y); }
   var BST = 8.5, FST = 15.0;
-  hl(6.8, 23.0, BST); hl(5.4, 22.2, FST); vl(BST, FST, 16.5);
-  tp(7.56, 7.06, BST); tp(13.21, 8.26, BST); tp(22.37, 7.05, BST);
-  tp(5.96, 14.89, FST); tp(12.0, 14.18, FST); tp(21.54, 14.22, FST); tp(15.14, 15.3, FST);
+  // central connector: raw 13.85 renders (with CITY.dx) at ~15.9 — nudged a touch toward the road (rendered x 16.4)
+  hl(6.8, 23.0, BST); hl(5.4, 22.2, FST); vl(BST, FST, 13.85);
+  tp(7.56 + LV.lend.dx, 7.06 + LV.lend.dy, BST); tp(13.21 + LV.prime.dx, 8.26 + LV.prime.dy, BST); tp(22.37 + LV.stables.dx, 7.05 + LV.stables.dy, BST);
+  tp(5.96 + LV.dexs.dx, 14.89 + LV.dexs.dy, FST); tp(12.0 + LV.vaults.dx, 14.18 + LV.vaults.dy, FST); tp(21.54 + LV.rwas.dx, 14.22 + LV.rwas.dy, FST); tp(15.14 + LV.looping.dx, 15.3 + LV.looping.dy, FST);
 
   // placement (transform translate+scale == grid-place a k-scaled building)
   function place(fn, gx, gy, k) {
@@ -537,37 +573,8 @@ function buildFinanceCity(parent, baseZ) {
     cyl(p, { cx: 0.4, cy: 0.4, r: 0.5, h: 0.4, z: 0.3, c: TREEc }); cyl(p, { cx: 0.4, cy: 0.4, r: 0.34, h: 0.4, z: 0.62, c: TREEc }); cyl(p, { cx: 0.4, cy: 0.4, r: 0.18, h: 0.36, z: 0.92, c: TREEc });
   }
 
-  // ═════════════════════════ CITY PLACEMENT LEVERS ═════════════════════════
-  // Slide any building across the plate by bumping its dx / dy below — no need to
-  // touch the add() calls or the grid coords. On the isometric grid:
-  //   +dx → moves it toward the RIGHT of the plate  (east; down-right on screen)
-  //   +dy → moves it toward the FRONT of the plate  (south; down-left  on screen)
-  //   negatives go the other way. ~0.5 = a nudge · ~2 = a clear move · whole units = big.
-  // CITY.dx / CITY.dy shift the WHOLE district (every building + tree) at once.
-  // Edits here feed BOTH the hero top-layer animation AND the builders-CTA / footer city.
-  var CITY = { dx: 2.05, dy: 0.1 };            // ← global offset for the entire city
-  var LV = {
-    // ── 7 landmark buildings ──
-    lend:    { dx: 0, dy: 0.7 },
-    dexs:    { dx: 0, dy: -0.9 },
-    prime:   { dx: -0.5, dy: 0.2 },
-    vaults:  { dx: 0, dy: 0 },
-    stables: { dx: 0, dy: 0 },
-    looping: { dx: 2.5, dy: 0 },
-    rwas:    { dx: 0, dy: 0 },
-    // ── 10 skyline filler buildings ──
-    backLeftTower:  { dx: -0.2, dy: 1.5 },
-    tallByPrime:    { dx: 0, dy: 0 },
-    backRightTower: { dx: 0, dy: 0 },
-    rightTower:     { dx: 0, dy: 0 },
-    midBlock:       { dx: 0, dy: 0 },
-    frontMidBlock:  { dx: 0, dy: 0 },
-    frontRight:     { dx: 0, dy: 0 },
-    shed:           { dx: 0, dy: 0 },
-    frontBlockL:    { dx: 0, dy: 0 },
-    frontBlockR:    { dx: 0, dy: 0 },
-  };
-  // ══════════════════════════════════════════════════════════════════════════
+  // CITY placement levers (CITY + LV) now live at module scope, just above this function,
+  // so the L4 hover dots can read the same offsets. Edit them there.
 
   // add() folds in the global CITY offset + this building's per-building lever.
   var objs = []; function add(gx, gy, k, fn, lv) { lv = lv || { dx: 0, dy: 0 }; objs.push([gx + CITY.dx + lv.dx, gy + CITY.dy + lv.dy, k, fn]); }
@@ -586,9 +593,11 @@ function buildFinanceCity(parent, baseZ) {
   add(24.6, 5.6, 0.85, function (p) { fbox(p, 2.2, 2.4, 1.3, GREYB, 0); }, LV.shed);   // low industrial shed
   add(3.2, 17.4, 0.85, function (p) { fbox(p, 2.3, 1.7, 1.2, FILL1, 0); }, LV.frontBlockL);   // low front block
   add(22.2, 16.2, 0.85, function (p) { fbox(p, 1.9, 2.1, 1.5, FILL1, 1); }, LV.frontBlockR);   // low front block
-  // TREES — decorative; they ride the global CITY offset (no per-tree lever)
-  [[2.4, 11.4], [15.4, 8.6], [16.2, 12.8], [7.0, 15.0], [11.6, 18.6], [17.4, 18.0],
-  [24.0, 9.0], [27.2, 9.4], [20.2, 16.6], [3.4, 15.6], [6.6, 9.0], [19.0, 9.0]]
+  // TREES — decorative; they ride the global CITY offset (no per-tree lever). Each [x, y] is a
+  // raw grid spot you can freely edit. Four were nudged off the horizontal road / out of building
+  // footprints after the buildings were moved; the rest are original.
+  [[2.4, 11.4], [16.5, 10.6], [16.2, 12.8], [7.0, 15.0], [11.6, 18.6], [17.4, 19.2],
+  [23.4, 11.0], [28.4, 7.2], [20.2, 16.6], [3.4, 15.6], [3.95, 10.2], [21.0, 8.0]]
     .forEach(function (t) { add(t[0], t[1], 0.7, tree); });
 
   objs.sort(function (a, b) { return (a[0] + a[1]) - (b[0] + b[1]); });
@@ -1006,13 +1015,14 @@ export function createIllustration(
     issuance: { l: 3, a: [17.0 + PRIM_DX, 16.0 + PRIM_DY, cz + 2.0], t: 'Token issuance', b: 'Mint native assets — stablecoins, RWAs, vault shares.' },
     risk: { l: 3, a: [25.0 + PRIM_DX, 16.0 + PRIM_DY, cz + 2.0], t: 'Risk & margin', b: 'Every position monitored and cleared mechanically inside the stack.' },
     // L4 — finance city (apps / markets built on the primitives). Same buildings, elevated to cz4.
-    dexs: { l: 4, a: [5.96, 13.45, cz4 + 3.21], t: 'DEXs', b: 'Deep markets in the actual coin, built on UTXO-native pools.' },
-    looping: { l: 4, a: [15.14, 17.1, cz4 + 1.44], t: 'Looping', b: 'Leverage from lend + swap in one atomic transaction.' },
-    lend: { l: 4, a: [7.56, 5.66, cz4 + 4.42], t: 'Lending & credit', b: 'Pooled deposits, enforced collateral, liquidations in seconds.' },
-    prime: { l: 4, a: [13.06, 7.06, cz4 + 5.86], t: 'Prime brokerage', b: 'One account margining everything.' },
-    vaults: { l: 4, a: [12.0, 12.72, cz4 + 2.62], t: 'Vaults', b: 'Deposited capital auto-deployed across strategies.' },
-    stables: { l: 4, a: [22.37, 5.78, cz4 + 2.7], t: 'Stablecoins', b: 'Minted against BTC collateral, or issued 1:1.' },
-    rwas: { l: 4, a: [21.54, 12.95, cz4 + 2.13], t: 'RWAs', b: 'Treasuries and funds as tokens with transfer rules.' }
+    // Each anchor adds CITY + the building's LV offset so the dot tracks the building when it's moved.
+    dexs: { l: 4, a: [5.96 + CITY.dx + LV.dexs.dx, 13.45 + CITY.dy + LV.dexs.dy, cz4 + 3.21], t: 'DEXs', b: 'Deep markets in the actual coin, built on UTXO-native pools.' },
+    looping: { l: 4, a: [15.14 + CITY.dx + LV.looping.dx, 17.1 + CITY.dy + LV.looping.dy, cz4 + 1.44], t: 'Looping', b: 'Leverage from lend + swap in one atomic transaction.' },
+    lend: { l: 4, a: [7.56 + CITY.dx + LV.lend.dx, 5.66 + CITY.dy + LV.lend.dy, cz4 + 4.42], t: 'Lending & credit', b: 'Pooled deposits, enforced collateral, liquidations in seconds.' },
+    prime: { l: 4, a: [13.06 + CITY.dx + LV.prime.dx, 7.06 + CITY.dy + LV.prime.dy, cz4 + 5.86], t: 'Prime brokerage', b: 'One account margining everything.' },
+    vaults: { l: 4, a: [12.0 + CITY.dx + LV.vaults.dx, 12.72 + CITY.dy + LV.vaults.dy, cz4 + 2.62], t: 'Vaults', b: 'Deposited capital auto-deployed across strategies.' },
+    stables: { l: 4, a: [22.37 + CITY.dx + LV.stables.dx, 5.78 + CITY.dy + LV.stables.dy, cz4 + 2.7], t: 'Stablecoins', b: 'Minted against BTC collateral, or issued 1:1.' },
+    rwas: { l: 4, a: [21.54 + CITY.dx + LV.rwas.dx, 12.95 + CITY.dy + LV.rwas.dy, cz4 + 2.13], t: 'RWAs', b: 'Treasuries and funds as tokens with transfer rules.' }
   };
 
   /* shift the L3 primitive callout dots OFF their glyphs (screen px) so the icons stay visible.
