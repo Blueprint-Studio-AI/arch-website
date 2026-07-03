@@ -14,9 +14,9 @@ const SECTIONS: Section[] = [
     // flows as one sentence instead of wrapping awkwardly into three lines.
     body: (
       <>
-        Arch is a chain — a Bitcoin-native VM and validator network.{" "}
+        Arch lets builders create applications directly around Bitcoin.{" "}
         <br className="hidden sm:block" />
-        Together they execute on Bitcoin UTXOs and settle back to Bitcoin’s ledger.
+        Computation happens on Arch, while ownership and settlement remain on Bitcoin.
       </>
     ),
   },

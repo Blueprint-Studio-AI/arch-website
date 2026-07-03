@@ -55,7 +55,7 @@
      transparent. (A short box clipped the still-visible top of the bloom into a hard line.) */
   background:radial-gradient(ellipse 893px 296px at 50% calc(100% - 168px), rgba(236,100,29,.5) 0%, rgba(236,100,29,.24) 40%, rgba(236,100,29,0) 76%);
   opacity:.42}
-.chain-scope .illo{position:absolute;left:50%;top:0;width:680px;height:790px;margin-left:-340px;
+.chain-scope .illo{position:absolute;left:50%;top:0;width:680px;height:1180px;margin-left:-340px;
   transform-origin:center top;transform:translateY(45vh) scale(.9);
   /* Per-frame JS sets `transform: translate3d(...) scale(s)` here. Safari was re-rasterizing the
      whole inline vector SVG at every scale value (the lag de-iframing introduced — an iframe is
@@ -157,6 +157,8 @@
   letter-spacing:-.014em;line-height:1.04;color:var(--ink)}
 .chain-scope .panel--sec .body{margin:16px auto 0;max-width:56ch;font-size:clamp(15px,1.5vw,18px);
   color:var(--body);line-height:1.6}
+/* "How is that possible?" body runs one word long at 56ch — give just this beat a touch more room. */
+.chain-scope .panel--sec[data-i="1"] .body{max-width:64ch}
 
 .chain-scope .flist{list-style:none;margin:22px auto 0;max-width:660px;display:grid;gap:6px;text-align:left;
   grid-template-columns:repeat(3,1fr);counter-reset:flist}
@@ -179,7 +181,8 @@
    FEATURE INDEX RAIL — the flist pulled out to a fixed left column so the
    illustration can sit higher and stay fully visible. Fades with the active section.
    ============================================================ */
-.chain-scope .flist-rail{position:fixed;left:clamp(16px,4.5vw,72px);top:50%;transform:translateY(-50%);
+/* Left edge aligns with the nav container (w-[94%], max 1300px) so the rail lines up with the logo. */
+.chain-scope .flist-rail{position:fixed;left:max(3%,calc(50% - 650px));top:50%;transform:translateY(-50%);
   width:232px;z-index:3;pointer-events:none;opacity:0;transition:opacity .4s var(--ease)}
 .chain-scope .flist-rail.on{opacity:1}
 .chain-scope .flist-rail.on .flist{pointer-events:auto}
