@@ -215,84 +215,69 @@ function MetricsRail({ beat, reKey }: { beat: Beat; reKey?: number }) {
 }
 
 // a small principle pill — "dark" tone on the black band (header legend), "light" tone
-// inside the white beat cards (per-beat tags).
+// inside the white beat cards (per-beat tags). PASSIVE: not a button, no hover, no click —
+// it only mirrors the current scroll step (`lit`). Un-lit pills sit far back so the row reads
+// as quiet ambient info, not a filter/navigation control.
 function PrinciplePill({
   def,
-  on,
   lit = false,
-  onClick,
   tone = "dark",
   iconOnly = false,
 }: {
   def: PrincipleDef;
-  on: boolean;
-  // `lit` = this principle belongs to the current scroll step → glow brighter than hover
+  // `lit` = this principle belongs to the current scroll step → glows; otherwise it recedes
   lit?: boolean;
-  onClick: () => void;
   tone?: "dark" | "light";
   iconOnly?: boolean;
 }) {
-  const surface = on
-    ? "bg-orange/20 text-orange"
-    : lit
-      ? "bg-white/[0.14] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.16)]"
-      : tone === "light"
-        ? "bg-black/[0.04] text-neutral-600 hover:bg-black/[0.07] hover:text-neutral-900"
-        : "bg-white/[0.06] text-white/55 hover:bg-white/[0.1] hover:text-white";
-  const iconColor = on
-    ? "text-orange"
-    : lit
-      ? "text-orange/80"
-      : tone === "light"
-        ? "text-neutral-400 group-hover:text-orange"
-        : "text-white/40 group-hover:text-orange";
+  const surface = lit
+    ? tone === "light"
+      ? "bg-black/[0.05] text-neutral-700"
+      : "bg-white/[0.14] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.16)]"
+    : tone === "light"
+      ? "text-neutral-300"
+      : "text-white/25";
+  const iconColor = lit
+    ? "text-orange/80"
+    : tone === "light"
+      ? "text-neutral-300"
+      : "text-white/20";
 
   if (iconOnly) {
     return (
-      <button
-        type="button"
-        aria-pressed={on}
-        aria-label={def.label}
-        title={def.label}
-        onClick={onClick}
-        className={`group grid h-7 w-7 place-items-center rounded-full transition-colors duration-200 ${surface}`}
+      <span
+        aria-hidden="true"
+        className={`grid h-7 w-7 place-items-center rounded-full transition-colors duration-200 ${surface}`}
       >
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`h-3.5 w-3.5 transition-colors duration-200 ${iconColor}`}>
           {def.icon}
         </svg>
-      </button>
+      </span>
     );
   }
 
   return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={onClick}
-      className={`group inline-flex items-center gap-[3px] rounded-full px-[7px] py-[2px] text-[0.5rem] uppercase tracking-[0.06em] transition-colors duration-200 md:gap-1.5 md:px-2.5 md:py-[5px] md:text-[0.62rem] md:tracking-[0.1em] ${surface}`}
+    <span
+      className={`inline-flex items-center gap-[3px] rounded-full px-[7px] py-[2px] text-[0.5rem] uppercase tracking-[0.06em] transition-colors duration-200 md:gap-1.5 md:px-2.5 md:py-[5px] md:text-[0.62rem] md:tracking-[0.1em] ${surface}`}
     >
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={`h-2 w-2 transition-colors duration-200 md:h-3 md:w-3 ${iconColor}`}>
         {def.icon}
       </svg>
       {def.label}
-    </button>
+    </span>
   );
 }
 
 function PrincipleLegend({
-  hl,
   lit = [],
-  onToggle,
 }: {
-  hl: Principle[];
   // principles of the current scroll step — these pills glow to mirror where you are
   lit?: Principle[];
-  onToggle: (p: Principle) => void;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-1 md:justify-end md:gap-1.5">
       {PRINCIPLES.map((p) => (
-        <PrinciplePill key={p.id} def={p} on={hl.includes(p.id)} lit={lit.includes(p.id)} onClick={() => onToggle(p.id)} />
+        <PrinciplePill key={p.id} def={p} lit={lit.includes(p.id)} />
       ))}
     </div>
   );
@@ -389,22 +374,17 @@ function BeatCard({ beat, variant = "center", className = "" }: { beat: Beat; va
 
 function DotNav({
   active,
-  hl,
   onJump,
 }: {
   active: number;
-  hl: Principle[];
   onJump: (i: number) => void;
 }) {
-  // All dots stay mounted; when a principle is selected the non-matching ones COLLAPSE
-  // (height/margin/opacity/scale) so the count change animates smoothly instead of popping.
   return (
     <nav
       aria-label="How it works — sections"
       className="absolute left-full top-1/2 ml-4 hidden -translate-y-1/2 flex-col items-center lg:flex xl:ml-6"
     >
       {BEATS.map((b, i) => {
-        const show = hl.length === 0 || b.principles.some((p) => hl.includes(p));
         const isActive = i === active;
         return (
           <button
@@ -412,13 +392,9 @@ function DotNav({
             type="button"
             onClick={() => onJump(i)}
             aria-current={isActive ? "true" : undefined}
-            aria-hidden={!show}
-            tabIndex={show ? undefined : -1}
             aria-label={b.eyebrow}
             title={b.eyebrow}
-            className={`group grid w-5 shrink-0 place-items-center overflow-hidden transition-[height,margin,opacity,transform] duration-[350ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-              show ? "my-[3px] h-5 scale-100 opacity-100" : "pointer-events-none my-0 h-0 scale-50 opacity-0"
-            }`}
+            className="group my-[3px] grid h-5 w-5 shrink-0 place-items-center"
           >
             <span
               className={`h-2 w-2 rounded-full transition-[transform,background-color] duration-200 ${
@@ -433,22 +409,14 @@ function DotNav({
 }
 
 // ---- stacked fallback (reduced-motion / iframe / mobile) -------------------
-function ChainHowStacked({
-  hl,
-  onToggle,
-  variant,
-}: {
-  hl: Principle[];
-  onToggle: (p: Principle) => void;
-  variant: CardVariant;
-}) {
+function ChainHowStacked({ variant }: { variant: CardVariant }) {
   return (
     <section data-nav-theme="dark" className="bg-[#2e2d33] font-sans text-white antialiased">
       <div className="mx-auto w-[92%] max-w-[64rem] py-24 md:py-28">
         <Reveal>
           <header className="flex flex-col gap-y-5 md:flex-row md:items-baseline md:justify-between md:gap-x-10">
             <h2 className="text-[1.7rem] font-medium tracking-[-0.02em] text-white md:text-[2rem]">How it works.</h2>
-            <PrincipleLegend hl={hl} onToggle={onToggle} />
+            <PrincipleLegend />
           </header>
           <p className="mt-5 max-w-[52ch] text-[1.02rem] leading-[1.55] text-neutral-400">
             The advances that make all four true at the same time — native, fast, decentralized, and programmable, on one chain.
@@ -456,16 +424,11 @@ function ChainHowStacked({
         </Reveal>
 
         <div className="mt-14 flex flex-col gap-12">
-          {BEATS.map((b, i) => {
-            const dim = hl.length > 0 && !b.principles.some((p) => hl.includes(p));
-            return (
-              <Reveal key={b.id} y={0} delay={i * 60}>
-                <div className="transition-opacity duration-300" style={dim ? { opacity: 0.4 } : undefined}>
-                  <BeatCard beat={b} variant={variant} />
-                </div>
-              </Reveal>
-            );
-          })}
+          {BEATS.map((b, i) => (
+            <Reveal key={b.id} y={0} delay={i * 60}>
+              <BeatCard beat={b} variant={variant} />
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -477,7 +440,6 @@ export function ChainHow() {
   const sectionRef = useRef<HTMLElement>(null);
   const sentinels = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
-  const [hl, setHl] = useState<Principle[]>([]);
   // SSR + first paint = stacked (safe everywhere, no hydration mismatch); a mount
   // effect upgrades to the pinned story only on a real desktop browser.
   const [pinned, setPinned] = useState(false);
@@ -629,10 +591,7 @@ export function ChainHow() {
     if (lenis) lenis.scrollTo(el, { duration: 0.8 });
     else el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  // multi-select: clicking a principle toggles it in/out of the active set
-  const toggle = (p: Principle) => setHl((h) => (h.includes(p) ? h.filter((x) => x !== p) : [...h, p]));
-
-  if (!pinned) return <ChainHowStacked hl={hl} onToggle={toggle} variant={variant} />;
+  if (!pinned) return <ChainHowStacked variant={variant} />;
 
   return (
     <section ref={sectionRef} data-nav-theme="dark" className="relative bg-[#2e2d33] font-sans text-white antialiased" style={{ height: `calc(${N} * 100svh)` }}>
@@ -643,7 +602,7 @@ export function ChainHow() {
           {/* header: title + clickable principle legend. The active step's principles glow. */}
           <header className="flex flex-col gap-y-2.5 md:flex-row md:items-baseline md:justify-between md:gap-x-10 md:gap-y-4">
             <h2 className="text-[1.35rem] font-medium tracking-[-0.02em] md:text-[2rem]">How it works.</h2>
-            <PrincipleLegend hl={hl} lit={BEATS[active].principles} onToggle={toggle} />
+            <PrincipleLegend lit={BEATS[active].principles} />
           </header>
 
           {/* beat "window" — the diagram (top, shrunk) and copy (bottom-left) slide together
@@ -665,7 +624,7 @@ export function ChainHow() {
                   </div>
                 ))}
               </div>
-              <DotNav active={active} hl={hl} onJump={jump} />
+              <DotNav active={active} onJump={jump} />
             </div>
 
             {/* bottom: MOBILE stacks copy then metrics (full-width row) below it; DESKTOP is copy
