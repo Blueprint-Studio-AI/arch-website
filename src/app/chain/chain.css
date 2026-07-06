@@ -112,7 +112,10 @@
 .chain-scope .illo .dots.dimothers .dot{opacity:.16}
 .chain-scope .illo .dots.dimothers .dot.act{opacity:1}
 .chain-scope .illo .dot circle.c{fill:var(--orange);stroke:#fff;stroke-width:2;transition:r .15s}
-.chain-scope .illo .dot:hover circle.c{r:7.5}
+.chain-scope .illo .dot:hover circle.c{r:9}
+/* index number tying each dot to its numbered label in the left rail */
+.chain-scope .illo .dot text.dnum{fill:#fff;font-family:var(--sans);font-weight:600;font-size:9px;
+  text-anchor:middle;dominant-baseline:central;pointer-events:none;-webkit-user-select:none;user-select:none}
 .chain-scope .illo .dot circle.hit{fill:transparent;stroke:none}
 .chain-scope .illo .dots{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s}
 .chain-scope .illo .dots.show{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .45s ease 1.05s,visibility 0s linear 1.05s}
@@ -266,4 +269,7 @@
    ============================================================ */
 .chain-scope .cta-city{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 /* x / y / scale are set inline from the CITY levers in chain-city.tsx */
-.chain-scope .cta-city .illo{left:auto;top:auto;margin-left:0;pointer-events:none;contain:none;transform-origin:bottom right}
+/* height:790 restores the intrinsic art box: the hero's taller clip box (see .illo) is a
+   bottom-overflow allowance that only makes sense there — here the city is anchored by its BOTTOM,
+   so the extra height would shove the skyline up out of the CTA crop. */
+.chain-scope .cta-city .illo{left:auto;top:auto;height:790px;margin-left:0;pointer-events:none;contain:none;transform-origin:bottom right}

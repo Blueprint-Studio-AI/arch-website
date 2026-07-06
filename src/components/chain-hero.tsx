@@ -62,6 +62,12 @@ const SECTIONS: Section[] = [
   },
 ];
 
+// Map each feature id → its 1-based index in the left rail, so the dot on the diagram can show the
+// same number. Numbering resets per section (each layer's rail starts at 1), which is exactly right
+// since only the active layer's dots are visible at a time.
+const FEATURE_NUM: Record<string, number> = {};
+SECTIONS.forEach((sec) => sec.list?.forEach((it, i) => { FEATURE_NUM[it.c] = i + 1; }));
+
 const STEP_LABELS = ["Hero", "Layer 1", "Layer 2", "Layer 3", "Layer 4", "Placeholder"];
 // Per snap point: ty = text top (vh), gap = vh from text to artwork, is = illustration scale.
 const DEFAULT_STEPS = [
@@ -258,7 +264,7 @@ export default function Hero() {
     // ---- mount the inline illustration, then run the load sequence ----
     // Build the SVG scene synchronously (no iframe load to await), then show layer 1.
     if (illoRef.current && !illoApi.current) {
-      illoApi.current = createIllustration(illoRef.current, { onSelect });
+      illoApi.current = createIllustration(illoRef.current, { onSelect, numbers: FEATURE_NUM });
       lastLayer.current = 0;
       illoApi.current.setState(1);
       lastLayer.current = 1;

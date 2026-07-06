@@ -609,8 +609,9 @@ function buildFinanceCity(parent, baseZ) {
    ============================================================ */
 export function createIllustration(
   stage: HTMLElement,
-  opts?: { onSelect?: (id: string | null) => void }
+  opts?: { onSelect?: (id: string | null) => void; numbers?: Record<string, number> }
 ): IllustrationApi {
+  var NUMS = (opts && opts.numbers) || {};
   // SCOPE all DOM lookups to `stage` so the inlined IDs can't collide with the host page
   const byId = (id: string) => stage.querySelector('#' + id) as any;
 
@@ -1105,11 +1106,19 @@ export function createIllustration(
     }
   }
 
+  // build a dot's circles (+ the index number that ties it to the left rail, when one exists)
+  function dotShapes(g, p, id) {
+    el('circle', { cx: p[0], cy: p[1], r: 13, 'class': 'hit' }, g);
+    el('circle', { cx: p[0], cy: p[1], r: NUMS[id] != null ? 7.5 : 5.5, 'class': 'c' }, g);
+    if (NUMS[id] != null) {
+      var tx = el('text', { x: p[0], y: p[1], 'class': 'dnum' }, g);
+      tx.textContent = String(NUMS[id]);
+    }
+  }
   Object.keys(CALLOUTS).forEach(function (id) {
     var c = CALLOUTS[id], p = P.apply(null, c.a);
     var g = el('g', { 'class': 'dot', 'data-id': id }, dotLayers[c.l]);
-    el('circle', { cx: p[0], cy: p[1], r: 12, 'class': 'hit' }, g);
-    el('circle', { cx: p[0], cy: p[1], r: 5.5, 'class': 'c' }, g);
+    dotShapes(g, p, id);
     g.addEventListener('mouseenter', function () { select(id); });
     g.addEventListener('mouseleave', clearSel);
     g.addEventListener('click', function () { select(id); });
@@ -1140,8 +1149,7 @@ export function createIllustration(
   Object.keys(L2DOTS).forEach(function (id) {
     var a = L2DOTS[id], p = P(a[0], a[1], a[2]);
     var g = el('g', { 'class': 'dot', 'data-id': id }, dotLayers[2]);
-    el('circle', { cx: p[0], cy: p[1], r: 12, 'class': 'hit' }, g);
-    el('circle', { cx: p[0], cy: p[1], r: 5.5, 'class': 'c' }, g);
+    dotShapes(g, p, id);
     g.addEventListener('mouseenter', function () { select(id); });
     g.addEventListener('mouseleave', clearSel);
     g.addEventListener('click', function () { select(id); });
