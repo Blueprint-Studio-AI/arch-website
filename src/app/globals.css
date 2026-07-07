@@ -62,6 +62,13 @@
   }
 }
 
+/* The nav entrance fade-up reads as a glitchy jump on mobile — skip it below the md breakpoint. */
+@media (max-width: 767px) {
+  .nav-anim {
+    animation: none !important;
+  }
+}
+
 @keyframes blink {
   0%,
   50% {

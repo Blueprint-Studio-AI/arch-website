@@ -75,7 +75,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
         }`}
       />
       <div className="relative z-10 mx-auto flex w-[94%] max-w-(--container-site) items-center justify-between">
-        <Link href="/" aria-label="Arch Network home" className={`relative z-10 ${linkColor}`} style={navIn(0)}>
+        <Link href="/" aria-label="Arch Network home" className={`nav-anim relative z-10 ${linkColor}`} style={navIn(0)}>
           <ArchLogo className="h-8 w-auto" />
         </Link>
 
