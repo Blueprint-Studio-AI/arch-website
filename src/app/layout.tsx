@@ -20,11 +20,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE.name,
-    images: [SITE.ogImage],
+    url: SITE.url,
+    locale: "en_US",
+    // Explicit dimensions + alt so scrapers that don't fetch the image (and a11y) still get a valid,
+    // correctly-sized card. 1200×630 is the image's real size.
+    images: [{ url: SITE.ogImage, width: 1200, height: 630, alt: SITE.ogAlt }],
   },
   twitter: {
     card: "summary_large_image",
-    images: [SITE.ogImage],
+    site: SITE.twitter,
+    creator: SITE.twitter,
+    images: [{ url: SITE.ogImage, alt: SITE.ogAlt }],
   },
   verification: {
     google: "hJoxXI7B6p1Fh7hX2RkNGPfYHPGYZONidbOv8o9ONYI",
