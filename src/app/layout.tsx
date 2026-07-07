@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { geist, gascogne } from "@/lib/fonts";
-import { SITE } from "@/lib/site";
+import { SITE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
+  metadataBase: new URL(SITE_URL),
   title: {
     default:
       "Bitcoin Capital Markets Infrastructure | Native Bitcoin Settlement | Arch",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: SITE.name,
-    url: SITE.url,
+    url: SITE_URL,
     locale: "en_US",
     // Explicit dimensions + alt so scrapers that don't fetch the image (and a11y) still get a valid,
     // correctly-sized card. 1200×630 is the image's real size.
