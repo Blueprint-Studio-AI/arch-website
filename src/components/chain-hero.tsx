@@ -14,15 +14,15 @@ const SECTIONS: Section[] = [
     // flows as one sentence instead of wrapping awkwardly into three lines.
     body: (
       <>
-        Arch lets builders create applications directly around Bitcoin.{" "}
+        Arch lets builders create applications directly around&nbsp;Bitcoin.{" "}
         <br className="hidden sm:block" />
-        Computation happens on Arch, while ownership and settlement remain on Bitcoin.
+        Computation happens on Arch, while ownership and settlement remain on&nbsp;Bitcoin.
       </>
     ),
   },
   {
     h2: "Native tech",
-    body: "What’s built on Arch lives on Bitcoin: same coins, same wallets, same ledger. Making that true took new technology at almost every layer:",
+    body: "What’s built on Arch lives on Bitcoin: same coins, same wallets, same ledger. Making that true took new technology at almost every layer:",
     list: [
       { c: "settle", b: "Direct Bitcoin settlement", lite: "settles on Bitcoin's base layer" },
       { c: "utxo", b: "UTXO native execution", lite: "programs can own and move UTXOs, not IOUs" },
@@ -37,7 +37,7 @@ const SECTIONS: Section[] = [
   },
   {
     h2: "Financial primitives",
-    body: "Speed, reliability, and general programmability become financial infrastructure on Bitcoin. Pooling on real UTXOs enables AMMs, oracle feeds enable collateral enforcement, and safe lending carries credit, perps, and structured products.",
+    body: "Speed, reliability, and general programmability become financial infrastructure on Bitcoin. Pooling on real UTXOs enables AMMs, oracle feeds enable collateral enforcement, and safe lending carries credit, perps, and structured products.",
     list: [
       { c: "pools", b: "Pooled liquidity" },
       { c: "oracle", b: "Real-time oracle feeds" },
@@ -49,7 +49,7 @@ const SECTIONS: Section[] = [
   },
   {
     h2: "Finance unlocks",
-    body: "Those primitives compose into real markets. From trading and lending to prime brokerage and more, Arch unlocks a DeFi ecosystem on native Bitcoin. It’s fast, easy to build on, and native all the way down.",
+    body: "Those primitives compose into real markets. From trading and lending to prime brokerage and more, Arch unlocks a DeFi ecosystem on native Bitcoin. It’s fast, easy to build on, and native all the way down.",
     list: [
       { c: "dexs", b: "DEXs" },
       { c: "lend", b: "Lending & credit" },
@@ -69,26 +69,28 @@ const FEATURE_NUM: Record<string, number> = {};
 SECTIONS.forEach((sec) => sec.list?.forEach((it, i) => { FEATURE_NUM[it.c] = i + 1; }));
 
 const STEP_LABELS = ["Hero", "Layer 1", "Layer 2", "Layer 3", "Layer 4", "Placeholder"];
-// Per snap point: ty = text top (vh), gap = vh from text to artwork, is = illustration scale.
-const DEFAULT_STEPS = [
-  { ty: 14, gap: 2, is: 1.02 },
-  { ty: 12, gap: 3, is: 1.0 },
-  { ty: 9, gap: 3, is: 1.0 },
-  { ty: 10, gap: 3, is: 1.0 },
-  { ty: 10, gap: 4, is: 1.0 },
-  { ty: 12, gap: 4, is: 0.95 },
+// Per snap point: ty = text top (vh), gap = vh from text to artwork, is = illustration height (vh),
+// imax = optional max illustration height (px) — only set where a slide needs a ceiling.
+type Step = { ty: number; gap: number; is: number; imax?: number };
+const DEFAULT_STEPS: Step[] = [
+  { ty: 12, gap: 3, is: 105 },
+  { ty: 12, gap: 5, is: 122 },
+  { ty: 11, gap: 2, is: 114, imax: 1330 },
+  { ty: 10, gap: 2, is: 89 },
+  { ty: 8, gap: 0, is: 81 },
+  { ty: 12, gap: 4, is: 85 },
 ];
 // Mobile keeps its own keyframes (smaller art, tighter top) — tuned via the same levers.
-const DEFAULT_STEPS_M = [
-  { ty: 15, gap: 7, is: 1.15 },
-  { ty: 18, gap: 8, is: 1.15 },
-  { ty: 5, gap: 0, is: 1.15 },
-  { ty: 6, gap: 5, is: 1.15 },
-  { ty: 6, gap: 9, is: 1.15 },
-  { ty: 6, gap: 4, is: 1.15 },
+const DEFAULT_STEPS_M: Step[] = [
+  { ty: 15, gap: 4, is: 103 },
+  { ty: 18, gap: 3, is: 97 },
+  { ty: 14, gap: 4, is: 77, imax: 900 },
+  { ty: 12, gap: 3, is: 77 },
+  { ty: 11, gap: 1, is: 75 },
+  { ty: 6, gap: 4, is: 103 },
 ];
 const DEFAULT_X = -45; // horizontal cheat (px), negative = left
-const DEFAULT_X_M = -40; // mobile horizontal cheat
+const DEFAULT_X_M = -26; // mobile horizontal cheat
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -219,18 +221,14 @@ export default function Hero() {
       const textBottom = lerp(base[ci] ?? 0, base[ci1] ?? 0, f);
       const at = atTop;
       const gap = lerp(s[i0].gap, s[i1].gap, f) * vh;
-      const scale = lerp(s[i0].is, s[i1].is, f) * Math.min(1, window.innerHeight / 880);
+      const sc = (st: Step) => Math.min((st.is / 100) * window.innerHeight / 790, (st.imax ?? Infinity) / 790);
+      const scale = lerp(sc(s[i0]), sc(s[i1]), f);
       const y = textBottom + gap - at * scale + intro * 42;
       if (illoRef.current) {
-        // Safari re-rasterizes the inline vector SVG every time the scale VALUE changes; a
-        // per-frame scale(toFixed(3)) meant a re-raster on every single frame (the real lag the
-        // de-iframing introduced — an iframe scaled a bitmap, not vectors). So quantize the scale
-        // to ~1% steps: the transform string stays identical across most frames, so Safari just
-        // re-composites the cached layer for the translate (cheap) and only re-rasters on the rare
-        // step. The 1% steps are imperceptible (scale range is ~0.95–1.02) and translate stays
-        // frame-smooth. translate3d keeps it on the GPU layer. `scale` (full precision) still feeds
-        // `y` above so positioning stays continuous.
-        const qScale = (Math.round(scale * 100) / 100).toFixed(2);
+        // Safari re-rasterizes the inline vector SVG on every distinct scale value, so quantize to
+        // dedup identical frames. Steps must stay sub-pixel — the vh sizing swings scale far wider
+        // than the old ~1% range, and coarse steps make the slow tail of a settle visibly jerk.
+        const qScale = (Math.round(scale * 500) / 500).toFixed(3);
         illoRef.current.style.transform = `translate3d(${illoXRef.current}px, ${y.toFixed(1)}px, 0) scale(${qScale})`;
         illoRef.current.style.opacity = "1"; // no fade — the below-fold occludes the artwork as it rises
       }
@@ -455,10 +453,12 @@ export default function Hero() {
     };
   }, []);
 
-  const setLever = (key: "ty" | "gap" | "is", val: number) =>
+  useEffect(() => { updateRef.current(); }, [steps, stepsM, illoX, illoXM, isMobile]);
+
+  const setLever = (key: "ty" | "gap" | "is" | "imax", val: number) =>
     (isMobile ? setStepsM : setSteps)((prev) => prev.map((st, i) => (i === active ? { ...st, [key]: val } : st)));
 
-  // the active section's feature list (active 1..N map to SECTIONS 0..N-1) — drives the left rail
+  // the active section's feature list (active 1..N map to SECTIONS 0..N-1) — drives the rail (desktop/tablet only)
   const activeList = active >= 1 && active <= SECTIONS.length ? SECTIONS[active - 1]?.list : undefined;
 
   return (
@@ -523,9 +523,7 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* Feature index — a left rail (was a 3-col grid under the body). Pulling it out of the panel
-          flow lets the illustration sit higher and stay fully visible. Shows the active section's
-          items; hovering one still highlights the matching node in the illustration. */}
+      {/* Feature index rail — desktop/tablet only; CSS hides it on mobile. */}
       <aside className={`flist-rail${activeList ? " on" : ""}`} aria-hidden={!activeList}>
         {activeList && (
           <ul className="flist" key={active}>
@@ -559,7 +557,7 @@ export default function Hero() {
       {/* Below-fold (chain-below.tsx) is now rendered as a REAL React sibling by
           chain/layout.tsx — de-iframed so position:sticky / scroll-driven sections work. */}
 
-      {/* levers tuning panel — hidden for demo; uncomment this block to re-enable
+      {/* levers tuning panel — dev-only overlay; uncomment to re-enable
       {showLevers ? (
         <div className="levers">
           <div className="lev-head">
@@ -575,14 +573,18 @@ export default function Hero() {
             <input type="range" min={0} max={24} value={activeSteps[active].gap} onChange={(e) => setLever("gap", Number(e.target.value))} />
           </label>
           <label>
-            <span>illustration size · {activeSteps[active].is.toFixed(2)}×</span>
-            <input type="range" min={0.5} max={1.8} step={0.01} value={activeSteps[active].is} onChange={(e) => setLever("is", Number(e.target.value))} />
+            <span>illustration size · {activeSteps[active].is}vh</span>
+            <input type="range" min={40} max={140} step={1} value={activeSteps[active].is} onChange={(e) => setLever("is", Number(e.target.value))} />
+          </label>
+          <label>
+            <span>illustration max · {activeSteps[active].imax ?? "off"}{activeSteps[active].imax != null ? "px" : ""}</span>
+            <input type="range" min={300} max={1600} step={10} disabled={activeSteps[active].imax == null} value={activeSteps[active].imax ?? 1000} onChange={(e) => setLever("imax", Number(e.target.value))} />
           </label>
           <label>
             <span>illustration X · {activeX}px</span>
             <input type="range" min={-200} max={200} value={activeX} onChange={(e) => (isMobile ? setIlloXM : setIlloX)(Number(e.target.value))} />
           </label>
-          <pre>{`${isMobile ? "mobile" : "desktop"} · X ${activeX}px\n` + activeSteps.map((st, i) => `${STEP_LABELS[i]}: ty ${st.ty} · gap ${st.gap} · ${st.is.toFixed(2)}×`).join("\n")}</pre>
+          <pre>{`${isMobile ? "mobile" : "desktop"} · X ${activeX}px\n` + activeSteps.map((st, i) => `${STEP_LABELS[i]}: ty ${st.ty} · gap ${st.gap} · is ${st.is}${st.imax != null ? ` · max ${st.imax}` : ""}`).join("\n")}</pre>
         </div>
       ) : (
         <button className="levers-open" onClick={() => setShowLevers(true)}>levers</button>

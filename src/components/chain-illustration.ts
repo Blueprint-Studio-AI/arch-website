@@ -855,10 +855,21 @@ export function createIllustration(
   // inter-node mesh — every node linked to its neighbours
   function nodeAt(ci, ri) { for (var i = 0; i < vNodes.length; i++) { var n = vNodes[i]; if (n.ci === ci && n.ri === ri) return n; } return null; }
   var gMesh = el('g', { 'class': 'l2el', id: 'g-schnorr', style: '--vw:' + VAL_LINE }, L2f);
+  var meshEdges = [];
   vNodes.forEach(function (n) {
     [nodeAt(n.ci + 1, n.ri), nodeAt(n.ci, n.ri + 1), nodeAt(n.ci + 1, n.ri + 1), nodeAt(n.ci - 1, n.ri + 1)].forEach(function (m) {
-      if (m) wire(gMesh, [n.cx, n.cy, bz], [m.cx, m.cy, bz]);
+      if (m) { wire(gMesh, [n.cx, n.cy, bz], [m.cx, m.cy, bz]); meshEdges.push({ a: [n.cx, n.cy], b: [m.cx, m.cy] }); }
     });
+  });
+  // packets hopping node-to-node along the mesh; alternating direction so it reads as mutual traffic
+  var VPKT = 0.26, VPKT_SPEED = 0.42, VPKT_TRAVEL = 0.38;
+  var gValPkts = el('g', { id: 'g-valpkts' }, L2f), valPkts = [];
+  meshEdges.forEach(function (e, i) {
+    if (i % 3 !== 0) return;   // sparse: only a third of the links carry a packet
+    var s = i % 2 ? e.b : e.a, d = i % 2 ? e.a : e.b;
+    var pg = el('g', {}, gValPkts);
+    box(pg, { x: s[0] - VPKT / 2, y: s[1] - VPKT / 2, w: VPKT, d: VPKT, h: VPKT, z: bz + 0.05, c: COLO });
+    valPkts.push({ g: pg, dx: d[0] - s[0], dy: d[1] - s[1], off: (i * 0.618) % 1 });
   });
   // chip bus — only the right column wires to the chip
   var gBus = el('g', { 'class': 'l2el', id: 'g-valbus', style: '--vw:' + VAL_LINE }, L2f);
@@ -1046,10 +1057,10 @@ export function createIllustration(
     perutxo: { hot: ['g-perutxo'], anchor: 'g-perutxo', t: 'Per-account UTXOs', b: 'Funds are never pooled into one wallet.' },
     taproot: { hot: ['pipeR', 'g-walletconn', 'g-cards', 'g-addr'], keep: ['g-perutxo'], anchor: 'g-cards', t: 'Taproot account model', b: 'Compatible with existing Bitcoin wallets.' },
     hybrid: { hot: ['g-cards', 'g-perutxo', 'g-addr'], anchor: 'g-cards', t: 'Hybrid Account Model', b: 'Accounts and programs hold both Arch-native balances and Bitcoin UTXOs.' },
-    schnorr: { hot: ['g-schnorr', 'g-valbus'], anchor: 'g-schnorr', t: 'Threshold Schnorr signing', b: 'FROST + ROAST: no single key ever exists, signing never stalls.' },
+    schnorr: { hot: ['g-schnorr', 'g-valbus', 'g-valpkts'], anchor: 'g-schnorr', t: 'Threshold Schnorr signing', b: 'FROST + ROAST: no single key ever exists, signing never stalls.' },
     syscall: { dir: 'in', anchor: 'g-vm', t: 'Native Bitcoin syscalls', b: 'Programs read and write Bitcoin directly, no oracle in between.' },
     vm: { flow: true, anchor: 'g-vm', t: 'Bitcoin-native VM', b: 'Solana’s proven eBPF engine, forked and rebuilt around UTXOs.' },
-    dpos: { hot: ['g-dpos'], anchor: 'g-dpos', t: 'Fast dPoS consensus', b: '180ms blocks, 1,500 TPS.' }
+    dpos: { hot: ['g-dpos', 'g-valpkts'], anchor: 'g-dpos', t: 'Fast dPoS consensus', b: '180ms blocks, 1,500 TPS.' }
   };
   var PIPEGRP = { pipeL: [0, 1], pipeC: [2, 3], pipeR: [4, 5] };
   // directional reveal across ALL cables
@@ -1236,6 +1247,15 @@ export function createIllustration(
       } else { w.g.style.opacity = ''; }                            // otherwise hand opacity back to CSS
     });
     tiles.forEach(function (tg, i) { tg.setAttribute('transform', 'translate(0,' + (Math.sin(t * 1.4 + i * 1.3) * 3).toFixed(2) + ')'); });
+    // validator packets: ride an edge, fade in/out, then reappear on the next cycle
+    valPkts.forEach(function (pk) {
+      var ph = (t * VPKT_SPEED + pk.off) % 1;
+      if (ph < VPKT_TRAVEL) {
+        var p = ph / VPKT_TRAVEL;
+        tr(pk.g, pk.dx * p, pk.dy * p);
+        pk.g.setAttribute('opacity', (p < .15 ? p / .15 : p > .85 ? (1 - p) / .15 : 1).toFixed(2));
+      } else pk.g.setAttribute('opacity', 0);
+    });
   }
   rafId = requestAnimationFrame(frame);
 

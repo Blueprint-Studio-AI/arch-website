@@ -96,6 +96,11 @@
 .chain-scope .illo #L2.flow .pipe{opacity:1}
 .chain-scope .illo #L2.flow .pipe .tube{opacity:.16}
 .chain-scope .illo #L2.flow #g-vm{opacity:1}
+/* validator packets show only in the default state (or when the validators/mesh — 9/dpos, 7/schnorr —
+   are hovered, which mark this group .hot); any other highlight hides them so nothing overlaps. */
+.chain-scope .illo #g-valpkts{transition:opacity .28s ease}
+.chain-scope .illo #L2.focus #g-valpkts,.chain-scope .illo #L2.flow #g-valpkts{opacity:0}
+.chain-scope .illo #L2 #g-valpkts.hot{opacity:1}
 .chain-scope .illo .pipe.hot .wpkt{opacity:0}
 .chain-scope .illo .wire.hot,.chain-scope .illo .l2el.hot .wire{stroke:#ec641d;stroke-width:2.8}
 .chain-scope .illo .l2el.hot polygon.ft,.chain-scope .illo .l2el.hot ellipse.ft{fill:#ec641d}
@@ -197,8 +202,9 @@
   .chain-scope .flist-rail{width:200px;left:14px}
 }
 @media(max-width:680px){
-  /* mobile: no room for a side rail — hide it (the section heading + body carry the message) */
+  /* mobile: no room for the side rail or on-art callout dots — hide the whole interaction layer */
   .chain-scope .flist-rail{display:none}
+  .chain-scope .illo .dots{display:none}
 }
 
 /* ============================================================
@@ -257,8 +263,13 @@
   .chain-scope .btn{font-size:11.5px;padding:9px 12px}
 }
 @media(max-width:480px){
-  .chain-scope .sub{font-size:13px}
   .chain-scope .panel--sec .body{font-size:13px;margin-top:12px}
+  .chain-scope .chip{font-size:.56rem;padding:4px 10px;gap:6px}
+  .chain-scope .chip .dot{width:5px;height:5px}
+  .chain-scope h1{margin-top:16px}
+  .chain-scope .h1-serif{margin-top:10px}
+  .chain-scope .sub{font-size:13px;margin-top:7px}
+  .chain-scope .btns{margin-top:18px}
 }
 
 /* ============================================================
