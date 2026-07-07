@@ -2,6 +2,8 @@ export const SITE = {
   name: "Arch",
   url: "https://www.arch.network",
   ogImage: "/img/og.png",
+  ogAlt: "Arch — Real Bitcoin. Finally Programmable.",
+  twitter: "@ArchNtwrk",
   description:
     "Arch is Bitcoin-native financial market infrastructure enabling credit, derivatives, and capital markets.",
 } as const;
