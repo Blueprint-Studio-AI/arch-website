@@ -11,8 +11,15 @@ export const metadata: Metadata = {
   description:
     "Arch is a Bitcoin-native VM, chain, and validator network. Real Bitcoin, made programmable — no wrapping, no migration.",
   alternates: { canonical: "/chain" },
-  openGraph: { title: "Chain" },
-  twitter: { title: "Chain" },
+  // Chain-specific share card (overrides the generic site OG). 1200×630, brand-matched to the home OG.
+  openGraph: {
+    title: "Chain",
+    images: [{ url: "/img/og-chain.png", width: 1200, height: 630, alt: "Arch — The financial chain for Native Bitcoin" }],
+  },
+  twitter: {
+    title: "Chain",
+    images: [{ url: "/img/og-chain.png", alt: "Arch — The financial chain for Native Bitcoin" }],
+  },
 };
 
 // The chain page is one continuous Lenis-smoothed scroll experience: the hero is a pinned
