@@ -30,7 +30,8 @@ export const EXTERNAL = {
 
 export const NAV_LINKS = [
   { label: "Partners", href: "/ecosystem", external: false },
+  { label: "Chain", href: "/chain", external: false },
+  { label: "Prime", href: "/prime", external: false },
   { label: "Blog", href: EXTERNAL.blog, external: true },
   { label: "Documentation", href: EXTERNAL.docs, external: true },
-  { label: "Chain", href: "/chain", external: false },
 ] as const;
