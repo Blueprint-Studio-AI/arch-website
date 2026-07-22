@@ -1,5 +1,7 @@
 # Arch Website
 
+![Arch — Finally Programmable.](.github/readme-hero.jpg)
+
 Marketing site for [Arch Network](https://www.arch.network) — Bitcoin-native
 financial market infrastructure.
 
