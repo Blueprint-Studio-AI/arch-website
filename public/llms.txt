@@ -5,6 +5,7 @@
 ## Pages
 
 - [Home](https://www.arch.network/): Bitcoin Capital Markets Infrastructure. Native Bitcoin settlement, credit, yield, and trading.
+- [Chain](https://www.arch.network/chain): The financial chain for native Bitcoin. Borrow, earn, and swap real BTC—and it stays yours the whole way.
 - [Ecosystem](https://www.arch.network/ecosystem): Partners and applications building on Arch—wallets, fintech, consumer, and DeFi.
 
 ## Resources

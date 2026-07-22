@@ -8,13 +8,18 @@ export const SITE = {
     "Arch is Bitcoin-native financial market infrastructure enabling credit, derivatives, and capital markets.",
 } as const;
 
-// Absolute base for OG / canonical URLs. On Netlify, prefer the deploy's own primary URL so preview,
-// branch, and (pre-custom-domain) production deploys are self-contained — their share cards resolve
-// instead of 404-ing against a domain that isn't live yet. Netlify sets DEPLOY_PRIME_URL (this
-// deploy's primary URL — becomes the custom domain on production) and URL (the site's main URL).
-// Falls back to the canonical production URL for local dev / non-Netlify builds.
+// Absolute base for OG / canonical URLs. Non-production deploys prefer their own
+// deploy URL so preview/branch share cards resolve instead of 404-ing against a
+// domain that isn't live yet. Netlify sets DEPLOY_PRIME_URL (this deploy's primary
+// URL — becomes the custom domain on production) and URL (the site's main URL);
+// Vercel sets VERCEL_ENV + VERCEL_URL (bare host, no protocol). Production on
+// Vercel and local dev fall back to the canonical domain.
 export const SITE_URL =
-  process.env.DEPLOY_PRIME_URL || process.env.URL || SITE.url;
+  process.env.DEPLOY_PRIME_URL ||
+  process.env.URL ||
+  (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production" && process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : SITE.url);
 
 export const EXTERNAL = {
   blog: "https://www.blog.arch.network/",
@@ -29,8 +34,8 @@ export const EXTERNAL = {
 } as const;
 
 export const NAV_LINKS = [
+  { label: "Chain", href: "/chain", external: false },
   { label: "Partners", href: "/ecosystem", external: false },
   { label: "Blog", href: EXTERNAL.blog, external: true },
   { label: "Documentation", href: EXTERNAL.docs, external: true },
-  { label: "Chain", href: "/chain", external: false },
 ] as const;

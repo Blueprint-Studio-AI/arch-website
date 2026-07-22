@@ -20,7 +20,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
 
   const isEcosystem = pathname === "/ecosystem";
   const cta = isEcosystem
-    ? { label: "Start Building", href: "#" }
+    ? { label: "Start Building", href: EXTERNAL.docs }
     : { label: "Become a partner", href: EXTERNAL.typeform };
 
   useEffect(() => {

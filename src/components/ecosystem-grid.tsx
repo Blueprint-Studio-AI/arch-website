@@ -16,7 +16,8 @@ function Card({ partner }: { partner: EcosystemPartner }) {
         alt={partner.name}
         width={220}
         height={80}
-        className="w-[220px] max-w-[70%] object-contain"
+        className="max-w-[70%] object-contain"
+        style={{ width: partner.logoWidth ?? 220 }}
       />
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-3 pb-1.5 text-sm">
         <span>{partner.name}</span>

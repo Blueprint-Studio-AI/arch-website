@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arch Website
 
-## Getting Started
+Marketing site for [Arch Network](https://www.arch.network) — Bitcoin-native
+financial market infrastructure.
 
-First, run the development server:
+## Stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Turbopack)
+- React 19 · TypeScript · Tailwind CSS v4
+- [Lenis](https://lenis.darkroom.engineering/) smooth scrolling
+- pnpm
+
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+pnpm build      # production build
+pnpm start      # serve the production build
+pnpm lint       # eslint
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Deploys on Vercel with no required env vars. Optional:
 
-## Learn More
+| Variable                   | Purpose                                             |
+| -------------------------- | --------------------------------------------------- |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | Enables PostHog analytics (off when unset)          |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host override (defaults to US cloud)        |
 
-To learn more about Next.js, take a look at the following resources:
+## Pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Route        | Purpose                                             |
+| ------------ | --------------------------------------------------- |
+| `/`          | Home — Bitcoin capital markets infrastructure pitch |
+| `/chain`     | The Arch chain — scroll-driven product story        |
+| `/ecosystem` | Partners and applications building on Arch          |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Structure
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app` — routes, root metadata (OG/Twitter cards), `sitemap.ts`, `robots.ts`
+- `src/components` — page sections; the `chain-*` components make up the
+  scroll-driven Chain page
+- `src/lib/site.ts` — site config: nav links, external URLs, canonical domain
+  (`SITE_URL` resolves per-deploy so preview share cards self-resolve)
+- `src/data` — ecosystem partner list, FAQ copy
+- `public` — static assets (partner logos, OG images, hero video, fonts)

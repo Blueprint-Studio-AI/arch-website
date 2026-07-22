@@ -14,10 +14,10 @@ const MARQUEE_LOGOS: MarqueeLogo[] = [
   { src: "/img/partners/tangent.svg", alt: "Tangent", width: 110 },
   { src: "/img/partners/utxo.svg", alt: "UTXO", width: 40 },
   { src: "/img/partners/cypher.svg", alt: "Cypher", width: 110 },
-  { src: "/img/partners/image37.avif", alt: "Partner", width: 40 },
+  { src: "/img/partners/image37.avif", alt: "DPI Capital", width: 40 },
   { src: "/img/partners/asymmetric.avif", alt: "Asymmetric", width: 110 },
   { src: "/img/partners/portal.svg", alt: "Portal", width: 110 },
-  { src: "/img/partners/logo1.svg", alt: "Partner", width: 80 },
+  { src: "/img/partners/logo1.svg", alt: "ARK Invest", width: 80 },
   { src: "/img/partners/ambush.svg", alt: "Ambush", width: 110 },
   { src: "/img/partners/bigbrain.svg", alt: "Big Brain", width: 110 },
   { src: "/img/partners/newman.svg", alt: "Newman", width: 110 },
@@ -98,7 +98,7 @@ export default function Home() {
                 className="text-[14px] leading-[150%] text-grey sm:text-[16px]"
               />
               <Reveal>
-                <ArchButton href="#">Join the Ecosystem</ArchButton>
+                <ArchButton href={EXTERNAL.typeform}>Join the Ecosystem</ArchButton>
               </Reveal>
             </div>
           </div>

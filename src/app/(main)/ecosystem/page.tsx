@@ -9,11 +9,11 @@ import { ArchOverlay } from "@/components/arch-overlay";
 import { ECOSYSTEM_FAQS } from "@/data/ecosystem-faqs";
 
 export const metadata: Metadata = {
-  title: { absolute: "Ecosystem" },
+  title: { absolute: "Ecosystem | Arch" },
   description: "Unlocking Trillions for RWAs & DeFi. Built on Bitcoin.",
   alternates: { canonical: "/ecosystem" },
-  openGraph: { title: "Ecosystem" },
-  twitter: { title: "Ecosystem" },
+  openGraph: { title: "The Arch Ecosystem" },
+  twitter: { title: "The Arch Ecosystem" },
 };
 
 export default function Ecosystem() {

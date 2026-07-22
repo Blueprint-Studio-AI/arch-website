@@ -4,6 +4,9 @@ export type EcosystemPartner = {
   name: string;
   category: EcosystemCategory;
   logo: string;
+  /** Rendered logo width in the ecosystem card (px). Defaults to 220 — set
+   *  lower for lockups that read optically larger than their neighbors. */
+  logoWidth?: number;
   description: string;
   x: string;
   web: string;
@@ -32,12 +35,13 @@ export const ECOSYSTEM_PARTNERS: EcosystemPartner[] = [
     name: "Bump",
     category: "Consumer",
     logo: "/img/ecosystem/bump.svg",
+    logoWidth: 165,
     description: "The gateway to Bitcoin’s token economy.",
     x: "https://x.com/BUMPbtc",
     web: "https://bump.fun/",
   },
   {
-    name: "Honey B",
+    name: "HoneyB",
     category: "DeFi",
     logo: "/img/ecosystem/honey-b.svg",
     description:
