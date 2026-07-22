@@ -21,6 +21,13 @@ export const SITE_URL =
     ? `https://${process.env.VERCEL_URL}`
     : SITE.url);
 
+// Carried over from the previous (Webflow) site so marketing data and any
+// tags in the GTM container continue uninterrupted across the relaunch.
+export const ANALYTICS = {
+  gaId: "G-EDHYRW0Q7Z",
+  gtmId: "GTM-5Z8L2F4T",
+} as const;
+
 export const EXTERNAL = {
   blog: "https://www.blog.arch.network/",
   docs: "https://docs.arch.network/",

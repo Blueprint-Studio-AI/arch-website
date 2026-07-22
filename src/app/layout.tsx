@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { geist, gascogne } from "@/lib/fonts";
-import { SITE, SITE_URL } from "@/lib/site";
+import { ANALYTICS, SITE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -40,9 +41,14 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Google tags fire only on the production deploy — previews and local dev
+  // must not pollute the (pre-existing, carried-over) GA4 property.
+  const isProdDeploy = process.env.VERCEL_ENV === "production";
   return (
     <html lang="en" className={`${geist.variable} ${gascogne.variable}`}>
+      {isProdDeploy && <GoogleTagManager gtmId={ANALYTICS.gtmId} />}
       <body>{children}</body>
+      {isProdDeploy && <GoogleAnalytics gaId={ANALYTICS.gaId} />}
     </html>
   );
 }
