@@ -28,7 +28,7 @@ const MARQUEE_LOGOS: MarqueeLogo[] = [
 export default function Home() {
   return (
     <>
-      <header className="relative z-0 flex h-screen items-end justify-center overflow-hidden text-white">
+      <header className="relative z-0 flex h-screen items-end justify-center overflow-hidden bg-black text-white">
         {/* poster is the video's own first frame, so the hero paints a still
             instantly and the clip starts over an identical frame — no black
             flash while it buffers. */}
@@ -193,7 +193,7 @@ export default function Home() {
           </RevealClip>
         </section>
 
-        <section className="relative flex min-h-screen flex-col items-start justify-between gap-y-[200px] overflow-hidden py-25 text-white lg:gap-y-0">
+        <section className="relative flex min-h-screen flex-col items-start justify-between gap-y-[200px] overflow-hidden bg-black py-25 text-white lg:gap-y-0">
           <video
             autoPlay
             loop
