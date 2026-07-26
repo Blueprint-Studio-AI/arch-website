@@ -77,7 +77,7 @@ export const ECOSYSTEM_FAQS: FaqEntry[] = [
             <li>
               Join the{" "}
               <a
-                href="https://discord.com/app/invite-with-guild-onboarding/archnetwork"
+                href="https://discord.gg/arch-community-1241112027963986001"
                 target="_blank"
                 rel="noopener noreferrer"
               >

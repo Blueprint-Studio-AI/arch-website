@@ -29,11 +29,15 @@ export default function Home() {
   return (
     <>
       <header className="relative z-0 flex h-screen items-end justify-center overflow-hidden text-white">
+        {/* poster is the video's own first frame, so the hero paints a still
+            instantly and the clip starts over an identical frame — no black
+            flash while it buffers. */}
         <video
           autoPlay
           loop
           muted
           playsInline
+          poster="/video/hero-home-poster.jpg"
           className="absolute inset-0 z-0 h-full w-full bg-black object-cover"
           style={{ filter: "saturate(1.07) contrast(1.035)" }}
         >
@@ -195,6 +199,7 @@ export default function Home() {
             loop
             muted
             playsInline
+            poster="/video/anchored-poster.jpg"
             className="absolute top-0 left-1/2 z-0 h-full w-[120%] min-w-full -translate-x-1/2 object-cover"
           >
             <source src="/video/anchored.mp4" type="video/mp4" />

@@ -35,7 +35,7 @@ export const EXTERNAL = {
   typeform: "https://form.typeform.com/to/YUZ7T5jy",
   manifesto: "https://manifesto.arch.network",
   x: "https://x.com/ArchNtwrk",
-  discord: "https://discord.gg/archnetwork",
+  discord: "https://discord.gg/arch-community-1241112027963986001",
   youtube: "https://www.youtube.com/@ArchNtwrk",
   linkedin: "https://www.linkedin.com/company/archntwrk/",
 } as const;
