@@ -56,14 +56,16 @@ export default function Home() {
               Bitcoin Capital Markets Infrastructure
             </p>
           </div>
-          <a
+          {/* ponytail: parked — reusable hero CTA slot. Uncomment to restore
+              "Sign the Manifesto" (or repoint href/label for a future promo). */}
+          {/* <a
             href={EXTERNAL.manifesto}
             target="_blank"
             rel="noopener noreferrer"
             className="flex w-full min-w-40 items-center justify-center rounded-2xl bg-light p-[18px] text-center text-dark-purple transition-colors duration-400 hover:bg-dark-purple hover:text-light md:w-auto"
           >
             Sign the Manifesto
-          </a>
+          </a> */}
         </div>
       </header>
 

@@ -485,7 +485,8 @@ export default function Hero() {
 
       <div className="copyover">
         <div className="panel" data-i="0" style={{ top: `${activeSteps[0].ty}vh` }}>
-          <span className="chip"><i className="dot" />Testnet live · mainnet 2026</span>
+          {/* ponytail: pill parked, no spacer. Restore by uncommenting:
+          <span className="chip"><i className="dot" />Testnet live · mainnet 2026</span> */}
           <h1>
             <span className="h1-pre">The financial chain for</span>
             <span className="h1-serif">Native Bitcoin</span>

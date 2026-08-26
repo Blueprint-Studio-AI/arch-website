@@ -40,9 +40,17 @@ export const EXTERNAL = {
   linkedin: "https://www.linkedin.com/company/archntwrk/",
 } as const;
 
-export const NAV_LINKS = [
+export type NavLeaf = { label: string; href: string; external: boolean };
+// A nav entry is either a direct link or a labelled group that opens a dropdown.
+export type NavItem = NavLeaf | { label: string; children: readonly NavLeaf[] };
+
+export const NAV_LINKS: readonly NavItem[] = [
   { label: "Chain", href: "/chain", external: false },
-  { label: "Partners", href: "/ecosystem", external: false },
-  { label: "Blog", href: EXTERNAL.blog, external: true },
-  { label: "Documentation", href: EXTERNAL.docs, external: true },
-] as const;
+  {
+    label: "Resources",
+    children: [
+      { label: "Blog", href: EXTERNAL.blog, external: true },
+      { label: "Docs", href: EXTERNAL.docs, external: true },
+    ],
+  },
+];

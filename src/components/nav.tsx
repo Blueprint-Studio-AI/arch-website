@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArchLogo, XIcon } from "@/components/icons";
-import { NAV_LINKS, EXTERNAL } from "@/lib/site";
+import { NAV_LINKS, EXTERNAL, type NavLeaf } from "@/lib/site";
 
 const navIn = (i: number) => ({
   animation: `nav-in 0.6s ease-out ${0.15 + i * 0.12}s both`,
@@ -49,7 +49,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
   const darkText = !overDark && (dark || lightHero);
   const linkColor = darkText ? "text-black" : "text-white";
 
-  function NavLink({ link, onClick, big }: { link: (typeof NAV_LINKS)[number]; onClick?: () => void; big?: boolean }) {
+  function NavLink({ link, onClick, big }: { link: NavLeaf; onClick?: () => void; big?: boolean }) {
     const cls = `whitespace-nowrap ${big ? "text-[20px]" : "text-xs"} transition-colors duration-200 ${linkColor}`;
     return link.external ? (
       <a href={link.href} target="_blank" rel="noopener noreferrer" onClick={onClick} className={cls}>
@@ -64,6 +64,41 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
       >
         {link.label}
       </Link>
+    );
+  }
+
+  // Desktop-only dropdown for a labelled group (e.g. Resources → Blog, Docs).
+  // Pure hover/focus-within reveal; the white panel keeps dark text regardless
+  // of the nav's light/dark flip, so it stays legible over any section.
+  function NavDropdown({ item }: { item: { label: string; children: readonly NavLeaf[] } }) {
+    return (
+      <div className="group relative">
+        <button type="button" className={`relative inline-flex items-center whitespace-nowrap text-xs transition-colors duration-200 ${linkColor}`}>
+          {item.label}
+          {/* Chevron is absolute (left-full) so it adds no layout width — the
+              nav labels stay optically centered instead of being nudged left. */}
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="absolute left-full top-1/2 ml-1 -translate-y-1/2 opacity-70 transition-transform duration-200 group-hover:rotate-180">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+        {/* -left-3 + card p-1 + link px-2 = 12px, so item text aligns flush
+            under the trigger label. */}
+        <div className="invisible absolute -left-3 top-full pt-3 opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+          <div className="flex min-w-[120px] flex-col rounded-2xl bg-white p-1 shadow-[0_12px_40px_rgba(0,0,0,0.14)] ring-1 ring-black/5">
+            {item.children.map((c) => (
+              <a
+                key={c.label}
+                href={c.href}
+                target={c.external ? "_blank" : undefined}
+                rel={c.external ? "noopener noreferrer" : undefined}
+                className="rounded-xl px-2 py-2 text-xs text-black/75 transition-colors duration-150 hover:bg-black/[0.05] hover:text-black"
+              >
+                {c.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -82,7 +117,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 md:flex">
           {NAV_LINKS.map((link, i) => (
             <span key={link.label} style={navIn(i + 1)}>
-              <NavLink link={link} />
+              {"children" in link ? <NavDropdown item={link} /> : <NavLink link={link} />}
             </span>
           ))}
         </div>
@@ -127,7 +162,8 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
           menuOpen ? "translate-y-0" : "-translate-y-[120%]"
         }`}
       >
-        {NAV_LINKS.map((link) => (
+        {/* Mobile flattens the Resources group — Chain, Blog, Docs as one list. */}
+        {NAV_LINKS.flatMap((link) => ("children" in link ? link.children : [link])).map((link) => (
           <NavLink key={link.label} link={link} big onClick={() => setMenuOpen(false)} />
         ))}
         <a
