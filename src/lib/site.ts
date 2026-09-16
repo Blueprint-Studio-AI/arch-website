@@ -3,7 +3,7 @@ export const SITE = {
   url: "https://www.arch.network",
   ogImage: "/img/og.png",
   ogAlt: "Arch — Real Bitcoin. Finally Programmable.",
-  twitter: "@ArchNtwrk",
+  twitter: "@Arch",
   description:
     "Arch is Bitcoin-native financial market infrastructure enabling credit, derivatives, and capital markets.",
 } as const;
@@ -34,8 +34,10 @@ export const EXTERNAL = {
   book: "https://book.arch.network/docs",
   typeform: "https://form.typeform.com/to/YUZ7T5jy",
   manifesto: "https://manifesto.arch.network",
-  x: "https://x.com/ArchNtwrk",
-  discord: "https://discord.gg/arch-community-1241112027963986001",
+  x: "https://x.com/Arch",
+  // ponytail: Prime has no site yet; swap for the app URL when it ships
+  prime: "https://x.com/Arch_Prime",
+  discord: "https://discord.com/invite/arch",
   youtube: "https://www.youtube.com/@ArchNtwrk",
   linkedin: "https://www.linkedin.com/company/archntwrk/",
 } as const;

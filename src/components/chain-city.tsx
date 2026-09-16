@@ -38,7 +38,15 @@ const CITY_SM_MD:  CityCfg = { mode: "left", left: 15, bottom: -448, scale: 1.4 
 const CITY_MOBILE: CityCfg = { mode: "left",  left: -60, bottom: -436, scale: 1.2 };   // <640    · right-pinned
 // ──────────────────────────────────────────────────────────────────────────
 
-export function ChainCity() {
+// `override` merges onto whichever tier config is picked — lets a second host
+// (e.g. a smaller card) re-place the same city without new tier constants. The
+// builders CTA passes nothing, so its behaviour is unchanged.
+//
+// For mode "left", the left offset is `var(--city-left, <computed>)`, so a host
+// can make it respond to its OWN width with a CSS container query (see the home
+// 2T+ card) — card-width, not the viewport, so a wide tablet card and a narrow
+// small-desktop card place correctly even at overlapping viewport sizes.
+export function ChainCity({ override, layer = 4 }: { override?: Partial<CityCfg>; layer?: 1 | 2 | 3 | 4 } = {}) {
   const stageRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<IllustrationApi | null>(null);
   const [cfg, setCfg] = useState<CityCfg>(CITY_LARGE);
@@ -59,9 +67,14 @@ export function ChainCity() {
     if (!stage || apiRef.current) return;
     const api = createIllustration(stage);
     apiRef.current = api;
-    api.setState(4); // city = top layer
-    // city only: drop the (dimmed) layers beneath it
-    stage.querySelectorAll<HTMLElement>("#L1, #L2, #L3").forEach((l) => (l.style.display = "none"));
+    api.setState(layer); // 4 = finance city (default); 1 = base chains, etc.
+    // show only the chosen layer, drop the rest
+    ["L1", "L2", "L3", "L4"]
+      .filter((id) => id !== `L${layer}`)
+      .forEach((id) => {
+        const l = stage.querySelector<HTMLElement>(`#${id}`);
+        if (l) l.style.display = "none";
+      });
     // drop the tooltip marker dots — this is a decorative, non-interactive instance
     stage.querySelectorAll(".dots").forEach((d) => d.remove());
     return () => {
@@ -70,26 +83,30 @@ export function ChainCity() {
     };
   }, []);
 
+  // merge the caller's placement override onto the picked tier config
+  const c = override ? { ...cfg, ...override } : cfg;
+
   // anchor the city per its mode: left edge · right edge · or centered (with optional x nudge)
   const pos =
-    cfg.mode === "left"
+    c.mode === "left"
       ? {
-          left: `${cfg.left ?? 0}px`,
-          bottom: `${cfg.bottom}px`,
-          transform: `scale(${cfg.scale})`,
+          // host may override via --city-left (e.g. a container query)
+          left: `var(--city-left, ${c.left ?? 0}px)`,
+          bottom: `${c.bottom}px`,
+          transform: `scale(${c.scale})`,
           transformOrigin: "bottom left",
         }
-      : cfg.mode === "right"
+      : c.mode === "right"
         ? {
-            right: `${cfg.right ?? 0}px`,
-            bottom: `${cfg.bottom}px`,
-            transform: `scale(${cfg.scale})`,
+            right: `${c.right ?? 0}px`,
+            bottom: `${c.bottom}px`,
+            transform: `scale(${c.scale})`,
             transformOrigin: "bottom right",
           }
         : {
             left: "50%",
-            bottom: `${cfg.bottom}px`,
-            transform: `translateX(calc(-50% + ${cfg.x ?? 0}px)) scale(${cfg.scale})`,
+            bottom: `${c.bottom}px`,
+            transform: `translateX(calc(-50% + ${c.x ?? 0}px)) scale(${c.scale})`,
             transformOrigin: "bottom center",
           };
 

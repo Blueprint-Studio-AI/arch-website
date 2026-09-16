@@ -50,7 +50,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
   const linkColor = darkText ? "text-black" : "text-white";
 
   function NavLink({ link, onClick, big }: { link: NavLeaf; onClick?: () => void; big?: boolean }) {
-    const cls = `whitespace-nowrap ${big ? "text-[20px]" : "text-xs"} transition-colors duration-200 ${linkColor}`;
+    const cls = `whitespace-nowrap ${big ? "text-[20px]" : "text-sm"} transition-colors duration-200 ${linkColor}`;
     return link.external ? (
       <a href={link.href} target="_blank" rel="noopener noreferrer" onClick={onClick} className={cls}>
         {link.label}
@@ -73,7 +73,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
   function NavDropdown({ item }: { item: { label: string; children: readonly NavLeaf[] } }) {
     return (
       <div className="group relative">
-        <button type="button" className={`relative inline-flex items-center whitespace-nowrap text-xs transition-colors duration-200 ${linkColor}`}>
+        <button type="button" className={`relative inline-flex items-center whitespace-nowrap text-sm transition-colors duration-200 ${linkColor}`}>
           {item.label}
           {/* Chevron is absolute (left-full) so it adds no layout width — the
               nav labels stay optically centered instead of being nudged left. */}
@@ -91,7 +91,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
                 href={c.href}
                 target={c.external ? "_blank" : undefined}
                 rel={c.external ? "noopener noreferrer" : undefined}
-                className="rounded-xl px-2 py-2 text-xs text-black/75 transition-colors duration-150 hover:bg-black/[0.05] hover:text-black"
+                className="rounded-xl px-2 py-2 text-sm text-black/75 transition-colors duration-150 hover:bg-black/[0.05] hover:text-black"
               >
                 {c.label}
               </a>
@@ -136,7 +136,7 @@ export function Nav({ lightHero = false }: { lightHero?: boolean } = {}) {
             href={cta.href}
             target={cta.href.startsWith("http") ? "_blank" : undefined}
             rel={cta.href.startsWith("http") ? "noopener noreferrer" : undefined}
-            className={`rounded-xl border px-5 py-2 text-xs transition-colors duration-400 hover:border-dark-purple hover:bg-dark-purple hover:text-white ${
+            className={`rounded-xl border px-5 py-2 text-sm transition-colors duration-400 hover:border-dark-purple hover:bg-dark-purple hover:text-white ${
               darkText ? "border-black text-black" : "border-white text-white"
             }`}
           >

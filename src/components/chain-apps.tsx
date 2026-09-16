@@ -47,7 +47,7 @@ const APPS: App[] = [
     title: "Borrow without selling.",
     desc: "Draw a loan against native BTC — without a wrapped IOU.",
     liveName: "Arch Prime",
-    liveUrl: "https://www.arch.network/",
+    liveUrl: EXTERNAL.prime,
     docsUrl: "https://book.arch.network/docs/defi-applications/how-to-build-lending-protocol",
     code: `// borrow against pooled BTC collateral
 pub fn borrow(
@@ -112,7 +112,7 @@ pub fn deposit(
     title: "Swap against real liquidity.",
     desc: "Pooled, always-on liquidity at a tight, predictable spread.",
     liveName: "Arch Prime",
-    liveUrl: "https://www.arch.network/",
+    liveUrl: EXTERNAL.prime,
     docsUrl: "https://book.arch.network/docs/defi-applications/how-to-build-runes-swap",
     code: `// settle a runes swap on native Bitcoin
 pub fn process_accept_offer(

@@ -9,6 +9,10 @@ import { Faq } from "@/components/faq";
 import { SiteFooter } from "@/components/site-footer";
 import { ArchOverlay } from "@/components/arch-overlay";
 import { HOME_FAQS } from "@/data/home-faqs";
+// The 2T+ card renders a live illustration layer; chain.css carries its
+// (.chain-scope-namespaced) styles, which only load on /chain otherwise.
+import { ChainCity } from "@/components/chain-city";
+import "../chain/chain.css";
 
 const MARQUEE_LOGOS: MarqueeLogo[] = [
   { src: "/img/partners/tangent.svg", alt: "Tangent", width: 110 },
@@ -70,14 +74,22 @@ export default function Home() {
       </header>
 
       <main>
-        <section className="relative py-25">
+        <section className="relative pt-8 pb-25 md:pt-25">
           <div className="mx-auto grid w-[92%] max-w-(--container-site) gap-x-2.5 gap-y-10 lg:grid-cols-2">
-            <RevealClip className="relative w-full overflow-hidden rounded-[20px] md:aspect-square lg:min-w-[480px]">
-              <div className="grid h-full grid-rows-[260px_auto] md:grid-rows-[50%_auto]">
-                <div className="relative w-full overflow-hidden">
-                  <Image src="/img/hero-arch.avif" alt="" fill sizes="(max-width: 992px) 92vw, 640px" className="object-cover" />
+            {/* .city-bleed lets the illustration overflow its top-half box so its
+                front corner sits over the purple (clipped only by the rounded
+                card). It's also a container: when the CARD itself is narrow
+                (small-desktop / mobile — not wide tablet), a container query
+                shifts the city further left via --city-left. */}
+            <style>{`.city-bleed{container-type:inline-size}.city-bleed .cta-city{overflow:visible}@container (max-width:560px){.city-bleed .illo{--city-left:-110px}}`}</style>
+            {/* 2T+ card: the base-chain scene (illustration layer 1), live via
+                <ChainCity>, on a dark panel bleeding over the purple stat block. */}
+            <RevealClip className="relative w-full overflow-hidden rounded-[20px] order-2 lg:order-none lg:aspect-square lg:min-w-[480px]">
+              <div className="grid h-full grid-rows-[260px_auto] lg:grid-rows-[50%_auto]">
+                <div className="city-bleed relative z-10 w-full bg-[#2e2d33]">
+                  <ChainCity layer={1} override={{ scale: 1.0, bottom: -300, left: -30 }} />
                 </div>
-                <div className="relative flex min-h-[240px] flex-col items-start justify-center gap-1.5 overflow-hidden bg-purple p-[6%] text-light md:min-h-0 md:justify-end">
+                <div className="relative z-0 flex min-h-[240px] flex-col items-start justify-center gap-1.5 overflow-hidden bg-purple p-[6%] text-light md:min-h-0 md:justify-end">
                   <div className="flex items-center font-sans text-[clamp(42px,7vw,200px)] font-bold leading-[1.18]">
                     <CountUp end={2} duration={400} />
                     T+
@@ -89,22 +101,27 @@ export default function Home() {
               </div>
             </RevealClip>
 
-            <div className="mx-auto flex max-w-[420px] flex-col items-start justify-center gap-10 py-8">
-              <RevealWords
-                as="h2"
-                text={"Bitcoin should do more. Now it Can."}
-                className="font-serif text-[32px] font-normal leading-[1.18] lg:text-[36px]"
-              />
-              <RevealWords
-                as="p"
-                variant="text"
-                text={
-                  "Bitcoin is the world’s strongest store of value—but mostly can’t be used productively without giving up custody. Arch is Bitcoin-native financial rails so it can now have native credit, yield, and trading while staying anchored to Bitcoin’s settlement and core values."
-                }
-                className="text-[14px] leading-[150%] text-grey sm:text-[16px]"
-              />
+            {/* Tablet (md) reflows to a row: text block + button across, sitting
+                ABOVE the card (order-1). Mobile keeps it stacked (button below);
+                desktop (lg) restores the in-cell column. */}
+            <div className="flex max-w-[420px] flex-col items-start justify-center gap-10 py-8 order-1 md:max-w-none md:flex-row md:items-start md:justify-between md:gap-10 lg:order-none lg:mx-auto lg:max-w-[420px] lg:flex-col lg:items-start lg:justify-center">
+              <div className="flex flex-col items-start gap-10 md:max-w-[480px]">
+                <RevealWords
+                  as="h2"
+                  text={"Bitcoin should do more.\nNow it Can."}
+                  className="font-serif text-[32px] font-normal leading-[1.18] lg:text-[36px]"
+                />
+                <RevealWords
+                  as="p"
+                  variant="text"
+                  text={
+                    "Bitcoin is the world’s strongest store of value—but mostly can’t be used productively without giving up custody. Arch is Bitcoin-native financial rails so it can now have native credit, yield, and trading while staying anchored to Bitcoin’s settlement and core values."
+                  }
+                  className="text-[14px] leading-[150%] text-grey sm:text-[16px]"
+                />
+              </div>
               <Reveal>
-                <ArchButton href={EXTERNAL.typeform}>Join the Ecosystem</ArchButton>
+                <ArchButton href="/chain">How the Chain Works</ArchButton>
               </Reveal>
             </div>
           </div>

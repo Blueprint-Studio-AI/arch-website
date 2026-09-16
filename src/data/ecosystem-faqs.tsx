@@ -1,4 +1,5 @@
 import type { FaqEntry } from "@/components/faq";
+import { EXTERNAL } from "@/lib/site";
 
 export const ECOSYSTEM_FAQS: FaqEntry[] = [
   {
@@ -77,7 +78,7 @@ export const ECOSYSTEM_FAQS: FaqEntry[] = [
             <li>
               Join the{" "}
               <a
-                href="https://discord.gg/arch-community-1241112027963986001"
+                href={EXTERNAL.discord}
                 target="_blank"
                 rel="noopener noreferrer"
               >

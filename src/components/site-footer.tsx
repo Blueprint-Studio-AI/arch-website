@@ -52,6 +52,9 @@ export function SiteFooter({ variant = "home" }: { variant?: "home" | "ecosystem
         <a href={EXTERNAL.blog} target="_blank" rel="noopener noreferrer" className="text-xs hover:underline">
           See the Latest Arch News
         </a>
+        <a href={EXTERNAL.prime} target="_blank" rel="noopener noreferrer" className="text-xs hover:underline">
+          Arch Prime
+        </a>
         <div className="flex items-center gap-1.5">
           {SOCIALS.map((s) => (
             <a
