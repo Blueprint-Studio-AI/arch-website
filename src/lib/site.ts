@@ -48,6 +48,7 @@ export type NavItem = NavLeaf | { label: string; children: readonly NavLeaf[] };
 
 export const NAV_LINKS: readonly NavItem[] = [
   { label: "Chain", href: "/chain", external: false },
+  { label: "Prime", href: "/prime", external: false },
   {
     label: "Resources",
     children: [
